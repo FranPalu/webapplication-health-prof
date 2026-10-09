@@ -1,0 +1,4 @@
+import {z} from 'zod';
+import {runtimeEnv,database,reply} from '../../../../lib/server';
+import {verifyResend,updateDelivery} from '../../../../lib/webhooks';
+export async function POST(req:Request){const secret=runtimeEnv().RESEND_WEBHOOK_SECRET;if(!secret)return reply({error:'Webhook non configurato.'},503);if(Number(req.headers.get('content-length')||0)>65536)return reply({},413);const body=await req.text();if(body.length>65536)return reply({},413);if(!await verifyResend(body,req.headers,secret))return reply({error:'Firma non valida.'},401);try{const event=z.object({type:z.string(),data:z.object({email_id:z.string()})}).parse(JSON.parse(body));if(!['email.sent','email.delivered','email.bounced','email.failed','email.complained'].includes(event.type))return reply({ok:true});const known=await updateDelivery(database(),event.data.email_id,'Email',event.type.slice(6));return reply({ok:known},known?200:503);}catch{return reply({error:'Evento non elaborato.'},500)}}

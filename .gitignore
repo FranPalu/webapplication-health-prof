@@ -48,3 +48,8 @@ next-env.d.ts
 !.env.example
 
 *.tsbuildinfo
+
+# Local Cloudflare secrets
+.dev.vars
+.dev.vars.*
+!.dev.vars.example

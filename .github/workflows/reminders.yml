@@ -1,0 +1,40 @@
+name: Reminder appuntamenti
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: studio-reminders
+  cancel-in-progress: false
+jobs:
+  reminders:
+    if: vars.REMINDERS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Esegui reminder sul server dello studio
+        env:
+          STUDIO_URL: ${{ vars.STUDIO_URL }}
+          REMINDER_JOB_SECRET: ${{ secrets.REMINDER_JOB_SECRET }}
+        run: |
+          python3 - <<'PY'
+          import os, urllib.request, urllib.parse
+          base = os.environ['STUDIO_URL'].rstrip('/')
+          parsed = urllib.parse.urlparse(base)
+          if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+              raise SystemExit('STUDIO_URL deve essere un URL HTTPS valido.')
+          token = os.environ['REMINDER_JOB_SECRET']
+          if not token:
+              raise SystemExit('Configura REMINDER_JOB_SECRET nei secrets del repository.')
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *args):
+                  return None
+          request = urllib.request.Request(base + '/api/reminders/run', data=b'{}', method='POST', headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
+          try:
+              with urllib.request.build_opener(NoRedirect).open(request, timeout=240) as response:
+                  print('Esecuzione completata: HTTP', response.status)
+          except Exception:
+              raise SystemExit('Reminder non completati: controllare configurazione e registro studio.')
+          PY

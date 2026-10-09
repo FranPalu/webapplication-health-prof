@@ -74,3 +74,9 @@ La repository è pubblica, sulla branch `main`. La GitHub Action `Studio checks`
 - WhatsApp Cloud API: https://www.postman.com/meta/whatsapp-business-platform/documentation/wlk6lh4/whatsapp-cloud-api
 - Esempi ufficiali Meta: https://github.com/fbsamples/whatsapp-api-examples
 - Resend API: https://resend.com/docs/api-reference/emails/send-email
+
+## Aggiornamento: documenti e comunicazioni
+
+Template PDF coordinati per fatture e piani alimentari, contributo ENPAB 4% nelle nuove fatture, archiviazione/eliminazione pazienti, avvisi immediati sulle sovrapposizioni con suggerimenti di orari liberi. Email e WhatsApp dispongono di configurazione server, webhook firmati e scheduler predisposto (disattivato fino al collaudo).
+
+Leggi [la guida alla configurazione](docs/COMMUNICATIONS_SETUP.md) per credenziali, migrazione `0002`, webhook e attivazione dei reminder. Le credenziali reali non fanno parte del repository.
