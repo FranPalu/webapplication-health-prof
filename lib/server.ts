@@ -1,0 +1,10 @@
+import { env } from 'cloudflare:workers';
+import { getChatGPTUser } from '../app/chatgpt-auth';
+export const runtimeEnv=()=>env as Cloudflare.Env;
+export async function owner(request:Request){const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)throw new Error('FORBIDDEN');const u=await getChatGPTUser();if(!u)throw new Error('UNAUTHORIZED');return u.userId;}
+export function database(){if(!env.DB)throw new Error('DATABASE_NOT_CONFIGURED');return env.DB;}
+export async function readRecords(o:string,kind?:string){const d=database();const result=kind?await d.prepare('SELECT * FROM studio_records WHERE owner = ? AND kind = ?').bind(o,kind).all():await d.prepare('SELECT * FROM studio_records WHERE owner = ?').bind(o).all();return result.results as {id:string;owner:string;kind:string;payload:string;created_at:string}[];}
+export async function record(o:string,id:string,kind?:string){return (await readRecords(o,kind)).find(r=>r.id===id);}
+export async function save<T extends {id:string}>(o:string,kind:string,payload:T){const d=database(),now=new Date().toISOString();await d.batch([d.prepare('INSERT INTO studio_records (id, owner, kind, payload, created_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload WHERE studio_records.owner=excluded.owner AND studio_records.kind=excluded.kind').bind(payload.id,o,kind,JSON.stringify(payload),now),d.prepare('INSERT INTO studio_audit (id,owner,action,record_id,at) VALUES (?,?,?,?,?)').bind(crypto.randomUUID(),o,'save:'+kind,payload.id,now)]);}
+export const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+export function failure(e:unknown){const m=e instanceof Error?e.message:'Errore inatteso';return reply({error:m==='UNAUTHORIZED'?'Accedi per continuare.':m==='DATABASE_NOT_CONFIGURED'?'Il database dello studio non è ancora configurato.':m==='FORBIDDEN'?'Operazione non autorizzata.':m},m==='UNAUTHORIZED'?401:m==='FORBIDDEN'?403:m==='DATABASE_NOT_CONFIGURED'?503:400);}

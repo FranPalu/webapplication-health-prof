@@ -1,0 +1,18 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {cfChecksum,validateCf,validatePatient,appointmentError,emptyStudio,isoAppointment,nameCode} from '../lib/core';
+import {makePdf} from '../lib/pdf';
+import {demoStudio} from '../lib/demo';
+const code=(base:string)=>base+cfChecksum(base);
+test('codice fiscale: checksum, birth date, sex and birth place',()=>{const cf=code('RSSMRA90A01H501');assert.equal(validateCf(cf,'1990-01-01','M','H501'),'');assert.match(validateCf(cf,'1990-01-02'),/data di nascita/);assert.match(validateCf(cf,'1990-01-01','F'),/sesso/);assert.match(validateCf(cf,'1990-01-01','M','L049'),/catastale/);assert.match(validateCf(cf.slice(0,15)+(cf[15]==='A'?'B':'A'),'1990-01-01'),/controllo/)});
+test('omocodia works without removing original checksum',()=>{const cf=code('RSSMRA9LA01H50M');assert.equal(validateCf(cf,'1990-01-01','M','H501'),'')});
+test('female date and century ambiguity resolved by entered date',()=>{const cf=code('RSSMRA90A41H501');assert.equal(validateCf(cf,'1990-01-01','F'),'');assert.equal(validateCf(cf,'1890-01-01','F'),'');assert.match(validateCf(cf,'1991-01-01'),/data di nascita/)});
+test('invalid leap day rejected',()=>{assert.match(validateCf(code('RSSMRA90B29H501'),'1990-02-29','M'),/data di nascita/)});
+test('first name four consonants rule',()=>{assert.equal(nameCode('Gianfranco',true),'GFR');assert.equal(nameCode('Rossi'),'RSS')});
+test('patient invalid birth date rejected even without CF',()=>{const p=demoStudio().patients[0];assert.match(validatePatient({...p,birthDate:'2001-02-29'}),/Data di nascita/);assert.match(validatePatient({...p,email:'invalid'}),/email/)});
+const a={id:'a',patientId:'p',date:'2026-10-10',time:'14:00',duration:30,type:'Prima visita',status:'Confermato',mode:'In studio',note:'',reminderHours:24};
+test('overlaps blocked, adjacent slots allowed, cancelled slots ignored',()=>{assert.match(appointmentError({...a,id:'b',time:'14:20'},[a]),/sovrappone/);assert.equal(appointmentError({...a,id:'b',time:'14:30'},[a]),'');assert.equal(appointmentError({...a,id:'b'},[{...a,status:'Annullato'}]),'');assert.equal(appointmentError(a,[a]),'')});
+test('appointments cannot go past midnight',()=>{assert.match(appointmentError({...a,time:'23:45'},[]),/stessa giornata/)});
+test('Rome DST appointment conversion',()=>{assert.equal(isoAppointment({...a,date:'2026-07-01',time:'14:00'}).toISOString(),'2026-07-01T12:00:00.000Z');assert.equal(isoAppointment({...a,date:'2026-12-01',time:'14:00'}).toISOString(),'2026-12-01T13:00:00.000Z')});
+test('PDF has valid header, trailer and multiple pages',()=>{const pdf=new TextDecoder().decode(makePdf(Array.from({length:100},(_,i)=>'Riga '+i+' con più caratteri e €')));assert.ok(pdf.startsWith('%PDF-1.4'));assert.ok(pdf.endsWith('%%EOF'));assert.match(pdf,/\/Count 3/);const offset=Number(pdf.match(/startxref\n(\d+)/)![1]);assert.equal(pdf.slice(offset,offset+4),'xref')});
+test('demo only uses fictitious contacts and no real fiscal identifiers',()=>{const s=demoStudio();assert.ok(s.patients.every(p=>p.email.endsWith('.example')&&p.cf===''));assert.ok(s.invoices.every(i=>i.status==='Bozza'));assert.equal(emptyStudio().patients.length,0)});
