@@ -4,6 +4,27 @@ Web application in italiano per l’organizzazione di uno studio di nutrizione: 
 
 ## Stato del progetto
 
+### Evoluzione della piattaforma sanitaria — M0
+
+È stata documentata l'evoluzione verso Django/DRF e PostgreSQL, mantenendo il
+frontend React. Il nuovo backend **non è ancora implementato**; i comandi di
+avvio sotto riguardano il gestionale esistente. Docker Compose e `make dev`
+saranno introdotti in M1, dopo «GO M1».
+
+- [Audit della repository e risultati dei controlli](docs/00-repo-audit.md)
+- [Architettura target](docs/01-architecture.md)
+- [Roadmap M0–M9 e criteri di accettazione](docs/02-roadmap.md)
+- [Decisioni architetturali](docs/adr/README.md)
+- [Limitazioni note](docs/KNOWN_LIMITATIONS.md)
+- [Note normative preliminari](docs/compliance/regulatory-notes.md)
+- [Changelog](CHANGELOG.md)
+
+La baseline locale presenta errori lint e un runtime Node insufficiente per
+pnpm e i test reminder; l'audit riporta comandi ed esiti senza dichiarare la
+suite completamente superata.
+
+### Gestionale esistente
+
 Il sorgente è pubblicato nella repository GitHub pubblica [FranPalu/webapplication-health-prof](https://github.com/FranPalu/webapplication-health-prof). È una prima versione funzionale da revisionare; non è ancora configurata per l’uso clinico reale.
 
 ### Funzioni incluse
