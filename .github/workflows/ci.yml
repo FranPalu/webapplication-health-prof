@@ -1,10 +1,30 @@
-name: Studio checks
+name: Platform checks
 on: [push, pull_request]
 permissions:
   contents: read
 jobs:
-  test:
+  checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: health
+          POSTGRES_USER: health
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U health -d health"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: '5432'
+      POSTGRES_USER: health
+      POSTGRES_DB: health
+      DJANGO_DEBUG: 'true'
+      PUBLIC_ORIGIN: http://localhost:3000
+      EMAIL_BACKEND: django.core.mail.backends.filebased.EmailBackend
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -13,7 +33,47 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 11.25.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: python3 tests/database_test.py
+      - run: python -m venv .venv && .venv/bin/pip install -r backend/requirements.txt
+      - run: python scripts/dev-env.py
+      - run: .venv/bin/ruff check backend && .venv/bin/ruff format --check backend
+      - run: python scripts/backend.py ../.venv/bin/mypy config identity
+      - run: python scripts/backend.py ../.venv/bin/python manage.py makemigrations --check --dry-run
+      - run: python scripts/backend.py ../.venv/bin/pytest
+      - run: python scripts/backend.py ../.venv/bin/python manage.py migrate identity 0001 --noinput
+      - run: python scripts/backend.py ../.venv/bin/python manage.py migrate --noinput
+      - run: python scripts/backend.py ../.venv/bin/python manage.py spectacular --file openapi.yaml --validate --fail-on-warn
+      - run: pnpm api:types && git diff --exit-code -- backend/openapi.yaml lib/api/schema.d.ts
+      - run: pnpm lint && pnpm typecheck && pnpm test
+      - run: python tests/database_test.py
+      - run: pnpm build
+      - run: docker compose --env-file .env.dev config --quiet
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Browser integration
+        run: |
+          python scripts/backend.py ../.venv/bin/python manage.py runserver 127.0.0.1:8000 --noreload > /tmp/backend.log 2>&1 &
+          pnpm start > /tmp/frontend.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://localhost:3000/api/v1/auth/session/ > /dev/null; then break; fi
+            sleep 1
+          done
+          pnpm test:e2e
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make dev
+      - name: Container smoke test
+        run: |
+          for attempt in $(seq 1 120); do
+            if curl -fsS http://localhost:8080/api/v1/auth/session/ > /dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8080/health/
+          curl -fsS http://localhost:8080/api/v1/auth/session/
+          docker compose --env-file .env.dev run --rm backend pytest
+      - if: always()
+        run: docker compose --env-file .env.dev down

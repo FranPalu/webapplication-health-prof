@@ -1,0 +1,1214 @@
+openapi: 3.0.3
+info:
+  title: Health collaboration — M1
+  version: 1.0.0
+paths:
+  /api/v1/admin/verifications/:
+    get:
+      operationId: admin_verifications_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - admin
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVerificationOutputList'
+          description: ''
+  /api/v1/admin/verifications/{user_id}/:
+    post:
+      operationId: admin_verifications_create
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: auth_login_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutput'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusOutputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StatusOutputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StatusOutputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/mfa/confirm/:
+    post:
+      operationId: auth_mfa_confirm_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CodeInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CodeInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryOutput'
+          description: ''
+  /api/v1/auth/mfa/reset/:
+    post:
+      operationId: auth_mfa_reset_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/mfa/setup/:
+    post:
+      operationId: auth_mfa_setup_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MFASetupOutput'
+          description: ''
+  /api/v1/auth/mfa/verify/:
+    post:
+      operationId: auth_mfa_verify_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CodeInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CodeInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/profiles/:
+    post:
+      operationId: auth_profiles_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProfileInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfileInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/resend/:
+    post:
+      operationId: auth_resend_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/reset/:
+    post:
+      operationId: auth_reset_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/reset/request/:
+    post:
+      operationId: auth_reset_request_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/auth/session/:
+    get:
+      operationId: auth_session_retrieve
+      tags:
+      - auth
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutput'
+          description: ''
+  /api/v1/auth/verify/:
+    post:
+      operationId: auth_verify_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/organizations/:
+    get:
+      operationId: organizations_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrganizationList'
+          description: ''
+    post:
+      operationId: organizations_create
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+          description: ''
+  /api/v1/organizations/{org_id}/memberships/:
+    post:
+      operationId: organizations_memberships_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MembershipInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MembershipInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/organizations/{org_id}/patients/:
+    get:
+      operationId: organizations_patients_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPatientList'
+          description: ''
+    post:
+      operationId: organizations_patients_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatientRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatientRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+  /api/v1/organizations/{org_id}/patients/{patient_id}/:
+    get:
+      operationId: organizations_patients_retrieve
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+  /api/v1/organizations/{org_id}/patients/{patient_id}/link/:
+    post:
+      operationId: organizations_patients_link_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LinkInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LinkInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/organizations/{org_id}/patients/{patient_id}/relationships/:
+    post:
+      operationId: organizations_patients_relationships_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RelationshipInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RelationshipInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/patients/:
+    get:
+      operationId: patients_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - patients
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPatientList'
+          description: ''
+  /api/v1/patients/link/accept/:
+    post:
+      operationId: patients_link_accept_create
+      tags:
+      - patients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/professional/verification/:
+    post:
+      operationId: professional_verification_create
+      tags:
+      - professional
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerificationInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerificationInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+components:
+  schemas:
+    CodeInputRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 100
+      required:
+      - code
+    ConfirmPasswordInputRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+      required:
+      - password
+    EmailInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    KindEnum:
+      enum:
+      - hospital
+      - clinic
+      - practice
+      - pharmacy
+      - research
+      type: string
+      description: |-
+        * `hospital` - hospital
+        * `clinic` - clinic
+        * `practice` - practice
+        * `pharmacy` - pharmacy
+        * `research` - research
+    LinkInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    LoginInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+      required:
+      - email
+      - password
+    MFASetupOutput:
+      type: object
+      properties:
+        uri:
+          type: string
+      required:
+      - uri
+    MembershipInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        role:
+          $ref: '#/components/schemas/MembershipRoleEnum'
+        active:
+          type: boolean
+          default: true
+      required:
+      - email
+      - role
+    MembershipRoleEnum:
+      enum:
+      - admin
+      - professional
+      - researcher
+      type: string
+      description: |-
+        * `admin` - admin
+        * `professional` - professional
+        * `researcher` - researcher
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+      required:
+      - id
+      - kind
+      - name
+    OrganizationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+      required:
+      - kind
+      - name
+    PaginatedOrganizationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+    PaginatedPatientList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Patient'
+    PaginatedVerificationOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerificationOutput'
+    Patient:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        organization:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        birth_date:
+          type: string
+          format: date
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+      required:
+      - birth_date
+      - first_name
+      - id
+      - last_name
+      - organization
+    PatientRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        birth_date:
+          type: string
+          format: date
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+      required:
+      - birth_date
+      - first_name
+      - last_name
+    ProfileInputRequest:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/ProfileRoleEnum'
+      required:
+      - role
+    ProfileRoleEnum:
+      enum:
+      - patient
+      - professional
+      - researcher
+      - organization_admin
+      type: string
+      description: |-
+        * `patient` - patient
+        * `professional` - professional
+        * `researcher` - researcher
+        * `organization_admin` - organization_admin
+    RecoveryOutput:
+      type: object
+      properties:
+        recovery_codes:
+          type: array
+          items:
+            type: string
+      required:
+      - recovery_codes
+    RegisterInputLocaleEnum:
+      enum:
+      - it
+      - en
+      type: string
+      description: |-
+        * `it` - it
+        * `en` - en
+    RegisterInputRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+        role:
+          $ref: '#/components/schemas/ProfileRoleEnum'
+        locale:
+          allOf:
+          - $ref: '#/components/schemas/RegisterInputLocaleEnum'
+          default: it
+      required:
+      - email
+      - password
+      - role
+    RelationshipInputRequest:
+      type: object
+      properties:
+        professional:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+          default: true
+      required:
+      - professional
+    ResetInputRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 100
+        password:
+          type: string
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+      required:
+      - password
+      - token
+    ReviewInputRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ReviewInputStatusEnum'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - reason
+      - status
+    ReviewInputStatusEnum:
+      enum:
+      - approved
+      - rejected
+      type: string
+      description: |-
+        * `approved` - approved
+        * `rejected` - rejected
+    StatusOutput:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    StatusOutputRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          minLength: 1
+      required:
+      - status
+    TokenInputRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 100
+      required:
+      - token
+    UserOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          $ref: '#/components/schemas/UserOutputRoleEnum'
+        locale:
+          $ref: '#/components/schemas/UserOutputLocaleEnum'
+        email_verified:
+          type: boolean
+        requires_mfa:
+          type: boolean
+        mfa_enabled:
+          type: boolean
+        mfa_verified:
+          type: boolean
+          readOnly: true
+        verification_status:
+          type: string
+          readOnly: true
+        is_platform_admin:
+          type: boolean
+        profiles:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - email
+      - id
+      - is_platform_admin
+      - mfa_verified
+      - profiles
+      - requires_mfa
+      - role
+      - verification_status
+    UserOutputLocaleEnum:
+      enum:
+      - it
+      - en
+      type: string
+      description: |-
+        * `it` - Italiano
+        * `en` - English
+    UserOutputRoleEnum:
+      enum:
+      - patient
+      - professional
+      - researcher
+      - organization_admin
+      type: string
+      description: |-
+        * `patient` - Patient
+        * `professional` - Professional
+        * `researcher` - Researcher
+        * `organization_admin` - Organization admin
+    VerificationInputRequest:
+      type: object
+      properties:
+        register:
+          type: string
+          minLength: 1
+          maxLength: 200
+        license_number:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - license_number
+      - register
+    VerificationOutput:
+      type: object
+      properties:
+        user:
+          type: string
+          format: uuid
+        register:
+          type: string
+          maxLength: 200
+        license_number:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/VerificationOutputStatusEnum'
+        reason:
+          type: string
+          maxLength: 500
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - license_number
+      - register
+      - user
+    VerificationOutputStatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      type: string
+      description: |-
+        * `pending` - pending
+        * `approved` - approved
+        * `rejected` - rejected
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+      description: Server session. Mutating requests also require X-CSRFToken from
+        csrftoken cookie.

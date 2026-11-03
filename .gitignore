@@ -53,3 +53,19 @@ next-env.d.ts
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+# Django / local development
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+backend/staticfiles/
+playwright-report/
+test-results/
+legacy/node_modules/
+
+backend/.test-mail/

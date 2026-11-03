@@ -1,2 +1,2 @@
-import Studio from './Studio';
-export default function Page(){return <Studio/>}
+import IdentityPortal from './IdentityPortal';
+export default function Page() { return <IdentityPortal/>; }

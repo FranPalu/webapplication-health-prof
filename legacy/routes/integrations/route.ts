@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import {owner,readRecords,record,save,runtimeEnv,reply,failure,database} from '../../../lib/server';
+import {owner,record,save,runtimeEnv,reply,failure,database} from '../../../lib/server';
 import {providerReadiness,sendReminder} from '../../../lib/providers';
 import {reminderText,displayDate,tsEligibility} from '../../../lib/core';
 export async function GET(req:Request){try{await owner(req);const e=runtimeEnv(),state=providerReadiness(e);const heartbeat=await database().prepare("SELECT payload FROM studio_records WHERE id='system:reminder-heartbeat' AND owner='system' AND kind='job'").first<{payload:string}>();const lastRun=heartbeat?JSON.parse(heartbeat.payload).at:null;return reply({...state,scheduler:state.schedulerConfigured&&!!lastRun&&Date.now()-Date.parse(lastRun)<45*60000,lastRun,ts:false,patientPortal:false});}catch(e){return failure(e)}}

@@ -1,0 +1,16 @@
+Django>=5.2.8,<5.3
+djangorestframework
+drf-spectacular
+psycopg[binary]
+argon2-cffi
+cryptography
+pyotp
+celery[redis]
+gunicorn
+pytest
+pytest-django
+pytest-cov
+ruff
+mypy
+django-stubs
+djangorestframework-stubs

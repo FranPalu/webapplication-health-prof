@@ -1,0 +1,44 @@
+from django.db import transaction
+from django.http import JsonResponse
+from django.urls import path
+from drf_spectacular.views import SpectacularAPIView
+
+from identity import views
+from identity.security import Ready
+
+
+def endpoint(route, view):
+    return path("api/v1/" + route, transaction.non_atomic_requests(view.as_view()))
+
+
+urlpatterns = [
+    path("health/", lambda request: JsonResponse({"status": "ok"})),
+    path("api/v1/schema/", SpectacularAPIView.as_view(permission_classes=[Ready])),
+    endpoint("auth/session/", views.SessionView),
+    endpoint("auth/register/", views.RegisterView),
+    endpoint("auth/profiles/", views.ProfilesView),
+    endpoint("auth/verify/", views.VerifyView),
+    endpoint("auth/resend/", views.ResendView),
+    endpoint("auth/login/", views.LoginView),
+    endpoint("auth/logout/", views.LogoutView),
+    endpoint("auth/reset/request/", views.ResetRequestView),
+    endpoint("auth/reset/", views.ResetView),
+    endpoint("auth/mfa/setup/", views.MFASetupView),
+    endpoint("auth/mfa/confirm/", views.MFAConfirmView),
+    endpoint("auth/mfa/verify/", views.MFAVerifyView),
+    endpoint("auth/mfa/reset/", views.MFAResetView),
+    endpoint("organizations/", views.OrganizationsView),
+    endpoint("organizations/<uuid:org_id>/memberships/", views.MembershipView),
+    endpoint("professional/verification/", views.VerificationView),
+    endpoint("admin/verifications/", views.ReviewListView),
+    endpoint("admin/verifications/<uuid:user_id>/", views.ReviewView),
+    endpoint("organizations/<uuid:org_id>/patients/", views.PatientsView),
+    endpoint("organizations/<uuid:org_id>/patients/<uuid:patient_id>/", views.PatientView),
+    endpoint(
+        "organizations/<uuid:org_id>/patients/<uuid:patient_id>/relationships/",
+        views.RelationshipView,
+    ),
+    endpoint("organizations/<uuid:org_id>/patients/<uuid:patient_id>/link/", views.PatientLinkView),
+    endpoint("patients/link/accept/", views.AcceptLinkView),
+    endpoint("patients/", views.MyPatientsView),
+]
