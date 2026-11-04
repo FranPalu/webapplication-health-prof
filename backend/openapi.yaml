@@ -437,6 +437,150 @@ paths:
               schema:
                 $ref: '#/components/schemas/Patient'
           description: ''
+  /api/v1/clinical/documents/{document_id}/:
+    get:
+      operationId: clinical_documents_list
+      parameters:
+      - in: path
+        name: document_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVersionOutputList'
+          description: ''
+    post:
+      operationId: clinical_documents_create
+      parameters:
+      - in: path
+        name: document_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionOutput'
+          description: ''
+    delete:
+      operationId: clinical_documents_destroy
+      parameters:
+      - in: path
+        name: document_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/clinical/patients/{patient_id}/documents/:
+    get:
+      operationId: clinical_patients_documents_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVersionOutputList'
+          description: ''
+    post:
+      operationId: clinical_patients_documents_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionOutput'
+          description: ''
+  /api/v1/clinical/versions/{version_id}/download/:
+    get:
+      operationId: clinical_versions_download_retrieve
+      parameters:
+      - in: path
+        name: version_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/v1/consents/:
     get:
       operationId: consents_list
@@ -491,6 +635,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConsentTextOutput'
+          description: ''
+  /api/v1/fhir/DocumentReference/{resource_id}:
+    get:
+      operationId: fhir_DocumentReference_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/Patient/{resource_id}:
+    get:
+      operationId: fhir_Patient_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/metadata:
+    get:
+      operationId: fhir_metadata_retrieve
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
           description: ''
   /api/v1/notifications/:
     get:
@@ -1166,20 +1369,6 @@ components:
           minLength: 1
       required:
       - email
-    KindEnum:
-      enum:
-      - hospital
-      - clinic
-      - practice
-      - pharmacy
-      - research
-      type: string
-      description: |-
-        * `hospital` - hospital
-        * `clinic` - clinic
-        * `practice` - practice
-        * `pharmacy` - pharmacy
-        * `research` - research
     LinkInputRequest:
       type: object
       properties:
@@ -1277,11 +1466,25 @@ components:
           type: string
           maxLength: 200
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/OrganizationKindEnum'
       required:
       - id
       - kind
       - name
+    OrganizationKindEnum:
+      enum:
+      - hospital
+      - clinic
+      - practice
+      - pharmacy
+      - research
+      type: string
+      description: |-
+        * `hospital` - hospital
+        * `clinic` - clinic
+        * `practice` - practice
+        * `pharmacy` - pharmacy
+        * `research` - research
     OrganizationRequest:
       type: object
       properties:
@@ -1290,7 +1493,7 @@ components:
           minLength: 1
           maxLength: 200
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/OrganizationKindEnum'
       required:
       - kind
       - name
@@ -1386,6 +1589,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/VerificationOutput'
+    PaginatedVersionOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersionOutput'
     Patient:
       type: object
       properties:
@@ -1736,6 +1962,33 @@ components:
           maxLength: 100
       required:
       - token
+    UploadInputKindEnum:
+      enum:
+      - report
+      - nutrition
+      - psychology
+      - other
+      type: string
+      description: |-
+        * `report` - Referto
+        * `nutrition` - Piano alimentare
+        * `psychology` - Nota psicologica
+        * `other` - Altro
+    UploadInputRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        kind:
+          $ref: '#/components/schemas/UploadInputKindEnum'
+      required:
+      - file
+      - title
     UserOutput:
       type: object
       properties:
@@ -1848,6 +2101,42 @@ components:
         * `pending` - pending
         * `approved` - approved
         * `rejected` - rejected
+    VersionOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        document:
+          type: string
+          format: uuid
+        number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        title:
+          type: string
+          maxLength: 160
+        media_type:
+          type: string
+          maxLength: 40
+        size:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - document
+      - id
+      - media_type
+      - number
+      - size
+      - title
   securitySchemes:
     sessionAuth:
       type: apiKey

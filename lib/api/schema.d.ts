@@ -276,6 +276,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/documents/{document_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_documents_list"];
+        put?: never;
+        post: operations["clinical_documents_create"];
+        delete: operations["clinical_documents_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/patients/{patient_id}/documents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_patients_documents_list"];
+        put?: never;
+        post: operations["clinical_patients_documents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/versions/{version_id}/download/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_versions_download_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/consents/": {
         parameters: {
             query?: never;
@@ -300,6 +348,54 @@ export interface paths {
             cookie?: never;
         };
         get: operations["consents_texts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fhir/DocumentReference/{resource_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_DocumentReference_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fhir/Patient/{resource_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_Patient_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fhir/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_metadata_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -628,15 +724,6 @@ export interface components {
             /** Format: email */
             email: string;
         };
-        /**
-         * @description * `hospital` - hospital
-         *     * `clinic` - clinic
-         *     * `practice` - practice
-         *     * `pharmacy` - pharmacy
-         *     * `research` - research
-         * @enum {string}
-         */
-        KindEnum: "hospital" | "clinic" | "practice" | "pharmacy" | "research";
         LinkInputRequest: {
             /** Format: email */
             email: string;
@@ -682,11 +769,20 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             name: string;
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["OrganizationKindEnum"];
         };
+        /**
+         * @description * `hospital` - hospital
+         *     * `clinic` - clinic
+         *     * `practice` - practice
+         *     * `pharmacy` - pharmacy
+         *     * `research` - research
+         * @enum {string}
+         */
+        OrganizationKindEnum: "hospital" | "clinic" | "practice" | "pharmacy" | "research";
         OrganizationRequest: {
             name: string;
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["OrganizationKindEnum"];
         };
         PaginatedOrganizationList: {
             /** @example 123 */
@@ -747,6 +843,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["VerificationOutput"][];
+        };
+        PaginatedVersionOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["VersionOutput"][];
         };
         Patient: {
             /** Format: uuid */
@@ -891,6 +1002,20 @@ export interface components {
         TokenInputRequest: {
             token: string;
         };
+        /**
+         * @description * `report` - Referto
+         *     * `nutrition` - Piano alimentare
+         *     * `psychology` - Nota psicologica
+         *     * `other` - Altro
+         * @enum {string}
+         */
+        UploadInputKindEnum: "report" | "nutrition" | "psychology" | "other";
+        UploadInputRequest: {
+            /** Format: binary */
+            file: string;
+            title: string;
+            kind?: components["schemas"]["UploadInputKindEnum"];
+        };
         UserOutput: {
             /** Format: uuid */
             readonly id: string;
@@ -941,6 +1066,18 @@ export interface components {
          * @enum {string}
          */
         VerificationOutputStatusEnum: "pending" | "approved" | "rejected";
+        VersionOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            document: string;
+            number: number;
+            title: string;
+            media_type: string;
+            size: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -1364,6 +1501,145 @@ export interface operations {
             };
         };
     };
+    clinical_documents_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedVersionOutputList"];
+                };
+            };
+        };
+    };
+    clinical_documents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["UploadInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOutput"];
+                };
+            };
+        };
+    };
+    clinical_documents_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    clinical_patients_documents_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedVersionOutputList"];
+                };
+            };
+        };
+    };
+    clinical_patients_documents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["UploadInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOutput"];
+                };
+            };
+        };
+    };
+    clinical_versions_download_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+        };
+    };
     consents_list: {
         parameters: {
             query?: never;
@@ -1423,6 +1699,73 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsentTextOutput"];
+                };
+            };
+        };
+    };
+    fhir_DocumentReference_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    fhir_Patient_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    fhir_metadata_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

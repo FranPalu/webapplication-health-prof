@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-04 — M3 in corso
+
+- API per documenti clinici con scansione obbligatoria, cifratura per tenant, versioni e archiviazione.
+- Ricerca autorizzata per titolo e lettura FHIR R4 di Patient e DocumentReference.
+
 ## 2026-11-04 — Leggibilità e anagrafica
 
 - Codice Fiscale nella griglia principale; verifica catastale facoltativa espandibile.

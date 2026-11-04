@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView
 
-from identity import views
+from identity import clinical_views, views
 from identity.security import Ready
 
 
@@ -52,4 +52,13 @@ urlpatterns = [
     endpoint("patients/access-history/", views.AccessHistoryView),
     endpoint("break-glass/", views.BreakGlassView),
     endpoint("break-glass/patients/<uuid:patient_id>/", views.BreakGlassPatientView),
+]
+
+urlpatterns += [
+    endpoint("clinical/patients/<uuid:patient_id>/documents/", clinical_views.DocumentsView),
+    endpoint("clinical/documents/<uuid:document_id>/", clinical_views.DocumentView),
+    endpoint("clinical/versions/<uuid:version_id>/download/", clinical_views.DownloadView),
+    endpoint("fhir/Patient/<uuid:resource_id>", clinical_views.FhirPatientView),
+    endpoint("fhir/metadata", clinical_views.FhirMetadataView),
+    endpoint("fhir/DocumentReference/<uuid:resource_id>", clinical_views.FhirDocumentView),
 ]

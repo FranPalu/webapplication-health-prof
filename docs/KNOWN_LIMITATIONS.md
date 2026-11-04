@@ -11,16 +11,20 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
 ## Funzionalità e controlli mancanti
 
 - **M2:** grant attivi solo dopo consenso del paziente linkato; il registro si
-  limita alle anagrafiche. Testi seed da approvare legalmente. Il break-glass
+  limita alle anagrafiche. M3 aggiunge audit documentale lato API. Testi seed da approvare legalmente. Il break-glass
   richiede relazione professionale con la struttura del paziente e non dispone
   di revisione amministrativa successiva. Email e notifiche sono generiche.
   Hash-chain globale senza checkpoint esterno; un amministratore DB privilegiato
   può alterare anche trigger e testa. Messaggi soltanto testuali e senza cifratura
   applicativa. Vedere [specifica M2](03-sharing-consent.md).
-- **L05 / M3:** documenti clinici, cartelle gerarchiche e ricerca full-text non
-  implementati; i booleani legacy non sostituiscono il motore di condivisione.
-- **L06 / M3:** upload solo PDF, controllo firma iniziale; assenti antivirus,
-  cifratura applicativa per tenant, retention completa, ricerca e FHIR.
+- **L05 / M3 in corso:** API documentale e ricerca per titolo disponibili. Mancano
+  interfaccia portale, cartelle e grant per singolo documento, indice full-text e
+  import R2. Il profilo FHIR espone solo Patient e DocumentReference. Restano
+  aperti Organization, Practitioner, Consent, DiagnosticReport e Observation.
+- **L06 / M3 in corso:** binari cifrati nel database. Restano aperti object storage,
+  KMS e rotazione, retention con cancellazione controllata, restore e validazione
+  strutturale dei formati. L'upload richiede ClamAV esterno. La verifica con uno
+  scanner reale resta da completare. Vedere [documenti clinici](04-clinical-documents.md).
 - **L07 / M4:** nessun modello AI, provider, registry, golden set o processo di
   revisione. Scelta del modello e relativo uso clinico devono essere verificati
   nella milestone; non c'è alcuna capacità diagnostica disponibile.

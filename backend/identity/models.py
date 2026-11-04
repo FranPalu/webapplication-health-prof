@@ -310,3 +310,37 @@ class UserProfile(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["user", "role"], name="unique_user_profile")]
+
+
+class ClinicalDocument(models.Model):
+    class Kind(models.TextChoices):
+        REPORT = "report", "Referto"
+        NUTRITION = "nutrition", "Piano alimentare"
+        PSYCHOLOGY = "psychology", "Nota psicologica"
+        OTHER = "other", "Altro"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    kind = models.CharField(max_length=16, choices=Kind.choices)
+    deleted_at = models.DateTimeField(null=True)
+
+
+class ClinicalDocumentVersion(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.ForeignKey(
+        ClinicalDocument, on_delete=models.PROTECT, related_name="versions"
+    )
+    number = models.PositiveIntegerField()
+    title = models.CharField(max_length=160)
+    media_type = models.CharField(max_length=40)
+    size = models.PositiveIntegerField()
+    sha256 = models.CharField(max_length=64)
+    wrapped_key = models.BinaryField()
+    ciphertext = models.BinaryField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["document", "number"], name="clinical_document_version")
+        ]
