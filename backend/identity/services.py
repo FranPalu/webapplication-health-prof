@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.html import format_html
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from .models import (
@@ -38,7 +39,14 @@ def issue_token(user, purpose: str, context=None) -> str:
         if user.locale == "it"
         else f"Open this link to complete your request. Expires in 30 minutes.\n{link}"
     )
-    send_mail("Health — verifica / verification", body, settings.DEFAULT_FROM_EMAIL, [user.email])
+    label = "Apri il portale Clarìa" if user.locale == "it" else "Open the Clarìa portal"
+    send_mail(
+        "Clarìa — verifica / verification",
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        html_message=format_html('<p><a href="{}">{}</a></p>', link, label),
+    )
     return raw
 
 

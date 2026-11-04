@@ -1,4 +1,4 @@
-# Health Collaboration
+# Clarìa
 
 Web application in italiano per l’organizzazione di uno studio di nutrizione: agenda, schede pazienti, documenti PDF, bozze di fattura e comunicazioni. Interfaccia responsive, palette salvia e prugna.
 

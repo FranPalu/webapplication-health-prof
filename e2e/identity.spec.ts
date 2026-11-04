@@ -11,18 +11,21 @@ function totp(secret:string){
   const hash=createHmac('sha1',key).update(counter).digest(), offset=hash[19]&15;
   return String((hash.readUInt32BE(offset)&0x7fffffff)%1000000).padStart(6,'0');
 }
-async function emailToken(email:string){
+async function emailLink(email:string){
   let result='';
   await expect.poll(async()=>{
     if(process.env.MAILPIT_URL){
       const list=await (await fetch(process.env.MAILPIT_URL+'/api/v1/messages')).json() as {messages:{ID:string;To:{Address:string}[]}[]};
       const item=list.messages.find(m=>m.To.some(t=>t.Address===email));
-      if(item){const message=await (await fetch(process.env.MAILPIT_URL+'/api/v1/message/'+item.ID)).json() as {Text:string};result=message.Text.match(/#token=(\S+)/)?.[1]||'';}
+      if(item){
+        const message=await (await fetch(process.env.MAILPIT_URL+'/api/v1/message/'+item.ID)).json() as {HTML:string};
+        result=message.HTML.match(/href="(https?:\/\/[^"\s]+\?action=verify#token=[\w-]+)"/)?.[1]||'';
+      }
     }else{
       const directory=process.env.E2E_MAIL_DIR||'backend/.test-mail';
       for(const file of readdirSync(directory)){
         const body=readFileSync(join(directory,file),'utf8');
-        if(body.includes(`To: ${email}`)) result=body.match(/#token=([^\s]+)/)?.[1]||'';
+        if(body.includes(`To: ${email}`)) result=body.match(/https?:\/\/[^\s]+\?action=verify#token=[\w-]+/)?.[0]||'';
       }
     }
     return result;
@@ -37,7 +40,8 @@ test('registration, verified email, login and logout; legacy API unavailable',as
   await page.getByLabel('Nuova password').fill(password);
   await page.getByRole('button',{name:'Registrati',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Controlla');
-  await page.goto('/?action=verify#token='+await emailToken(email));
+  await page.goto(await emailLink(email));
+  await page.reload();
   await page.getByRole('button',{name:'Conferma',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('completata');
   await page.getByLabel('Email',{exact:true}).first().fill(email);
@@ -58,7 +62,7 @@ test('organization onboarding requires TOTP and creates a tenant',async({page})=
   await page.getByRole('combobox',{name:'Profilo',exact:true}).selectOption('organization_admin');
   await page.getByRole('button',{name:'Registrati',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Controlla');
-  await page.goto('/?action=verify#token='+await emailToken(email));
+  await page.goto(await emailLink(email));
   await page.getByRole('button',{name:'Conferma',exact:true}).click();
   await page.getByLabel('Email',{exact:true}).first().fill(email);
   await page.getByLabel('Password',{exact:true}).fill(password);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-04 — Clarìa
+
+- Identità Clarìa e palette condivisa dal portale e dal gestionale dimostrativo.
+- Verifica email con collegamento esplicito, recupero dopo ricaricamento e istruzioni per link scaduti.
+
 ## 2026-11-04 — Portale e anteprime
 
 - Nuova identità Health Collaboration, temi chiaro e scuro, anteprime per ruolo e indicazioni per la verifica email in Mailpit.

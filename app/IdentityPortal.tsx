@@ -109,8 +109,13 @@ export default function IdentityPortal() {
       if(current.is_platform_admin){const r=await api<Page<Review>>('admin/verifications/');setReviews(r.results);setReviewNext(r.next);}
     }
     const url=new URL(window.location.href);setAction(url.searchParams.get('action')||'');setToken(new URLSearchParams(url.hash.slice(1)).get('token')||'');
-    if(url.hash)window.history.replaceState({},'',url.pathname+url.search);
+
     }catch(e){setError(String(e));}finally{setLoading(false);}}void init();},[]);
+  useEffect(()=>{
+    const updateToken=()=>setToken(new URLSearchParams(window.location.hash.slice(1)).get('token')||'');
+    window.addEventListener('hashchange',updateToken);
+    return ()=>window.removeEventListener('hashchange',updateToken);
+  },[]);
   async function refresh() {
     const current=await session();
     if(!current || (current.requires_mfa&&!current.mfa_verified))return;
@@ -127,15 +132,38 @@ export default function IdentityPortal() {
   function card(title:string, children:ReactNode){return <section className="identity-card"><h2>{title}</h2>{children}</section>;}
   async function send(path:string,data:unknown){await api(path,data);setMessage(t.done);}
   if(loading)return <main className="identity"><p role="status">{t.loading}</p></main>;
-  return <main className="identity" lang={locale}><header className="identity-hero"><div><p className="identity-brand"><span aria-hidden="true">✚</span> Health Collaboration</p><h1>{t.title}</h1><p>{t.intro}</p></div><div className="identity-controls"><ThemePicker english={locale==='en'}/><label>Lingua / Language<select value={locale} onChange={e=>setLocale(e.target.value as 'it'|'en')}><option value="it">Italiano</option><option value="en">English</option></select></label></div></header>
+  return <main className="identity" lang={locale}><header className="identity-hero"><div><p className="identity-brand"><span aria-hidden="true">✚</span> Clarìa</p><h1>{t.title}</h1><p>{t.intro}</p></div><div className="identity-controls"><ThemePicker english={locale==='en'}/><label>Lingua / Language<select value={locale} onChange={e=>setLocale(e.target.value as 'it'|'en')}><option value="it">Italiano</option><option value="en">English</option></select></label></div></header>
     {localMail&&!user&&<aside className="identity-notice">
       <strong>{locale==='it'?'Email di prova':'Development email'}</strong>
       <p>{locale==='it'?'In locale, verifica e recupero password arrivano in Mailpit. Se hai già creato l’account, usa «Reinvia verifica».':'Local verification and password reset messages go to Mailpit. If you already registered, use “Resend verification”.'}</p>
       <a href="http://localhost:8025" target="_blank" rel="noreferrer">{locale==='it'?'Apri Mailpit':'Open Mailpit'} ↗</a>
     </aside>}{error&&<p role="alert" className="identity-error">{error}</p>}{message&&<p role="status">{message}</p>}
     <fieldset disabled={busy} className="identity-body">
-    {action&&card(t.confirm,<form onSubmit={form(async d=>{if(action==='verify')await send('auth/verify/',d);else if(action==='reset')await send('auth/reset/',d);else if(action==='link')await send('patients/link/accept/',d);setAction('');setToken('');await refresh();})}>
-      <Field label={t.token} name="token" value={token} onChange={setToken}/>{action==='reset'&&<Field label={t.newPassword} name="password" type="password"/>}<button>{action==='link'?t.accept:t.confirm}</button></form>)}
+    {(['verify','reset','link'].includes(action))&&card(
+      action==='verify'?(locale==='it'?'Verifica il tuo indirizzo email':'Verify your email address'):t.confirm,
+      <form onSubmit={form(async d=>{
+        const path=action==='verify'?'auth/verify/':action==='reset'?'auth/reset/':'patients/link/accept/';
+        try {
+          await send(path,{...d,token:token.trim()});
+        } catch(error) {
+          if(action==='verify'&&error instanceof Error&&error.message.includes('Invalid or expired token')){
+            throw new Error(locale==='it'
+              ? 'Questo link è scaduto o è già stato usato. Se non riesci ad accedere, usa «Reinvia verifica» e apri il messaggio più recente.'
+              : 'This link has expired or was already used. If you cannot sign in, request another verification email and open the newest message.');
+          }
+          throw error;
+        }
+        const url=new URL(window.location.href);
+        url.searchParams.delete('action');
+        url.hash='';
+        window.history.replaceState(null,'',url.pathname+url.search);
+        setAction('');setToken('');await refresh();
+      })}>
+        {action==='verify'&&<p>{locale==='it'?'Conferma per attivare il tuo account.':'Confirm to activate your account.'}</p>}
+        <Field label={t.token} name="token" type="password" value={token} onChange={setToken}/>
+        {action==='reset'&&<Field label={t.newPassword} name="password" type="password"/>}
+        <button>{action==='link'?t.accept:t.confirm}</button>
+      </form>)}
     {!user&&card(mode==='register'?t.register:mode==='login'?t.login:t.forgot,<><form onSubmit={form(async d=>{
       if(mode==='register'){await api('auth/register/',{...d,locale});setMessage(checkEmail);setMode('login');}
       else if(mode==='login'){await api('auth/login/',d);await refresh();}

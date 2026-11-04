@@ -10,7 +10,7 @@ const profiles = {
     title: 'Il mio percorso di cura',
     intro: 'Un posto per ritrovare chi ti segue e gestire i tuoi consensi.',
     cards: [
-      ['Équipe di cura', 'Centro Salute Aurora', 'Struttura dimostrativa collegata al tuo profilo.'],
+      ['Équipe di cura', 'Centro Clarìa', 'Struttura dimostrativa collegata al tuo profilo.'],
       ['Condivisioni', '1 richiesta in attesa', 'Una richiesta può essere autorizzata o revocata dal paziente.'],
       ['Storico accessi', 'Ultimo accesso ieri', 'Consulta gli accessi registrati alla tua anagrafica.'],
     ],
@@ -30,7 +30,7 @@ const profiles = {
     title: 'La mia organizzazione',
     intro: 'Gestisci i ruoli e le appartenenze della struttura.',
     cards: [
-      ['Organizzazione', 'Centro Salute Aurora', 'Esempio di organizzazione sanitaria.'],
+      ['Organizzazione', 'Centro Clarìa', 'Esempio di organizzazione sanitaria.'],
       ['Team', '8 membri', 'Amministratori e professionisti con ruoli distinti.'],
       ['Accesso di emergenza', 'Disattivato', 'La struttura parte con il break-glass disabilitato.'],
     ],
@@ -65,7 +65,7 @@ export default function DemoProfiles() {
     <main className="identity">
       <header className="identity-hero">
         <div>
-          <p className="identity-brand"><span aria-hidden="true">✚</span> Health Collaboration</p>
+          <p className="identity-brand"><span aria-hidden="true">✚</span> Clarìa</p>
           <h1>Esplora il portale</h1>
           <p>Scegli una prospettiva e scopri come cambia lo spazio di lavoro.</p>
         </div>

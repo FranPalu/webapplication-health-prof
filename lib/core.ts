@@ -5,7 +5,7 @@ export type Invoice={enpabRate?:number;enpabAmount?:number;issuer?:Settings;reci
 export type Message={id:string;patientId:string;appointmentId?:string;channel:string;body:string;status:string;date:string;providerId?:string};
 export type Settings={registerNumber?:string;taxCode?:string;iban?:string;fiscalNote?:string;name:string;qualification:string;vat:string;address:string;email:string;phone:string;reminderHours:number;invoicePrefix:string;invoiceNext:number;tsType:string};
 export type Studio={patients:Patient[];appointments:Appointment[];documents:DocumentRecord[];invoices:Invoice[];messages:Message[];settings:Settings};
-export const defaultSettings:Settings={name:'Centro Salute Aurora',qualification:'Nutrizionista · Laureata in Psicologia',vat:'',address:'',email:'',phone:'',reminderHours:24,invoicePrefix:'',invoiceNext:1,tsType:''};
+export const defaultSettings:Settings={name:'Centro Clarìa',qualification:'Nutrizionista · Laureata in Psicologia',vat:'',address:'',email:'',phone:'',reminderHours:24,invoicePrefix:'',invoiceNext:1,tsType:''};
 export const emptyStudio=():Studio=>({patients:[],appointments:[],documents:[],invoices:[],messages:[],settings:{...defaultSettings}});
 const odd=[1,0,5,7,9,13,15,17,19,21];
 const oddLetters=[1,0,5,7,9,13,15,17,19,21,2,4,18,20,11,3,6,8,12,14,16,10,22,25,24,23];

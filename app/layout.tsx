@@ -4,7 +4,7 @@ import './globals.css';
 import './identity.css';
 
 export const metadata: Metadata = {
-  title: 'Health Collaboration',
+  title: 'Clarìa',
   description: 'Spazio digitale per pazienti, professionisti e organizzazioni sanitarie.',
   icons: { icon: '/favicon.svg' },
 };

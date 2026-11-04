@@ -17,6 +17,9 @@ test('demo switches profiles and remembers the selected theme', async ({ page })
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.getByRole('link', {name: 'Apri la demo di agenda e gestionale'}).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByRole('link', {name: /Centro Clarìa/})).toBeVisible();
   await page.getByLabel('Aspetto').selectOption('light');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.setViewportSize({ width: 390, height: 844 });
