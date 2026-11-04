@@ -91,11 +91,10 @@ def share_recipient_queryset(user):
     org_ids = Membership.objects.filter(
         user=user, active=True, role__in=["professional", "admin"]
     ).values("organization_id")
+    recipient = Q(recipient_user=user, patient__account=user)
     if verified_professional(user):
-        return Share.objects.filter(
-            Q(recipient_user=user) | Q(recipient_organization_id__in=org_ids)
-        )
-    return Share.objects.none()
+        recipient |= Q(recipient_user=user) | Q(recipient_organization_id__in=org_ids)
+    return Share.objects.filter(recipient)
 
 
 def share_consent_granted(share) -> bool:
@@ -111,6 +110,7 @@ def share_consent_granted(share) -> bool:
 def share_is_active(share) -> bool:
     now = timezone.now()
     current = share
+    child = None
     while current is not None:
         if (
             current.revoked_at is not None
@@ -118,7 +118,14 @@ def share_is_active(share) -> bool:
             or not share_consent_granted(current)
         ):
             return False
-        current = current.parent
+        if (
+            child is not None
+            and PatientConsent.objects.filter(
+                share=current, decision="revoked", created_at__gte=child.created_at
+            ).exists()
+        ):
+            return False
+        child, current = current, current.parent
     return True
 
 

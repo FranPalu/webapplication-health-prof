@@ -47,7 +47,7 @@ def seed_consent_texts(apps, schema_editor):
         )
 
 
-def install_append_only_triggers(schema_editor):
+def install_append_only_triggers(apps, schema_editor):
     for sql in [
         "CREATE TRIGGER audit_append_only BEFORE UPDATE OR DELETE ON identity_auditevent FOR EACH ROW EXECUTE FUNCTION reject_audit_mutation()",
         "CREATE TRIGGER consent_event_append_only BEFORE UPDATE OR DELETE ON identity_patientconsent FOR EACH ROW EXECUTE FUNCTION reject_audit_mutation()",
@@ -57,7 +57,7 @@ def install_append_only_triggers(schema_editor):
         schema_editor.execute(sql)
 
 
-def remove_append_only_triggers(schema_editor):
+def remove_append_only_triggers(apps, schema_editor):
     for sql in [
         "DROP TRIGGER IF EXISTS consent_text_append_only ON identity_consenttextversion",
         "DROP TRIGGER IF EXISTS consent_event_append_only ON identity_patientconsent",

@@ -51,5 +51,5 @@ urlpatterns = [
     endpoint("notifications/", views.NotificationsView),
     endpoint("patients/access-history/", views.AccessHistoryView),
     endpoint("break-glass/", views.BreakGlassView),
-    endpoint("break-glass/patients/<uuid:patient_id>/", views.BreakGlassView),
+    endpoint("break-glass/patients/<uuid:patient_id>/", views.BreakGlassPatientView),
 ]

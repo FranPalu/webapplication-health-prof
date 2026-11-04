@@ -251,7 +251,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["break_glass_retrieve"];
+        get?: never;
         put?: never;
         post: operations["break_glass_create"];
         delete?: never;
@@ -269,7 +269,7 @@ export interface paths {
         };
         get: operations["break_glass_patients_retrieve"];
         put?: never;
-        post: operations["break_glass_patients_create"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1318,25 +1318,6 @@ export interface operations {
             };
         };
     };
-    break_glass_retrieve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Patient"];
-                };
-            };
-        };
-    };
     break_glass_create: {
         parameters: {
             query?: never;
@@ -1379,33 +1360,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Patient"];
-                };
-            };
-        };
-    };
-    break_glass_patients_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                patient_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BreakGlassInputRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["BreakGlassInputRequest"];
-                "multipart/form-data": components["schemas"]["BreakGlassInputRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BreakGlassOutput"];
                 };
             };
         };

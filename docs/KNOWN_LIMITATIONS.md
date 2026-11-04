@@ -1,12 +1,12 @@
 # Limitazioni note
 
-Aggiornato: 2026-11-04, M2 in verifica locale. La suite PostgreSQL richiede CI:
-PostgreSQL locale non risponde e Docker non è installato in questo ambiente.
+Aggiornato con la revisione pre-M3. La suite Django è stata eseguita su
+PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
 
 - SPID/CIE, OIDC e registri professionali restano contratti senza provider attivi.
 - La verifica degli iscritti è manuale. La demo legacy usa dati sintetici in memoria.
 - L’audit M1 impedisce aggiornamenti e cancellazioni ordinarie nel DB. La catena
-  di hash e i checkpoint esterni sono previsti in M2.
+  di hash è disponibile da M2. I checkpoint esterni restano aperti.
 
 ## Funzionalità e controlli mancanti
 

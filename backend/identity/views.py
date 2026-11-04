@@ -5,7 +5,7 @@ import pyotp
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -105,10 +105,6 @@ def notify_user_id(user_id, category, resource_id):
         transaction.on_commit(
             lambda: send_mail(subject, body, None, [user.email], fail_silently=True), robust=True
         )
-
-
-def notify_user(user, category, resource_id):
-    notify_user_id(user.pk, category, resource_id)
 
 
 class InputView(GenericAPIView):
@@ -578,7 +574,9 @@ class SharesView(InputView):
 
     @extend_schema(responses=ShareOutput(many=True))
     def get(self, request):
-        received = share_recipient_queryset(request.user)
+        received = share_recipient_queryset(request.user).filter(
+            Exists(PatientConsent.objects.filter(share_id=OuterRef("pk"), decision="granted"))
+        )
         qs = Share.objects.filter(
             Q(granted_by=request.user)
             | Q(patient__account=request.user)
@@ -623,6 +621,10 @@ class SharesView(InputView):
         else:
             recipient_org = get_object_or_404(Organization, pk=data["recipient_organization"])
         if parent:
+            if data["purpose"] != parent.purpose:
+                raise PermissionDenied("A re-share must preserve its purpose")
+            if parent.scope == "item" and data["scope"] != "item":
+                raise PermissionDenied("A re-share cannot expand its scope")
             if not set(data["permissions"]).issubset(parent.permissions):
                 raise PermissionDenied("A re-share cannot increase permissions")
             if parent.expires_at and (
@@ -640,16 +642,6 @@ class SharesView(InputView):
             expires_at=data.get("expires_at"),
             parent=parent,
         )
-        if recipient_user:
-            notify_user(recipient_user, "share.pending_consent", share.id)
-        elif recipient_org:
-            members = User.objects.filter(
-                membership__organization=recipient_org,
-                membership__active=True,
-                membership__role="professional",
-            ).distinct()
-            for member in members:
-                notify_user(member, "share.pending_consent", share.id)
         notify_user_id(patient.account_id, "share.pending_consent", share.id)
         audit(request.user, "share.created", share.id, patient.organization)
         return Response(ShareOutput(share, context=self.get_serializer_context()).data, status=201)
@@ -814,7 +806,7 @@ class ShareMessagesView(InputView):
         share = self.get_share(request, share_id)
         if "comment" not in share.permissions:
             raise PermissionDenied()
-        messages = SecureMessage.objects.filter(share=share).order_by("created_at")[:100]
+        messages = SecureMessage.objects.filter(share=share).order_by("-created_at", "-pk")[:100]
         audit(request.user, "share.messages_read", share.id, share.patient.organization)
         return Response(
             [
@@ -824,7 +816,7 @@ class ShareMessagesView(InputView):
                     "body": message.body,
                     "created_at": message.created_at,
                 }
-                for message in messages
+                for message in reversed(messages)
             ]
         )
 
@@ -849,6 +841,8 @@ class ShareMessagesView(InputView):
                 ).values_list("user_id", flat=True)
             )
         recipient_ids.add(share.granted_by_id)
+        if share.patient.account_id:
+            recipient_ids.add(share.patient.account_id)
         recipient_ids.discard(request.user.pk)
         for user_id in recipient_ids:
             notify_user_id(user_id, "share.message", share.id)
@@ -912,7 +906,11 @@ class BreakGlassView(InputView):
             raise PermissionDenied("Verified professional and a specific emergency reason required")
         patient = get_object_or_404(Patient, pk=data["patient"])
         membership = org_member(request.user, patient.organization)
-        if not membership or membership.role not in ("professional", "admin"):
+        if (
+            not membership
+            or membership.role not in ("professional", "admin")
+            or not membership.organization.break_glass_enabled
+        ):
             raise PermissionDenied()
         now = timezone.now()
         entry = BreakGlassAccess.objects.create(
@@ -928,6 +926,10 @@ class BreakGlassView(InputView):
         audit(request.user, "break_glass.started", patient.id, patient.organization)
         return Response({"id": entry.id, "expires_at": entry.expires_at}, status=201)
 
+
+class BreakGlassPatientView(InputView):
+    serializer_class = PatientSerializer
+
     @extend_schema(responses=PatientSerializer)
     def get(self, request, patient_id):
         entry = (
@@ -937,7 +939,14 @@ class BreakGlassView(InputView):
             .order_by("-created_at")
             .first()
         )
-        if not entry:
+        if not entry or not verified_professional(request.user):
+            raise PermissionDenied()
+        membership = org_member(request.user, entry.patient.organization)
+        if (
+            not membership
+            or membership.role not in ("professional", "admin")
+            or not membership.organization.break_glass_enabled
+        ):
             raise PermissionDenied()
         audit(
             request.user, "break_glass.patient_read", entry.patient_id, entry.patient.organization

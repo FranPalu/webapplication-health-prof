@@ -391,19 +391,6 @@ paths:
                 $ref: '#/components/schemas/StatusOutput'
           description: ''
   /api/v1/break-glass/:
-    get:
-      operationId: break_glass_retrieve
-      tags:
-      - break-glass
-      security:
-      - sessionAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Patient'
-          description: ''
     post:
       operationId: break_glass_create
       tags:
@@ -449,38 +436,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Patient'
-          description: ''
-    post:
-      operationId: break_glass_patients_create
-      parameters:
-      - in: path
-        name: patient_id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - break-glass
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BreakGlassInputRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/BreakGlassInputRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/BreakGlassInputRequest'
-        required: true
-      security:
-      - sessionAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BreakGlassOutput'
           description: ''
   /api/v1/consents/:
     get:

@@ -39,6 +39,11 @@ make dev
 docker compose --env-file .env.dev exec backend python manage.py verify_audit_chain
 ```
 
+Il break-glass è disattivato per impostazione predefinita. Un operatore abilita
+`Organization.break_glass_enabled` per la singola struttura tramite la shell
+Django dopo aver definito la procedura di emergenza. Le letture ricontrollano
+l’abilitazione, la verifica professionale e la membership in corso di validità.
+
 Il break-glass richiede professionista verificato, membership nella struttura,
 MFA della sessione, motivazione specifica e durata di 15 minuti. Le aperture e
 le letture sono auditate; il paziente collegato riceve una notifica generica.

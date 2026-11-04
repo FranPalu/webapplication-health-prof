@@ -8,9 +8,11 @@
   generiche, storico accessi e accesso break-glass limitato a 15 minuti.
 - Esteso l'audit append-only con hash-chain sequenziale e comando di verifica;
   documentati i limiti e le decisioni M2.
-- La suite PostgreSQL non è stata eseguita localmente: Docker non è installato
-  e l'avvio di PostgreSQL locale è impedito dai vincoli di shared memory del
-  sandbox. La CI PostgreSQL resta il gate prima del merge.
+- La revisione ha corretto la migrazione dei trigger append-only, limitato la
+  visibilità delle richieste prima del consenso e impedito la riattivazione delle
+  condivisioni derivate dopo una revoca del consenso a monte.
+- Il break-glass richiede abilitazione organizzativa e ricontrolla i permessi
+  a ogni lettura.
 
 ## 2026-11-04 — M1
 

@@ -89,6 +89,7 @@ class Organization(models.Model):
         max_length=20,
         choices=[(x, x) for x in ("hospital", "clinic", "practice", "pharmacy", "research")],
     )
+    break_glass_enabled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

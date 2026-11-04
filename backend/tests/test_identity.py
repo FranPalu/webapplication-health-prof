@@ -396,6 +396,8 @@ def test_share_requires_patient_consent_and_revocation_blocks_access_and_message
     assert created.status_code == 201, created.data
     share_id = created.data["id"]
     assert created.data["active"] is False
+    assert receiver.get("shares/").data["count"] == 0
+    assert receiver.get("notifications/").data == []
     assert receiver.get(f"shares/{share_id}/patient/").status_code == 403
 
     patient_browser = signed(patient_user)
@@ -463,17 +465,25 @@ def test_break_glass_is_mfa_gated_reasoned_and_audited():
     b = signed(professional)
     org = org_for(professional)
     p = patient(org)
+    reason = "Urgent emergency assessment while normal access is unavailable"
+    assert b.post("break-glass/", {"patient": str(p.id), "reason": reason}).status_code == 403
+    org.break_glass_enabled = True
+    org.save(update_fields=["break_glass_enabled"])
     rejected = b.post("break-glass/", {"patient": str(p.id), "reason": "emergency"})
     assert rejected.status_code == 403
     granted = b.post(
         "break-glass/",
         {
             "patient": str(p.id),
-            "reason": "Urgent emergency assessment while normal access is unavailable",
+            "reason": reason,
         },
     )
     assert granted.status_code == 201, granted.data
     assert b.get(f"break-glass/patients/{p.id}/").status_code == 200
+    assert b.get("break-glass/").status_code == 405
+    assert b.post(f"break-glass/patients/{p.id}/", {}).status_code == 405
+    Membership.objects.filter(organization=org, user=professional).update(active=False)
+    assert b.get(f"break-glass/patients/{p.id}/").status_code == 403
     assert AuditEvent.objects.filter(action="break_glass.started", resource_id=str(p.id)).exists()
 
 
@@ -567,7 +577,7 @@ def test_organization_recipient_expiry_and_child_share_cannot_outlive_revocation
             "recipient_user": str(final_user.id),
             "scope": "item",
             "permissions": ["view"],
-            "purpose": "Referred care",
+            "purpose": "Short access",
             "parent_share": str(share.id),
         },
     )
@@ -579,7 +589,7 @@ def test_organization_recipient_expiry_and_child_share_cannot_outlive_revocation
             "recipient_user": str(final_user.id),
             "scope": "item",
             "permissions": ["view", "download"],
-            "purpose": "Too broad",
+            "purpose": "Short access",
             "parent_share": str(share.id),
         },
     )
@@ -597,6 +607,21 @@ def test_organization_recipient_expiry_and_child_share_cannot_outlive_revocation
         == 200
     )
     assert final.get(f"shares/{child.data['id']}/patient/").status_code == 200
+    for decision in ("revoked", "granted"):
+        assert (
+            patient_browser.post(
+                "consents/",
+                {
+                    "share": share.id,
+                    "text_version": consent["version"],
+                    "locale": consent["locale"],
+                    "decision": decision,
+                },
+            ).status_code
+            == 200
+        )
+    assert middle.get(f"shares/{share.id}/patient/").status_code == 200
+    assert final.get(f"shares/{child.data['id']}/patient/").status_code == 403
     assert sender.post(f"shares/{share.id}/revoke/", {}).status_code == 200
     assert final.get(f"shares/{child.data['id']}/patient/").status_code == 403
 
