@@ -69,3 +69,7 @@ test-results/
 legacy/node_modules/
 
 backend/.test-mail/
+
+# Local M4 weights and research fixtures
+.analysis-models/
+.analysis-fixtures/

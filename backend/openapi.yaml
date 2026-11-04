@@ -437,6 +437,62 @@ paths:
               schema:
                 $ref: '#/components/schemas/Patient'
           description: ''
+  /api/v1/clinical/analysis/{job_id}/:
+    get:
+      operationId: clinical_analysis_retrieve
+      parameters:
+      - in: path
+        name: job_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/clinical/analysis/{job_id}/review/:
+    post:
+      operationId: clinical_analysis_review_create
+      parameters:
+      - in: path
+        name: job_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisReviewInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AnalysisReviewInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AnalysisReviewInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/clinical/documents/{document_id}/:
     get:
       operationId: clinical_documents_list
@@ -495,6 +551,23 @@ paths:
       parameters:
       - in: path
         name: document_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/clinical/opinions/{opinion_id}/publish/:
+    post:
+      operationId: clinical_opinions_publish_create
+      parameters:
+      - in: path
+        name: opinion_id
         schema:
           type: string
           format: uuid
@@ -618,6 +691,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/FolderOutput'
           description: ''
+  /api/v1/clinical/patients/{patient_id}/opinions/:
+    get:
+      operationId: clinical_patients_opinions_retrieve
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/clinical/patients/{patient_id}/reports/:
     post:
       operationId: clinical_patients_reports_create
@@ -651,6 +746,53 @@ paths:
               schema:
                 type: object
                 additionalProperties: {}
+          description: ''
+  /api/v1/clinical/versions/{version_id}/analysis/:
+    get:
+      operationId: clinical_versions_analysis_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: version_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobOutputList'
+          description: ''
+    post:
+      operationId: clinical_versions_analysis_create
+      parameters:
+      - in: path
+        name: version_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobOutput'
           description: ''
   /api/v1/clinical/versions/{version_id}/download/:
     get:
@@ -980,6 +1122,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Organization'
+          description: ''
+  /api/v1/organizations/{org_id}/analysis/metrics/:
+    get:
+      operationId: organizations_analysis_metrics_retrieve
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
           description: ''
   /api/v1/organizations/{org_id}/memberships/:
     post:
@@ -1461,6 +1625,31 @@ components:
       - action
       - actor
       - at
+    AnalysisDecisionEnum:
+      enum:
+      - accept
+      - modify
+      - reject
+      type: string
+      description: |-
+        * `accept` - accept
+        * `modify` - modify
+        * `reject` - reject
+    AnalysisReviewInputRequest:
+      type: object
+      properties:
+        decision:
+          $ref: '#/components/schemas/AnalysisDecisionEnum'
+        text:
+          type: string
+          minLength: 1
+          maxLength: 8000
+        confirmed:
+          type: boolean
+          default: false
+      required:
+      - decision
+      - text
     BreakGlassInputRequest:
       type: object
       properties:
@@ -1622,6 +1811,31 @@ components:
       required:
       - id
       - title
+    JobOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        state:
+          type: string
+          maxLength: 16
+        pipeline:
+          type: string
+          maxLength: 64
+        input_hash:
+          type: string
+          maxLength: 64
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - input_hash
+      - pipeline
     LinkInputRequest:
       type: object
       properties:
@@ -1797,6 +2011,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FolderOutput'
+    PaginatedJobOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobOutput'
     PaginatedOrganizationList:
       type: object
       required:
@@ -2494,12 +2731,16 @@ components:
         can_share:
           type: boolean
           readOnly: true
+        can_analyze:
+          type: boolean
+          readOnly: true
         folder:
           type: string
           format: uuid
           readOnly: true
           nullable: true
       required:
+      - can_analyze
       - can_download
       - can_edit
       - can_share

@@ -103,3 +103,5 @@ Template PDF coordinati per fatture e piani alimentari, contributo ENPAB 4% nell
 Leggi [la guida alla configurazione](docs/COMMUNICATIONS_SETUP.md) per credenziali, migrazione `0002`, webhook e attivazione dei reminder. Le credenziali reali non fanno parte del repository.
 
 I documenti clinici M3 sono disponibili nel portale autenticato sotto **Anagrafiche autorizzate → Documenti clinici**. Per storage, conservazione, FHIR e test, vedere la [guida M3](docs/04-clinical-documents.md).
+
+Per attivare il collaudo locale di M4 con dati sintetici, vedere la [guida all’analisi supervisionata](docs/05-supervised-analysis.md).

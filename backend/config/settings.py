@@ -100,6 +100,8 @@ SPECTACULAR_SETTINGS = {
         "ProfileRoleEnum": ["patient", "professional", "researcher", "organization_admin"],
         "MembershipRoleEnum": ["admin", "professional", "researcher"],
         "LocaleEnum": ["it", "en"],
+        "DecisionEnum": ["granted", "revoked"],
+        "AnalysisDecisionEnum": ["accept", "modify", "reject"],
     },
 }
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
@@ -116,4 +118,14 @@ CELERY_BEAT_SCHEDULE = {
         "task": "identity.tasks.reconcile_clinical_storage",
         "schedule": 60.0,
     },
+}
+
+CLINICAL_ANALYSIS_ENABLED = os.getenv("CLINICAL_ANALYSIS_ENABLED", "") == "1"
+CELERY_TASK_ROUTES = {
+    "identity.tasks.run_clinical_analysis": {"queue": "clinical-analysis"},
+    "identity.tasks.reconcile_analysis_jobs": {"queue": "clinical-analysis"},
+}
+CELERY_BEAT_SCHEDULE["clinical-analysis-reconciliation"] = {
+    "task": "identity.tasks.reconcile_analysis_jobs",
+    "schedule": 15.0,
 }

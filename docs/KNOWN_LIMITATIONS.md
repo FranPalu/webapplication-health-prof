@@ -25,9 +25,12 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
   richiedono credenziali e configurazione esterne. La retention richiede una policy
   per tenant. DICOM è verificato a livello di metadati. Vedere
   [documenti clinici](04-clinical-documents.md).
-- **L07 / M4:** nessun modello AI, provider, registry, golden set o processo di
-  revisione. Scelta del modello e relativo uso clinico devono essere verificati
-  nella milestone; non c'è alcuna capacità diagnostica disponibile.
+- **L07 / M4:** workflow referti attivabile solo in DEBUG per il collaudo.
+  Imaging limitato a fixture autorizzate nel container disconnesso. Analiti,
+  impaginazioni e confronto degli intervalli limitati alle forme supportate.
+  L'attestazione è interna. Restano da validare sul campo la pipeline, i termini
+  dei pesi imaging, la retention delle copie derivate e il rilascio clinico.
+  Vedere [guida M4](05-supervised-analysis.md).
 - **L08 / M5:** Stripe/Connect, SDI e rimborsi assenti. Fatture legacy richiedono
   configurazione fiscale verificata; ENPAB non è una regola per tutte le professioni.
 - **L09 / M6:** portale paziente è un'anteprima interna; mancano prenotazione

@@ -113,3 +113,61 @@ test('professional uploads, searches, downloads and archives a clinical document
   await page.getByRole('button', {name:'Archivia documento'}).click();
   await expect(page.getByText('Nessun documento trovato.')).toBeVisible();
 });
+
+test('professional reviews a local analysis and publishes only the final opinion', async ({page, browser}) => {
+  const fixture = process.env.E2E_CLINICAL_FIXTURE;
+  test.skip(process.env.E2E_ANALYSIS !== '1' || !fixture, 'Requires an enabled local analysis worker.');
+  const account = JSON.parse(readFileSync(fixture!, 'utf8')) as {
+    email:string; password:string; patient_email:string; patient_password:string; patient:string;
+  };
+  await page.goto('/');
+  await page.getByLabel('Email', {exact:true}).first().fill(account.email);
+  await page.getByLabel('Password', {exact:true}).fill(account.password);
+  await page.getByRole('button', {name:'Accedi',exact:true}).click();
+  await expect(page.getByRole('button', {name:'Configura autenticatore'})).toBeVisible();
+  await page.getByLabel('Password', {exact:true}).fill(account.password);
+  await page.getByRole('button', {name:'Configura autenticatore'}).click();
+  await page.getByLabel('Codice TOTP o di recupero').fill(totp(await page.locator('.identity-secret').innerText()));
+  await page.getByRole('button', {name:'Conferma',exact:true}).click();
+  await page.getByText('Documenti clinici', {exact:true}).click();
+  await page.getByLabel('Titolo del documento').fill('Referto sintetico M4');
+  await page.getByLabel('Categoria').selectOption('report');
+  await page.getByLabel('File (massimo 10 MiB)').setInputFiles({
+    name:'lab.pdf',mimeType:'application/pdf',buffer:Buffer.from(makePdf(['Glucosio 110 mg/dL 60-100'])),
+  });
+  await page.getByRole('button', {name:'Carica documento',exact:true}).click();
+  await page.getByRole('button', {name:/Referto sintetico M4/}).click();
+  await page.getByText('Analisi preliminare', {exact:true}).click();
+  const created = page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith('/analysis/'));
+  await page.getByRole('button', {name:'Avvia analisi del referto'}).click();
+  const job = await (await created).json() as {id:string};
+  await expect(async () => {
+    await page.getByRole('button', {name:'Aggiorna analisi'}).click();
+    await expect(page.getByText('Sopra intervallo', {exact:false})).toBeVisible({timeout:1000});
+  }).toPass({timeout:45000, intervals:[1500,3000]});
+  await page.getByLabel('Decisione').selectOption('modify');
+  const text = 'Parere sintetico verificato per il collaudo.';
+  await page.getByLabel('Parere finale').fill(text);
+  await page.getByLabel('Ho verificato il referto e attesto il testo finale').check();
+  await page.getByRole('button', {name:'Registra revisione'}).click();
+
+  const patient = await browser.newPage();
+  try {
+    await patient.goto('/');
+    await patient.getByLabel('Email', {exact:true}).first().fill(account.patient_email);
+    await patient.getByLabel('Password', {exact:true}).fill(account.patient_password);
+    await patient.getByRole('button', {name:'Accedi',exact:true}).click();
+    await patient.getByText('Pareri professionali pubblicati', {exact:true}).click();
+    await expect(patient.getByText('Nessun parere pubblicato.')).toBeVisible();
+    expect((await patient.request.get('/api/v1/clinical/analysis/' + job.id + '/')).status()).toBe(403);
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('button', {name:'Pubblica il parere al paziente'}).click();
+    await expect(page.getByText('Parere pubblicato', {exact:true})).toBeVisible();
+    await patient.getByText('Pareri professionali pubblicati', {exact:true}).click();
+    await patient.getByText('Pareri professionali pubblicati', {exact:true}).click();
+    await expect(patient.getByText(text, {exact:true})).toBeVisible();
+    await expect(patient.getByText('Analisi automatica preliminare', {exact:false})).toHaveCount(0);
+  } finally {
+    await patient.close();
+  }
+});

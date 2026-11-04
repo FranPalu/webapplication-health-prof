@@ -78,3 +78,13 @@ Limite della verifica M0: gli URL EUR-Lex sono riferimenti normativi ufficiali;
 il tentativo di lettura del 2026-11-03 ha incontrato una verifica anti-bot.
 Non è stata completata una verifica articolo per articolo o del testo consolidato;
 va ripetuta nella revisione legale prima del rilascio.
+
+
+### Evidenze tecniche M4
+
+Il collaudo locale separa bozze automatiche, revisione e pareri attestati.
+I pazienti ricevono solo il parere pubblicato. Imaging confinato a fixture
+autorizzate. La pipeline non invia dati a provider esterni. Prima di un rilascio
+su dati reali occorre documentare uso previsto, valutazione clinica, DPIA,
+retention di bozze e copie derivate, verifica delle licenze e applicabilità di
+MDR e AI Act. La firma interna attesta il testo nell'applicazione.

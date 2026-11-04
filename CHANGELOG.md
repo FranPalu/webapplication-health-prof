@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-04 — M4 analisi preliminare supervisionata
+
+- Analisi locale di referti con OCR, regole decimali, Qwen e provenienza cifrata.
+- Revisione con MFA, parere attestato immutabile e pubblicazione separata al paziente.
+- Profilo imaging isolato e collaudi con fixture sintetiche.
+
 ## 2026-11-04 — M3 documenti clinici e interoperabilità
 
 - Portale documentale con cartelle, versioni, ricerca per titolo o testo PDF, condivisione e consenso v2.

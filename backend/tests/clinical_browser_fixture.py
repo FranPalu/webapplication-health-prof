@@ -31,11 +31,29 @@ with transaction.atomic():
     )
     organization = Organization.objects.create(name="Studio sintetico M3 E2E", kind="clinic")
     Membership.objects.create(organization=organization, user=professional, role="professional")
+    patient_password = secrets.token_urlsafe(32)
+    account = User.objects.create_user(
+        f"m4-browser-{uuid.uuid4()}@patients.example",
+        patient_password,
+        role="patient",
+        email_verified=True,
+    )
     record = Patient.objects.create(
+        account=account,
         organization=organization,
         first_name="E2E",
         last_name="Sintetico",
         birth_date=date(1990, 1, 1),
     )
     CareRelationship.objects.create(patient=record, professional=professional)
-print(json.dumps({"email": email, "password": password}))
+print(
+    json.dumps(
+        {
+            "email": email,
+            "password": password,
+            "patient_email": account.email,
+            "patient_password": patient_password,
+            "patient": str(record.pk),
+        }
+    )
+)

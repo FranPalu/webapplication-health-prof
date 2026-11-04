@@ -276,6 +276,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/analysis/{job_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_analysis_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/analysis/{job_id}/review/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_analysis_review_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/documents/{document_id}/": {
         parameters: {
             query?: never;
@@ -287,6 +319,22 @@ export interface paths {
         put?: never;
         post: operations["clinical_documents_create"];
         delete: operations["clinical_documents_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/opinions/{opinion_id}/publish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_opinions_publish_create"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -324,6 +372,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/patients/{patient_id}/opinions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_patients_opinions_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/patients/{patient_id}/reports/": {
         parameters: {
             query?: never;
@@ -334,6 +398,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_patients_reports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/versions/{version_id}/analysis/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_versions_analysis_list"];
+        put?: never;
+        post: operations["clinical_versions_analysis_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -542,6 +622,22 @@ export interface paths {
         get: operations["organizations_list"];
         put?: never;
         post: operations["organizations_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{org_id}/analysis/metrics/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_analysis_metrics_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -783,6 +879,19 @@ export interface components {
             /** Format: date-time */
             at: string;
         };
+        /**
+         * @description * `accept` - accept
+         *     * `modify` - modify
+         *     * `reject` - reject
+         * @enum {string}
+         */
+        AnalysisDecisionEnum: "accept" | "modify" | "reject";
+        AnalysisReviewInputRequest: {
+            decision: components["schemas"]["AnalysisDecisionEnum"];
+            text: string;
+            /** @default false */
+            confirmed: boolean;
+        };
         BreakGlassInputRequest: {
             /** Format: uuid */
             patient: string;
@@ -847,6 +956,15 @@ export interface components {
             title: string;
             /** Format: uuid */
             parent?: string | null;
+        };
+        JobOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            state?: string;
+            pipeline: string;
+            input_hash: string;
+            /** Format: date-time */
+            readonly created_at: string;
         };
         LinkInputRequest: {
             /** Format: email */
@@ -929,6 +1047,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["FolderOutput"][];
+        };
+        PaginatedJobOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["JobOutput"][];
         };
         PaginatedOrganizationList: {
             /** @example 123 */
@@ -1247,6 +1380,7 @@ export interface components {
             readonly can_download: boolean;
             readonly can_edit: boolean;
             readonly can_share: boolean;
+            readonly can_analyze: boolean;
             /** Format: uuid */
             readonly folder: string | null;
         };
@@ -1673,6 +1807,58 @@ export interface operations {
             };
         };
     };
+    clinical_analysis_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    clinical_analysis_review_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisReviewInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AnalysisReviewInputRequest"];
+                "multipart/form-data": components["schemas"]["AnalysisReviewInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     clinical_documents_list: {
         parameters: {
             query?: {
@@ -1728,6 +1914,26 @@ export interface operations {
             header?: never;
             path: {
                 document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    clinical_opinions_publish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opinion_id: string;
             };
             cookie?: never;
         };
@@ -1842,6 +2048,29 @@ export interface operations {
             };
         };
     };
+    clinical_patients_opinions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     clinical_patients_reports_create: {
         parameters: {
             query?: never;
@@ -1867,6 +2096,51 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    clinical_versions_analysis_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedJobOutputList"];
+                };
+            };
+        };
+    };
+    clinical_versions_analysis_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOutput"];
                 };
             };
         };
@@ -2205,6 +2479,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Organization"];
+                };
+            };
+        };
+    };
+    organizations_analysis_metrics_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

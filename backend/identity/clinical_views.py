@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q, Subquery
+from django.db.models import Exists, OuterRef, Q, Subquery, Value
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -10,7 +10,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from identity import clinical, clinical_storage
+from identity import analysis, clinical, clinical_storage
 from identity.clinical_formats import validated_text
 from identity.models import ClinicalDocument, ClinicalDocumentVersion, ClinicalFolder
 from identity.security import audit, rate_limit
@@ -29,6 +29,7 @@ class VersionOutput(serializers.ModelSerializer):
     can_download = serializers.BooleanField(read_only=True)
     can_edit = serializers.BooleanField(read_only=True)
     can_share = serializers.BooleanField(read_only=True)
+    can_analyze = serializers.BooleanField(read_only=True)
     folder = serializers.UUIDField(source="document.folder_id", read_only=True, allow_null=True)
 
     class Meta:
@@ -44,6 +45,7 @@ class VersionOutput(serializers.ModelSerializer):
             "can_download",
             "can_edit",
             "can_share",
+            "can_analyze",
             "folder",
         )
 
@@ -55,7 +57,18 @@ def metadata():
 
 
 def with_actions(versions, user):
+    analyze: Value | Exists = Value(False)
+    if analysis.enabled() and analysis.eligible(user):
+        analyze = Exists(
+            ClinicalDocumentVersion.objects.filter(
+                pk=OuterRef("pk"),
+                document__patient__in=clinical.clinical_patients(user),
+                document__kind="report",
+                media_type__in=["application/pdf", "image/png", "image/jpeg"],
+            )
+        )
     return versions.annotate(
+        can_analyze=analyze,
         can_download=Exists(
             clinical.visible_documents(user, "download").filter(pk=OuterRef("document_id"))
         ),

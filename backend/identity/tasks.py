@@ -23,3 +23,115 @@ def reconcile_clinical_storage():
     )
     for version_id in staged.values_list("pk", flat=True)[:100]:
         offload_clinical_version.delay(str(version_id))
+
+
+@shared_task(ignore_result=True)
+def reconcile_analysis_jobs():
+    from django.utils import timezone
+
+    from identity.analysis import enabled
+    from identity.models import AnalysisJob
+
+    if not enabled():
+        return
+    AnalysisJob.objects.filter(state="running", lease_until__lt=timezone.now()).update(
+        state="queued", lease_until=None
+    )
+    queued = AnalysisJob.objects.filter(state="queued").order_by("created_at")
+    for job_id in queued.values_list("pk", flat=True)[:50]:
+        run_clinical_analysis.delay(str(job_id))
+
+
+@shared_task(ignore_result=True, soft_time_limit=170, time_limit=180)
+def run_clinical_analysis(job_id):
+    import hashlib
+    from datetime import timedelta
+
+    from django.db import transaction
+    from django.utils import timezone
+
+    from identity.analysis import encode, requester_allowed
+    from identity.analysis_pipeline import DISCLAIMER, OCR_WEIGHTS, extract, pages_from, summary
+    from identity.clinical_storage import read_content
+    from identity.models import AnalysisDraft, AnalysisJob, AnalysisModel
+    from identity.security import audit
+
+    with transaction.atomic():
+        job = AnalysisJob.objects.select_for_update().filter(pk=job_id, state="queued").first()
+        if job is None:
+            return
+        organization = job.version.document.patient.organization
+        allowed = requester_allowed(job, lock=True)
+        if not allowed or job.attempts >= 3:
+            job.state = "cancelled" if not allowed else "failed"
+            job.save(update_fields=["state"])
+            audit(job.requested_by, "analysis." + job.state, job.pk, organization)
+            return
+        job.attempts += 1
+        attempt = job.attempts
+        job.lease_until = timezone.now() + timedelta(minutes=4)
+        job.state = "running"
+        job.save(update_fields=["state", "attempts", "lease_until"])
+
+    result = None
+    try:
+        content = read_content(job.version)
+        if hashlib.sha256(content).hexdigest() != job.input_hash:
+            raise ValueError("Input mismatch")
+        pages = pages_from(content, job.version.media_type)
+        rows = extract(pages)
+        ocr_used = any(page[1] == "ocr" for page in pages)
+        confidence = [
+            {"page": number, "value": page[2], "source": "tesseract_mean_word_confidence"}
+            for number, page in enumerate(pages, 1)
+            if len(page) > 2 and page[2] is not None
+        ]
+        result = {
+            "label": DISCLAIMER,
+            "rows": rows,
+            "ocr": OCR_WEIGHTS if ocr_used else {},
+            "summary": summary(rows),
+            "confidence": {"value": None, "source": "not_calibrated", "ocr_pages": confidence},
+        }
+        sealed = encode(result, organization.pk)
+    except Exception:
+        # Avoid logging parser errors, commands or OCR output.
+        result = None
+
+    with transaction.atomic():
+        job = AnalysisJob.objects.select_for_update().get(pk=job_id)
+        if job.state != "running" or job.attempts != attempt:
+            return
+        if not requester_allowed(job, lock=True):
+            job.state = "cancelled"
+        elif result is None:
+            job.state = "queued" if attempt < 3 else "failed"
+        else:
+            model = None
+            if result["summary"]:
+                model, _ = AnalysisModel.objects.get_or_create(
+                    name="Qwen2.5-1.5B-Instruct-GGUF",
+                    revision="dd26da4/Q4_K_M",
+                    checksum=result["summary"]["checksum"],
+                    defaults={
+                        "license": "Apache-2.0",
+                        "intended_use": "Select evidence rows",
+                        "limitations": "Uncalibrated; no clinical interpretation",
+                    },
+                )
+            for language, checksum in result["ocr"].items():
+                AnalysisModel.objects.get_or_create(
+                    name=f"Tesseract tessdata_fast {language}",
+                    revision="4.1.0",
+                    checksum=checksum,
+                    defaults={
+                        "license": "Apache-2.0",
+                        "intended_use": "OCR report text",
+                        "limitations": "Layout and scan quality affect extraction",
+                    },
+                )
+            AnalysisDraft.objects.create(job=job, model=model, **sealed)
+            job.state = "ready"
+        job.lease_until = None
+        job.save(update_fields=["state", "lease_until"])
+        audit(job.requested_by, "analysis." + job.state, job.pk, organization)

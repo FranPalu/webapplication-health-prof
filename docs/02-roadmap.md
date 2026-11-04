@@ -82,6 +82,8 @@ e restore verificati; ricerca e riferimenti FHIR non rivelano risorse negate.
 
 ## M4 — AI preliminare supervisionata
 
+Implementata per collaudo locale su dati sintetici. Vedere [guida M4](05-supervised-analysis.md) e [report di collaudo](05-m4-validation.md).
+
 Dipende da M3. OCR→analiti/valori/unità/range→regole→riepilogo LLM; pipeline
 imaging in worker isolato. Solo modelli pre-addestrati con licenza, versione,
 uso previsto e limiti nel model registry. Provenienza completa, disclaimer,

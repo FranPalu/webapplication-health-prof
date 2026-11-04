@@ -383,3 +383,76 @@ class ClinicalObservation(models.Model):
     label = models.CharField(max_length=160)
     value = models.DecimalField(max_digits=16, decimal_places=6)
     unit = models.CharField(max_length=32)
+
+
+class AnalysisModel(models.Model):
+    name = models.CharField(max_length=120)
+    revision = models.CharField(max_length=120)
+    checksum = models.CharField(max_length=64)
+    license = models.CharField(max_length=120)
+    intended_use = models.TextField()
+    limitations = models.TextField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["name", "revision", "checksum"], name="analysis_model_release"
+            )
+        ]
+
+
+class AnalysisJob(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    version = models.ForeignKey(ClinicalDocumentVersion, on_delete=models.PROTECT)
+    requested_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    auth_version = models.PositiveIntegerField()
+    pipeline = models.CharField(max_length=64)
+    input_hash = models.CharField(max_length=64)
+    state = models.CharField(max_length=16, default="queued")
+    attempts = models.PositiveSmallIntegerField(default=0)
+    lease_until = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["version", "pipeline"], name="analysis_job_dedup")
+        ]
+
+
+class AnalysisPayload(models.Model):
+    ciphertext = models.BinaryField()
+    wrapped_key = models.BinaryField()
+    key_id = models.CharField(max_length=255, blank=True)
+    sha256 = models.CharField(max_length=64)
+
+    class Meta:
+        abstract = True
+
+
+class AnalysisDraft(AnalysisPayload):
+    job = models.OneToOneField(AnalysisJob, on_delete=models.PROTECT, related_name="draft")
+    model = models.ForeignKey(AnalysisModel, null=True, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AnalysisReview(AnalysisPayload):
+    job = models.OneToOneField(AnalysisJob, on_delete=models.PROTECT, related_name="review")
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    decision = models.CharField(max_length=8)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AnalysisOpinion(AnalysisPayload):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    review = models.OneToOneField(AnalysisReview, on_delete=models.PROTECT, related_name="opinion")
+    created_at = models.DateTimeField(auto_now_add=True)
+    attestation_hash = models.CharField(max_length=64)
+
+
+class AnalysisPublication(models.Model):
+    recipient = models.ForeignKey(
+        User, on_delete=models.PROTECT, related_name="analysis_publications_received"
+    )
+    opinion = models.OneToOneField(AnalysisOpinion, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)

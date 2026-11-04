@@ -54,6 +54,7 @@ services:
     env_file: .env.dev
     tmpfs: ["/tmp:size=256m,mode=1777"]
     environment:
+      CLINICAL_ANALYSIS_ENABLED: ${CLINICAL_ANALYSIS_ENABLED:-0}
       CLINICAL_CLAMAV_HOST: antivirus
       S3_ENDPOINT: http://storage:8333
     depends_on:
@@ -71,13 +72,40 @@ services:
     env_file: .env.dev
     environment:
       S3_ENDPOINT: http://storage:8333
-    command: [celery, -A, config.celery, worker, --loglevel=WARNING]
+    command: [celery, -A, config.celery, worker, -Q, celery, --loglevel=WARNING]
     depends_on:
       migrate: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
+  analysis-worker:
+    profiles: [analysis]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.analysis
+    env_file: .env.dev
+    environment:
+      CLINICAL_ANALYSIS_ENABLED: ${CLINICAL_ANALYSIS_ENABLED:-0}
+      S3_ENDPOINT: http://storage:8333
+    command: [celery, -A, config.celery, worker, -Q, clinical-analysis, --concurrency=1, --loglevel=WARNING]
+    read_only: true
+    tmpfs: ["/tmp:size=256m,mode=1777"]
+    volumes: ["./.analysis-models:/models:ro"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  imaging-smoke:
+    profiles: [imaging-test]
+    build: ./infra/imaging
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=32m,mode=1777"]
+    volumes: ["./.analysis-models:/models:ro", "./.analysis-fixtures:/fixtures:ro"]
   beat:
     build: ./backend
     env_file: .env.dev
+    environment:
+      CLINICAL_ANALYSIS_ENABLED: ${CLINICAL_ANALYSIS_ENABLED:-0}
     command: [celery, -A, config.celery, beat, --loglevel=WARNING, --schedule=/tmp/celerybeat]
     depends_on:
       worker: {condition: service_started}

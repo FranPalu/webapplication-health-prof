@@ -1,6 +1,7 @@
 'use client';
 
 import {useState, type FormEvent} from 'react';
+import {ClinicalAnalysis} from './ClinicalAnalysis';
 import {api} from '../lib/api/client';
 import type {components} from '../lib/api/schema';
 
@@ -129,6 +130,7 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
         {version.can_download
           ? <a href={'/api/v1/clinical/versions/' + version.id + '/download/'}>{label('Scarica versione', 'Download version')} {version.number}</a>
           : <span>{label('Versione', 'Version')} {version.number}</span>}
+        {write && version.can_analyze && <ClinicalAnalysis version={version.id} english={english}/>}
       </li>)}</ul>
       {history?.next && <button disabled={busy} onClick={() => void perform(async () => {
         const next = await api<Page>(selectedPath + new URL(history.next!, window.location.origin).search);
