@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-04 — Correzioni interazioni demo
+
+- Corretto il focus dei moduli: digitazione continua nella conferma di eliminazione e nelle schede.
+- Solo Light mode e Dark mode, con conversione della precedente preferenza Sistema.
+- Test browser su modifica ed eliminazione paziente con rimozione dei dati collegati; chiarito il ripristino della demo al ricaricamento.
+
 ## 2026-11-04 — Clarìa
 
 - Identità Clarìa e palette condivisa dal portale e dal gestionale dimostrativo.
