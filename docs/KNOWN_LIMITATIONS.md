@@ -1,18 +1,13 @@
 # Limitazioni note
 
-Aggiornato: 2026-11-03, M0. Architettura e roadmap sono progetti, non funzionalità
-implementate. Nessuna attestazione di conformità o idoneità all'uso clinico.
+Aggiornato: 2026-11-04, M1. I controlli applicativi M1 sono passati su GitHub
+per il commit `4c2c019`. Il job Compose si è fermato sul download di MinIO.
+La correzione usa SeaweedFS e richiede una nuova esecuzione del job.
 
-## Bloccanti per l'evoluzione tecnica
-
-- **L01 / M1:** Node locale 22.9.0 incompatibile con pnpm configurato; suite
-  reminder non caricata per `node:sqlite`. Uniformare a Node 24 e rieseguire.
-- **L02 / M1:** ESLint ha 19 errori e 7 warning; typecheck passa ma non sostituisce
-  lint o test. Build non eseguita. Nessuna copertura misurata.
-- **L03 / M1:** backend Django, PostgreSQL, Compose e `make dev` non esistono ancora.
-  Le istruzioni README di avvio riguardano il gestionale legacy.
-- **L04 / M1:** identità Sites basata su header e isolamento owner; assenti MFA,
-  RBAC/ABAC, organizzazioni e accessi paziente individuali completi.
+- SPID/CIE, OIDC e registri professionali restano contratti senza provider attivi.
+- La verifica degli iscritti è manuale. La demo legacy usa dati sintetici in memoria.
+- L’audit M1 impedisce aggiornamenti e cancellazioni ordinarie nel DB. La catena
+  di hash e i checkpoint esterni sono previsti in M2.
 
 ## Funzionalità e controlli mancanti
 

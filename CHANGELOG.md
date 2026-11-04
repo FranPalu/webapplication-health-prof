@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-04 — M1
+
+- Backend Django con verifica email, TOTP, profili e accesso alle anagrafiche per relazione di cura.
+- Setup Compose, seed sintetici, import legacy, OpenAPI e controlli PostgreSQL e browser in CI.
+- Sostituito il tag MinIO indisponibile con SeaweedFS per lo storage S3 di sviluppo.
+
 ## 2026-11-03 — M0: audit e progettazione
 
 - Aggiunti audit della baseline `ffccd98`, architettura Django/DRF con frontend

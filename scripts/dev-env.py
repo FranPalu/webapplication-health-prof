@@ -16,7 +16,7 @@ if not path.exists():
         'REDIS_URL': 'redis://redis:6379/0', 'EMAIL_HOST': 'mail', 'EMAIL_PORT': '1025',
         'DEFAULT_FROM_EMAIL': 'no-reply@health.example',
         'S3_ACCESS_KEY': secrets.token_urlsafe(18), 'S3_SECRET_KEY': secrets.token_urlsafe(32),
-        'S3_ENDPOINT': 'http://storage:9000', 'S3_BUCKET': 'health-local', 'S3_REGION': 'eu-west-1',
+        'S3_ENDPOINT': 'http://storage:8333', 'S3_BUCKET': 'health-local', 'S3_REGION': 'eu-west-1',
     }
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, 'w') as f:

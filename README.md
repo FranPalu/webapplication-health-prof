@@ -4,24 +4,21 @@ Web application in italiano per l’organizzazione di uno studio di nutrizione: 
 
 ## Stato del progetto
 
-### Evoluzione della piattaforma sanitaria — M0
+### Piattaforma Django — M1
 
-È stata documentata l'evoluzione verso Django/DRF e PostgreSQL, mantenendo il
-frontend React. Il nuovo backend **non è ancora implementato**; i comandi di
-avvio sotto riguardano il gestionale esistente. Docker Compose e `make dev`
-saranno introdotti in M1, dopo «GO M1».
+Con Docker e Docker Compose attivi, esegui `make dev`. Apri l’app su
+http://localhost:8080 e Mailpit su http://localhost:8025 per i link di verifica.
+Lo storage S3 di sviluppo è SeaweedFS, raggiungibile dai container su
+`http://storage:8333`. I seed usano dati sintetici.
 
-- [Audit della repository e risultati dei controlli](docs/00-repo-audit.md)
-- [Architettura target](docs/01-architecture.md)
-- [Roadmap M0–M9 e criteri di accettazione](docs/02-roadmap.md)
-- [Decisioni architetturali](docs/adr/README.md)
-- [Limitazioni note](docs/KNOWN_LIMITATIONS.md)
-- [Note normative preliminari](docs/compliance/regulatory-notes.md)
-- [Changelog](CHANGELOG.md)
+Registrati, verifica l’email e accedi. Professionisti e amministratori devono
+configurare TOTP. Per creare un amministratore di piattaforma locale, usa
+`make admin EMAIL=indirizzo@example.test` e scegli la password al prompt.
+La demo del gestionale è disponibile su `/demo`.
 
-La baseline locale presenta errori lint e un runtime Node insufficiente per
-pnpm e i test reminder; l'audit riporta comandi ed esiti senza dichiarare la
-suite completamente superata.
+Esegui `make check` e `make test` con Node 24 e pnpm 11.25 installati
+sull’host. Vedi anche [architettura](docs/01-architecture.md),
+[roadmap](docs/02-roadmap.md) e [limitazioni](docs/KNOWN_LIMITATIONS.md).
 
 ### Gestionale esistente
 
