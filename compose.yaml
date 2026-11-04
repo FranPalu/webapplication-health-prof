@@ -29,6 +29,15 @@ services:
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?Run make env}
       S3_BUCKET: ${S3_BUCKET:-health-local}
     volumes: [storage:/data]
+  antivirus:
+    image: clamav/clamav:1.4
+    platform: linux/amd64
+    volumes: [clamav:/var/lib/clamav]
+    healthcheck:
+      test: [CMD, clamdscan, --ping, '1']
+      interval: 5s
+      timeout: 5s
+      retries: 30
   mail:
     image: axllent/mailpit:v1.27.4
     ports: ['127.0.0.1:8025:8025']
@@ -43,12 +52,16 @@ services:
   backend:
     build: ./backend
     env_file: .env.dev
+    tmpfs: ["/tmp:size=256m,mode=1777"]
     environment:
+      CLINICAL_CLAMAV_HOST: antivirus
       S3_ENDPOINT: http://storage:8333
     depends_on:
       migrate: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
       mail: {condition: service_started}
+      antivirus: {condition: service_healthy}
+      storage: {condition: service_started}
     healthcheck:
       test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health/")']
       interval: 5s
@@ -62,6 +75,12 @@ services:
     depends_on:
       migrate: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
+  beat:
+    build: ./backend
+    env_file: .env.dev
+    command: [celery, -A, config.celery, beat, --loglevel=WARNING, --schedule=/tmp/celerybeat]
+    depends_on:
+      worker: {condition: service_started}
   frontend:
     build: .
     depends_on:
@@ -75,3 +94,4 @@ volumes:
   postgres:
   redis:
   storage:
+  clamav:

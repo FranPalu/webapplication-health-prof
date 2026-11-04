@@ -40,7 +40,6 @@ PyOTP==2.10.0
 pytest==9.2.0
 pytest-cov==7.1.0
 pytest-django==4.14.0
-python-dateutil==4.0.0
 PyYAML==6.0.3
 redis==8.1.0
 referencing==0.37.0
@@ -54,3 +53,13 @@ tzlocal==5.4.5
 uritemplate==4.2.0
 vine==5.1.0
 wcwidth==0.9.4
+boto3==1.43.123
+botocore==1.43.123
+jmespath==1.1.0
+pillow==13.0.0
+pydicom==3.0.2
+pypdf==6.21.4
+python-dateutil==2.9.0.post0
+s3transfer==0.19.3
+six==1.17.0
+urllib3==2.8.0

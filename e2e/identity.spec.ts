@@ -1,3 +1,4 @@
+import {makePdf} from '../lib/pdf';
 import {test,expect} from '@playwright/test';
 import {readFileSync,readdirSync} from 'node:fs';
 import {join} from 'node:path';
@@ -80,4 +81,35 @@ test('organization onboarding requires TOTP and creates a tenant',async({page})=
   await expect(page.getByRole('listitem').filter({hasText:'Clinica E2E FITTIZIA'})).toBeVisible();
   await page.setViewportSize({width:390,height:844});
   await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);
+});
+
+test('professional uploads, searches, downloads and archives a clinical document', async ({page}) => {
+  const fixture = process.env.E2E_CLINICAL_FIXTURE;
+  test.skip(!fixture, 'Requires the synthetic clinical browser fixture and ClamAV.');
+  const account = JSON.parse(readFileSync(fixture!, 'utf8')) as {email:string;password:string};
+  await page.goto('/');
+  await page.getByLabel('Email', {exact:true}).first().fill(account.email);
+  await page.getByLabel('Password', {exact:true}).fill(account.password);
+  await page.getByRole('button', {name:'Accedi',exact:true}).click();
+  await expect(page.getByRole('button', {name:'Configura autenticatore'})).toBeVisible();
+  await page.getByLabel('Password', {exact:true}).fill(account.password);
+  await page.getByRole('button', {name:'Configura autenticatore'}).click();
+  await page.getByLabel('Codice TOTP o di recupero').fill(totp(await page.locator('.identity-secret').innerText()));
+  await page.getByRole('button', {name:'Conferma',exact:true}).click();
+  await page.getByText('Documenti clinici', {exact:true}).click();
+  await page.getByLabel('Titolo del documento').fill('Documento E2E sintetico');
+  await page.getByLabel('File (massimo 10 MiB)').setInputFiles({
+    name:'synthetic.pdf',mimeType:'application/pdf',buffer:Buffer.from(makePdf(['KeywordSaffron'])),
+  });
+  await page.getByRole('button', {name:'Carica documento',exact:true}).click();
+  await expect(page.getByRole('button', {name:/Documento E2E sintetico/})).toBeVisible();
+  await page.getByLabel('Cerca nei documenti').fill('KeywordSaffron');
+  await page.getByRole('button', {name:'Cerca o mostra tutti'}).click();
+  await page.getByRole('button', {name:/Documento E2E sintetico/}).click();
+  const download = page.waitForEvent('download');
+  await page.getByRole('link', {name:'Scarica versione 1'}).click();
+  expect(await (await download).failure()).toBeNull();
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', {name:'Archivia documento'}).click();
+  await expect(page.getByText('Nessun documento trovato.')).toBeVisible();
 });

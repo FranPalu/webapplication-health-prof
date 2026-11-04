@@ -1,6 +1,6 @@
 # ADR 0007 — Persistenza transazionale per la prima consegna M3
 
-Stato: temporaneo.
+Stato: superato dal trasferimento durevole a S3, descritto in [ADR 0008](0008-clinical-object-storage.md).
 
 I binari di massimo 10 MiB sono cifrati prima della scrittura. Una chiave distinta per versione è avvolta da una chiave derivata per organizzazione. La prima consegna salva il risultato nel database insieme alla versione e all'audit, così un rollback rimuove l'intera scrittura senza lasciare oggetti orfani.
 

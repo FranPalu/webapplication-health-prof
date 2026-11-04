@@ -105,17 +105,17 @@ def share_recipient_queryset(user):
     return Share.objects.filter(recipient)
 
 
-def share_consent_granted(share) -> bool:
+def share_consent_granted(share, minimum_version=1) -> bool:
     latest = (
         PatientConsent.objects.filter(share=share)
         .order_by("-created_at", "-pk")
-        .values_list("decision", flat=True)
+        .values_list("decision", "text_version__version")
         .first()
     )
-    return latest == "granted"
+    return bool(latest and latest[0] == "granted" and latest[1] >= minimum_version)
 
 
-def share_is_active(share) -> bool:
+def share_is_active(share, minimum_version=1) -> bool:
     now = timezone.now()
     current = share
     child = None
@@ -123,7 +123,7 @@ def share_is_active(share) -> bool:
         if (
             current.revoked_at is not None
             or (current.expires_at is not None and current.expires_at <= now)
-            or not share_consent_granted(current)
+            or not share_consent_granted(current, minimum_version)
         ):
             return False
         if (

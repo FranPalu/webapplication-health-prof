@@ -1,6 +1,13 @@
 # Changelog
 
-## 2026-11-04 — M3 in corso
+## 2026-11-04 — M3 documenti clinici e interoperabilità
+
+- Portale documentale con cartelle, versioni, ricerca per titolo o testo PDF, condivisione e consenso v2.
+- ClamAV, validazione strutturale, trasferimento durevole a S3, wrapping KMS, rotazione e retention amministrata.
+- Letture FHIR R4 per sette risorse e creazione API dei referti strutturati.
+- Import R2 idempotente con manifest e verifica degli hash.
+
+## 2026-11-04 — Prima consegna M3
 
 - API per documenti clinici con scansione obbligatoria, cifratura per tenant, versioni e archiviazione.
 - Ricerca autorizzata per titolo e lettura FHIR R4 di Patient e DocumentReference.

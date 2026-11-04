@@ -1,6 +1,5 @@
-from cryptography.fernet import Fernet, InvalidToken
 from django.db import transaction
-from django.db.models import OuterRef, Subquery
+from django.db.models import Exists, OuterRef, Q, Subquery
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -11,8 +10,9 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from identity import clinical
-from identity.models import ClinicalDocument, ClinicalDocumentVersion
+from identity import clinical, clinical_storage
+from identity.clinical_formats import validated_text
+from identity.models import ClinicalDocument, ClinicalDocumentVersion, ClinicalFolder
 from identity.security import audit, rate_limit
 from identity.services import verified_professional, visible_patients
 from identity.views import InputView
@@ -20,18 +20,60 @@ from identity.views import InputView
 
 class UploadInput(serializers.Serializer):
     file = serializers.FileField()
+    folder = serializers.UUIDField(required=False)
     title = serializers.CharField(max_length=160)
     kind = serializers.ChoiceField(choices=ClinicalDocument.Kind.choices, required=False)
 
 
 class VersionOutput(serializers.ModelSerializer):
+    can_download = serializers.BooleanField(read_only=True)
+    can_edit = serializers.BooleanField(read_only=True)
+    can_share = serializers.BooleanField(read_only=True)
+    folder = serializers.UUIDField(source="document.folder_id", read_only=True, allow_null=True)
+
     class Meta:
         model = ClinicalDocumentVersion
-        fields = ("id", "document", "number", "title", "media_type", "size", "created_at")
+        fields = (
+            "id",
+            "document",
+            "number",
+            "title",
+            "media_type",
+            "size",
+            "created_at",
+            "can_download",
+            "can_edit",
+            "can_share",
+            "folder",
+        )
 
 
 def metadata():
-    return ClinicalDocumentVersion.objects.defer("ciphertext", "wrapped_key")
+    return ClinicalDocumentVersion.objects.defer(
+        "ciphertext", "wrapped_key", "search_tokens"
+    ).select_related("document__patient__organization")
+
+
+def with_actions(versions, user):
+    return versions.annotate(
+        can_download=Exists(
+            clinical.visible_documents(user, "download").filter(pk=OuterRef("document_id"))
+        ),
+        can_edit=Exists(
+            ClinicalDocument.objects.filter(
+                pk=OuterRef("document_id"),
+                author=user,
+                patient__in=clinical.clinical_patients(user),
+            )
+        ),
+        can_share=Exists(
+            ClinicalDocument.objects.filter(
+                pk=OuterRef("document_id"),
+                patient__in=visible_patients(user),
+                patient__account__isnull=False,
+            ).exclude(kind=ClinicalDocument.Kind.PSYCHOLOGY)
+        ),
+    )
 
 
 def latest(document):
@@ -48,6 +90,7 @@ def store_version(document, upload, number):
         title=upload["title"],
         media_type=upload["media_type"],
         size=len(upload["bytes"]),
+        search_tokens=upload["search_tokens"],
         **upload["sealed"],
     )
 
@@ -63,15 +106,61 @@ def prepared_upload(request, patient):
     if len(content) > clinical.MAX_BYTES:
         raise ValidationError("Maximum file size is 10 MiB.")
     detected = clinical.media_type(content)
-    if file.content_type != detected:
+    if file.content_type not in (detected, "application/octet-stream"):
         raise ValidationError("Declared type does not match file signature.")
     clinical.scan(content)
+    text = validated_text(content, detected)
     return {
         **upload,
         "media_type": detected,
         "bytes": content,
+        "search_tokens": clinical.search_tokens(text, patient.organization_id),
         "sealed": clinical.seal(content, patient.organization_id),
     }
+
+
+class FolderInput(serializers.Serializer):
+    title = serializers.CharField(max_length=100)
+    parent_folder = serializers.UUIDField(source="parent", required=False)
+
+
+class FolderOutput(serializers.ModelSerializer):
+    class Meta:
+        model = ClinicalFolder
+        fields = ("id", "title", "parent")
+
+
+class FoldersView(InputView):
+    serializer_class = FolderInput
+
+    @extend_schema(responses=FolderOutput(many=True))
+    def get(self, request, patient_id):
+        patient = get_object_or_404(visible_patients(request.user), pk=patient_id)
+        folders = ClinicalFolder.objects.filter(patient=patient).order_by("title", "pk")
+        page = self.paginate_queryset(folders)
+        return self.get_paginated_response(FolderOutput(page, many=True).data)
+
+    @transaction.atomic
+    @extend_schema(responses={201: FolderOutput})
+    def post(self, request, patient_id):
+        if not verified_professional(request.user):
+            raise PermissionDenied()
+        patient = get_object_or_404(clinical.clinical_patients(request.user), pk=patient_id)
+        data = self.data(request)
+        parent = None
+        if data.get("parent"):
+            parent = get_object_or_404(ClinicalFolder, pk=data["parent"], patient=patient)
+            ancestor = parent
+            for _ in range(7):
+                next_ancestor = ancestor.parent
+                if next_ancestor is None:
+                    break
+                ancestor = next_ancestor
+            else:
+                raise ValidationError("Maximum folder depth reached.")
+        folder = ClinicalFolder.objects.create(patient=patient, parent=parent, title=data["title"])
+        audit(request.user, "clinical.folder_created", folder.pk, patient.organization)
+        return Response(FolderOutput(folder).data, status=201)
 
 
 class DocumentsView(InputView):
@@ -88,8 +177,15 @@ class DocumentsView(InputView):
         if len(query) > 160:
             raise ValidationError("Search query too long.")
         if query:
-            versions = versions.filter(title__icontains=query)
-        page = self.paginate_queryset(versions.order_by("-created_at", "-pk"))
+            predicate = Q(title__icontains=query)
+            organization_id = documents.values_list("patient__organization_id", flat=True).first()
+            tokens = clinical.search_tokens(query, organization_id)
+            if tokens:
+                predicate |= Q(search_tokens__contains=tokens)
+            versions = versions.filter(predicate)
+        page = self.paginate_queryset(
+            with_actions(versions, request.user).order_by("-created_at", "-pk")
+        )
         assert page is not None  # Pagination is configured for all clinical lists.
         for version in page:
             audit(
@@ -107,13 +203,22 @@ class DocumentsView(InputView):
             raise PermissionDenied()
         patient = get_object_or_404(clinical.clinical_patients(request.user), pk=patient_id)
         upload = prepared_upload(request, patient)
+        folder = None
+        if upload.get("folder"):
+            folder = get_object_or_404(ClinicalFolder, pk=upload["folder"], patient=patient)
         with transaction.atomic():
             document = ClinicalDocument.objects.create(
-                patient=patient, author=request.user, kind=upload.get("kind", "other")
+                patient=patient,
+                author=request.user,
+                kind=upload.get("kind", "other"),
+                folder=folder,
             )
             version = store_version(document, upload, 1)
             audit(request.user, "clinical.created", version.pk, patient.organization)
-        return Response(VersionOutput(version).data, status=201)
+        return Response(
+            VersionOutput(with_actions(metadata(), request.user).get(pk=version.pk)).data,
+            status=201,
+        )
 
 
 class DocumentView(InputView):
@@ -132,7 +237,9 @@ class DocumentView(InputView):
     @extend_schema(responses=VersionOutput(many=True))
     def get(self, request, document_id):
         document = get_object_or_404(clinical.visible_documents(request.user), pk=document_id)
-        page = self.paginate_queryset(metadata().filter(document=document).order_by("-number"))
+        page = self.paginate_queryset(
+            with_actions(metadata().filter(document=document), request.user).order_by("-number")
+        )
         assert page is not None  # Pagination is configured for all clinical lists.
         for version in page:
             audit(request.user, "clinical.metadata_read", version.pk, document.patient.organization)
@@ -143,6 +250,8 @@ class DocumentView(InputView):
         rate_limit(request, "clinical-upload", limit=12)
         document = get_object_or_404(self.editable(request), pk=document_id)
         upload = prepared_upload(request, document.patient)
+        if "folder" in upload and upload["folder"] != document.folder_id:
+            raise ValidationError("Document folder cannot change between versions.")
         if "kind" in upload and upload["kind"] != document.kind:
             raise ValidationError("Document category cannot change between versions.")
         with transaction.atomic():
@@ -151,7 +260,10 @@ class DocumentView(InputView):
             audit(
                 request.user, "clinical.version_created", version.pk, document.patient.organization
             )
-        return Response(VersionOutput(version).data, status=201)
+        return Response(
+            VersionOutput(with_actions(metadata(), request.user).get(pk=version.pk)).data,
+            status=201,
+        )
 
     def delete(self, request, document_id):
         with transaction.atomic():
@@ -173,11 +285,7 @@ class DownloadView(InputView):
             document__in=clinical.visible_documents(request.user, permission="download"),
         )
         organization = version.document.patient.organization
-        try:
-            key = clinical.tenant_cipher(organization.pk).decrypt(bytes(version.wrapped_key))
-            plaintext = Fernet(key).decrypt(bytes(version.ciphertext))
-        except InvalidToken as exc:
-            raise clinical.DocumentUnavailable() from exc
+        plaintext = clinical_storage.read_content(version)
         audit(request.user, "clinical.downloaded", version.pk, organization)
         response = HttpResponse(plaintext, content_type="application/octet-stream")
         response["Content-Disposition"] = 'attachment; filename="clinical-document"'
@@ -187,6 +295,19 @@ class DownloadView(InputView):
 
 class FhirJSONRenderer(JSONRenderer):
     media_type = "application/fhir+json"
+    format = "fhir"
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        response = (renderer_context or {}).get("response")
+        if response is not None and response.status_code >= 400:
+            code = {403: "forbidden", 404: "not-found", 406: "not-supported"}.get(
+                response.status_code, "processing"
+            )
+            data = {
+                "resourceType": "OperationOutcome",
+                "issue": [{"severity": "error", "code": code}],
+            }
+        return super().render(data, accepted_media_type, renderer_context)
 
 
 class FhirDocumentView(InputView):
@@ -269,7 +390,15 @@ class FhirMetadataView(InputView):
                         "mode": "server",
                         "resource": [
                             {"type": resource, "interaction": [{"code": "read"}]}
-                            for resource in ("DocumentReference", "Patient")
+                            for resource in (
+                                "DocumentReference",
+                                "Patient",
+                                "Organization",
+                                "Practitioner",
+                                "Consent",
+                                "DiagnosticReport",
+                                "Observation",
+                            )
                         ],
                     }
                 ],

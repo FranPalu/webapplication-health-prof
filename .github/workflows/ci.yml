@@ -65,6 +65,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
       - run: make dev
       - name: Container smoke test
         run: |
@@ -74,6 +82,14 @@ jobs:
           done
           curl -fsS http://localhost:8080/health/
           curl -fsS http://localhost:8080/api/v1/auth/session/
-          docker compose --env-file .env.dev run --rm backend pytest
+          docker compose --env-file .env.dev run --rm -e CLINICAL_INTEGRATION_TEST=1 backend pytest -p no:cacheprovider
+      - name: Clinical browser smoke test
+        run: |
+          fixture="$(mktemp)"
+          trap 'rm -f "$fixture"' EXIT
+          docker compose --env-file .env.dev exec -T backend python manage.py shell -v 0 \
+            < backend/tests/clinical_browser_fixture.py > "$fixture"
+          E2E_CLINICAL_FIXTURE="$fixture" E2E_BASE_URL=http://localhost:8080 \
+            pnpm exec playwright test -g 'professional uploads'
       - if: always()
         run: docker compose --env-file .env.dev down

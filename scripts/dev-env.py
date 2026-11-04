@@ -7,6 +7,8 @@ from pathlib import Path
 path = Path(__file__).resolve().parent.parent / '.env.dev'
 if not path.exists():
     values = {
+        'CLINICAL_MASTER_KEY': base64.urlsafe_b64encode(secrets.token_bytes(32)).decode(),
+        'CLINICAL_SEARCH_KEY': secrets.token_urlsafe(32),
         'DJANGO_SECRET_KEY': secrets.token_urlsafe(48),
         'MFA_ENCRYPTION_KEY': base64.urlsafe_b64encode(secrets.token_bytes(32)).decode(),
         'DJANGO_DEBUG': 'true', 'DJANGO_ALLOWED_HOSTS': 'localhost,127.0.0.1,backend,testserver',
@@ -23,4 +25,12 @@ if not path.exists():
         f.write('\n'.join(f'{k}={v}' for k, v in values.items()) + '\n')
     print('Created .env.dev (local generated secrets, ignored by Git).')
 else:
+    existing = path.read_text()
+    additions = []
+    for name in ('CLINICAL_MASTER_KEY', 'CLINICAL_SEARCH_KEY'):
+        if not any(line.startswith(name + '=') for line in existing.splitlines()):
+            additions.append(f'{name}={base64.urlsafe_b64encode(secrets.token_bytes(32)).decode()}')
+    if additions:
+        with path.open('a') as stream:
+            stream.write('\n' + '\n'.join(additions) + '\n')
     print('Using existing .env.dev.')

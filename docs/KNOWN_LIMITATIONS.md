@@ -17,14 +17,14 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
   Hash-chain globale senza checkpoint esterno; un amministratore DB privilegiato
   può alterare anche trigger e testa. Messaggi soltanto testuali e senza cifratura
   applicativa. Vedere [specifica M2](03-sharing-consent.md).
-- **L05 / M3 in corso:** API documentale e ricerca per titolo disponibili. Mancano
-  interfaccia portale, cartelle e grant per singolo documento, indice full-text e
-  import R2. Il profilo FHIR espone solo Patient e DocumentReference. Restano
-  aperti Organization, Practitioner, Consent, DiagnosticReport e Observation.
-- **L06 / M3 in corso:** binari cifrati nel database. Restano aperti object storage,
-  KMS e rotazione, retention con cancellazione controllata, restore e validazione
-  strutturale dei formati. L'upload richiede ClamAV esterno. La verifica con uno
-  scanner reale resta da completare. Vedere [documenti clinici](04-clinical-documents.md).
+- **L05 / M3:** ricerca testuale per PDF con testo incorporato. OCR e ricerca nel
+  contenuto delle immagini richiedono M4. FHIR R4 espone letture per le sette
+  risorse previste. I profili di integrazione e la terminologia richiedono
+  validazione con i sistemi destinatari.
+- **L06 / M3:** storage S3 e ClamAV verificabili in locale. AWS KMS e import R2
+  richiedono credenziali e configurazione esterne. La retention richiede una policy
+  per tenant. DICOM è verificato a livello di metadati. Vedere
+  [documenti clinici](04-clinical-documents.md).
 - **L07 / M4:** nessun modello AI, provider, registry, golden set o processo di
   revisione. Scelta del modello e relativo uso clinico devono essere verificati
   nella milestone; non c'è alcuna capacità diagnostica disponibile.

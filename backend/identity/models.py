@@ -254,7 +254,13 @@ class Share(models.Model):
         on_delete=models.PROTECT,
         related_name="shares_received",
     )
-    scope = models.CharField(max_length=12, choices=[("item", "Item"), ("chart", "Chart")])
+    document = models.ForeignKey(
+        "ClinicalDocument", null=True, blank=True, on_delete=models.PROTECT
+    )
+    folder = models.ForeignKey("ClinicalFolder", null=True, blank=True, on_delete=models.PROTECT)
+    scope = models.CharField(
+        max_length=12, choices=[("item", "Item"), ("folder", "Folder"), ("chart", "Chart")]
+    )
     permissions = models.JSONField(default=list)
     purpose = models.CharField(max_length=300)
     expires_at = models.DateTimeField(null=True, blank=True)
@@ -312,6 +318,13 @@ class UserProfile(models.Model):
         constraints = [models.UniqueConstraint(fields=["user", "role"], name="unique_user_profile")]
 
 
+class ClinicalFolder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
+    title = models.CharField(max_length=100)
+
+
 class ClinicalDocument(models.Model):
     class Kind(models.TextChoices):
         REPORT = "report", "Referto"
@@ -322,8 +335,10 @@ class ClinicalDocument(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
+    folder = models.ForeignKey(ClinicalFolder, null=True, blank=True, on_delete=models.PROTECT)
     kind = models.CharField(max_length=16, choices=Kind.choices)
     deleted_at = models.DateTimeField(null=True)
+    retention_hold = models.BooleanField(default=False)
 
 
 class ClinicalDocumentVersion(models.Model):
@@ -338,9 +353,33 @@ class ClinicalDocumentVersion(models.Model):
     sha256 = models.CharField(max_length=64)
     wrapped_key = models.BinaryField()
     ciphertext = models.BinaryField()
+    object_key = models.CharField(max_length=160, blank=True)
+    key_id = models.CharField(max_length=255, blank=True)
+    purged_at = models.DateTimeField(null=True)
+    search_tokens = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["document", "number"], name="clinical_document_version")
         ]
+
+
+class ClinicalReport(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    code = models.CharField(max_length=32)
+    title = models.CharField(max_length=160)
+    effective_at = models.DateTimeField()
+
+
+class ClinicalObservation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    report = models.ForeignKey(
+        ClinicalReport, on_delete=models.PROTECT, related_name="observations"
+    )
+    code = models.CharField(max_length=32)
+    label = models.CharField(max_length=160)
+    value = models.DecimalField(max_digits=16, decimal_places=6)
+    unit = models.CharField(max_length=32)

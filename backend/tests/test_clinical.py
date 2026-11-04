@@ -1,17 +1,46 @@
+from io import BytesIO
 from unittest.mock import patch
 
 import pytest
 from cryptography.fernet import Fernet
 from django.core.files.uploadedfile import SimpleUploadedFile
+from pypdf import PdfWriter
+from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 from test_identity import approve, org_for, patient, signed, user
 
 from identity.models import ClinicalDocumentVersion, ConsentTextVersion, PatientConsent, Share
 
 pytestmark = pytest.mark.django_db
-PDF = b"%PDF-1.7\nsynthetic content"
 
 
-def test_clinical_version_lifecycle_and_access(settings):
+def synthetic_pdf():
+    writer = PdfWriter()
+    page = writer.add_blank_page(width=200, height=200)
+    font = DictionaryObject(
+        {
+            NameObject("/Type"): NameObject("/Font"),
+            NameObject("/Subtype"): NameObject("/Type1"),
+            NameObject("/BaseFont"): NameObject("/Helvetica"),
+        }
+    )
+    page[NameObject("/Resources")] = DictionaryObject(
+        {
+            NameObject("/Font"): DictionaryObject({NameObject("/F1"): font}),
+        }
+    )
+    stream = DecodedStreamObject()
+    stream.set_data(b"BT /F1 12 Tf 20 20 Td (KeywordSaffron) Tj ET")
+    page[NameObject("/Contents")] = writer._add_object(stream)
+    result = BytesIO()
+    writer.write(result)
+    return result.getvalue()
+
+
+PDF = synthetic_pdf()
+
+
+def test_clinical_version_lifecycle_and_access(settings, monkeypatch):
+    monkeypatch.setenv("CLINICAL_SEARCH_KEY", Fernet.generate_key().decode())
     settings.CLINICAL_MASTER_KEY = Fernet.generate_key().decode()
     professional = user("document-author@patients.example", "professional")
     approve(professional)
@@ -63,12 +92,22 @@ def test_clinical_version_lifecycle_and_access(settings):
     assert patient_browser.get(fhir_patient).json()["resourceType"] == "Patient"
     assert outsider.get(fhir_patient).status_code == 404
     types = patient_browser.get("fhir/metadata").json()["rest"][0]["resource"]
-    assert {resource["type"] for resource in types} == {"Patient", "DocumentReference"}
+    assert {resource["type"] for resource in types} == {
+        "Patient",
+        "DocumentReference",
+        "Organization",
+        "Practitioner",
+        "Consent",
+        "DiagnosticReport",
+        "Observation",
+    }
     assert outsider.get(download).status_code == 404
     assert outsider.get(fhir).status_code == 404
     assert outsider.get(url + "?q=Synthetic").data["count"] == 0
     assert patient_browser.get(url + "?q=Synthetic").data["count"] == 1
     assert author.get(url + "?q=Synthetic").data["count"] == 2
+    assert patient_browser.get(url + "?q=KeywordSaffron").data["count"] == 1
+    assert outsider.get(url + "?q=KeywordSaffron").data["count"] == 0
     assert patient_browser.get(f"fhir/DocumentReference/{private.data['id']}").status_code == 404
     recipient = user("document-recipient@patients.example", "professional")
     approve(recipient)
@@ -81,7 +120,11 @@ def test_clinical_version_lifecycle_and_access(settings):
         permissions=["view", "download"],
         purpose="Synthetic test",
     )
-    text = ConsentTextVersion.objects.filter(purpose="care_sharing", locale="it").first()
+    text = (
+        ConsentTextVersion.objects.filter(purpose="care_sharing", locale="it")
+        .order_by("-version")
+        .first()
+    )
     for decision, expected in [("granted", 200), ("revoked", 404)]:
         PatientConsent.objects.create(
             patient=record, share=share, text_version=text, actor=patient_account, decision=decision
@@ -94,6 +137,247 @@ def test_clinical_version_lifecycle_and_access(settings):
             assert "subject" not in recipient_browser.get(fhir).json()
             assert recipient_browser.get(fhir_patient).status_code == 404
         assert recipient_browser.get(url).data["count"] == (1 if expected == 200 else 0)
+    item = author.post(
+        "shares/",
+        {
+            "patient": str(record.pk),
+            "document": created.data["document"],
+            "scope": "item",
+            "recipient_user": str(recipient.pk),
+            "purpose": "Synthetic",
+            "permissions": ["view"],
+        },
+    )
+    assert item.status_code == 201, item.content
+    grant = Share.objects.get(pk=item.data["id"])
+    consent = PatientConsent.objects.create(
+        patient=record, share=grant, text_version=text, actor=patient_account, decision="granted"
+    )
+    assert patient_browser.get(f"fhir/Consent/{consent.pk}").json()["status"] == "active"
+    assert recipient_browser.get(fhir).status_code == 200
+    assert recipient_browser.get(download).status_code == 404
+    assert recipient_browser.get(url).data["results"][0]["can_download"] is False
+    assert recipient_browser.get(f"shares/{grant.pk}/patient/").status_code == 404
     assert author.client.delete("/api/v1/" + doc, **csrf).status_code == 204
     assert patient_browser.get(download).status_code == 404
     assert ClinicalDocumentVersion.objects.filter(pk=version.pk).exists()
+
+
+def test_structured_report_and_observation_are_visible_only_in_care():
+    professional = user("report-author@patients.example", "professional")
+    approve(professional)
+    author = signed(professional)
+    record = patient(org_for(professional), professional)
+    outsider = signed(user("report-outsider@patients.example"))
+    url = f"clinical/patients/{record.pk}/reports/"
+    payload = {
+        "code": "24323-8",
+        "title": "Synthetic panel",
+        "effective_at": "2026-01-02T12:00:00Z",
+        "observations": [
+            {"code": "2345-7", "display": "Synthetic glucose", "value": "90", "unit": "mg/dL"}
+        ],
+    }
+    assert outsider.post(url, payload).status_code == 403
+    response = author.post(url, payload)
+    assert response.status_code == 201, response.content
+    path = f"fhir/DiagnosticReport/{response.data['id']}"
+    result = author.get(path, HTTP_ACCEPT="application/fhir+json")
+    assert result.status_code == 200
+    observation = "fhir/" + result.json()["result"][0]["reference"]
+    assert author.get(observation).json()["valueQuantity"]["value"] == 90
+    assert outsider.get(path).status_code == 404
+    assert outsider.get(observation).json()["resourceType"] == "OperationOutcome"
+    assert author.get(f"fhir/Organization/{record.organization_id}").status_code == 200
+    assert author.get(f"fhir/Practitioner/{professional.pk}").status_code == 200
+
+
+def test_real_clamav_storage_restore_and_retention(settings, monkeypatch):
+    import os
+    from datetime import timedelta
+
+    from django.core.management import call_command
+    from django.utils import timezone
+    from rest_framework.exceptions import ValidationError
+
+    from identity.clinical import scan, seal
+    from identity.clinical_storage import aws, bucket, maintain_version, offload, read_content
+    from identity.models import ClinicalDocument
+
+    if os.environ.get("CLINICAL_INTEGRATION_TEST") != "1":
+        pytest.skip("Requires a local ClamAV and private S3 bucket.")
+    settings.CLINICAL_MASTER_KEY = Fernet.generate_key().decode()
+    scan(PDF)
+    eicar = b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$" + b"EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+    with pytest.raises(ValidationError):
+        scan(eicar)
+
+    author = user("storage-author@patients.example", "professional")
+    record = patient(org_for(author), author)
+    document = ClinicalDocument.objects.create(patient=record, author=author, kind="report")
+    version = ClinicalDocumentVersion.objects.create(
+        document=document,
+        number=1,
+        title="Synthetic storage fixture",
+        media_type="application/pdf",
+        size=len(PDF),
+        **seal(PDF, record.organization_id),
+    )
+    offload(version.pk)
+    version.refresh_from_db()
+    assert version.object_key
+    try:
+        assert not version.ciphertext
+        assert read_content(version) == PDF
+        offload(version.pk)
+        old_key = settings.CLINICAL_MASTER_KEY
+        settings.CLINICAL_MASTER_KEY = Fernet.generate_key().decode()
+        monkeypatch.setenv("CLINICAL_PREVIOUS_MASTER_KEYS", old_key)
+        call_command(
+            "clinical_storage", "rotate", "--apply", "--tenant", str(record.organization_id)
+        )
+        monkeypatch.delenv("CLINICAL_PREVIOUS_MASTER_KEYS")
+        version.refresh_from_db()
+        assert read_content(version) == PDF
+        call_command("clinical_storage", "verify", "--tenant", str(record.organization_id))
+        document.deleted_at = timezone.now() - timedelta(days=2)
+        document.save(update_fields=["deleted_at"])
+        target = [
+            "--apply",
+            "--tenant",
+            str(record.organization_id),
+            "--document",
+            str(document.pk),
+        ]
+        call_command("clinical_storage", "hold", *target)
+        cutoff = timezone.now() - timedelta(days=1)
+        maintain_version(version.pk, cutoff=cutoff)
+        version.refresh_from_db()
+        assert version.purged_at is None
+        call_command("clinical_storage", "release-hold", *target)
+        call_command(
+            "clinical_storage",
+            "purge",
+            "--apply",
+            "--tenant",
+            str(record.organization_id),
+            "--days",
+            "1",
+        )
+        version.refresh_from_db()
+        assert version.purged_at and not version.wrapped_key
+        assert (
+            not aws("s3")
+            .list_objects_v2(Bucket=bucket(), Prefix=version.object_key)
+            .get("Contents")
+        )
+    finally:
+        aws("s3").delete_object(Bucket=bucket(), Key=version.object_key)
+
+
+def test_folder_scope_includes_descendants_and_preserves_patient_boundary():
+    professional = user("folder-author@patients.example", "professional")
+    approve(professional)
+    author = signed(professional)
+    patient_account = user("folder-patient@patients.example")
+    record = patient(org_for(professional), professional)
+    record.account = patient_account
+    record.save(update_fields=["account"])
+    route = f"clinical/patients/{record.pk}/folders/"
+    root = author.post(route, {"title": "Synthetic root"})
+    assert root.status_code == 201, root.content
+    child = author.post(route, {"title": "Synthetic child", "parent_folder": root.data["id"]})
+    assert child.status_code == 201, child.content
+    other = patient(org_for(professional, "Other synthetic tenant"), professional)
+    assert (
+        author.post(
+            f"clinical/patients/{other.pk}/folders/",
+            {
+                "title": "Cross tenant",
+                "parent_folder": root.data["id"],
+            },
+        ).status_code
+        == 404
+    )
+    recipient = user("folder-recipient@patients.example", "professional")
+    approve(recipient)
+    receiver = signed(recipient)
+    from identity.models import ClinicalDocument
+
+    document = ClinicalDocument.objects.create(
+        patient=record, author=professional, kind="report", folder_id=child.data["id"]
+    )
+    response = author.post(
+        "shares/",
+        {
+            "patient": str(record.pk),
+            "folder": root.data["id"],
+            "scope": "folder",
+            "recipient_user": str(recipient.pk),
+            "purpose": "Synthetic",
+            "permissions": ["view", "reshare"],
+        },
+    )
+    assert response.status_code == 201, response.content
+    share = Share.objects.get(pk=response.data["id"])
+    for version, status in [(1, 404), (2, 200)]:
+        text = ConsentTextVersion.objects.get(purpose="care_sharing", locale="it", version=version)
+        PatientConsent.objects.create(
+            patient=record,
+            share=share,
+            text_version=text,
+            actor=patient_account,
+            decision="granted",
+        )
+        assert receiver.get(f"clinical/documents/{document.pk}/").status_code == status
+    assert receiver.get(f"shares/{share.pk}/patient/").status_code == 404
+
+
+def test_import_manifest_is_idempotent_and_rejects_hash_mismatch(settings, monkeypatch, tmp_path):
+    import hashlib
+    import json
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    from django.core.management import call_command
+    from django.core.management.base import CommandError
+
+    settings.CLINICAL_MASTER_KEY = Fernet.generate_key().decode()
+    for name in ("ENDPOINT", "BUCKET", "KEY", "SECRET"):
+        monkeypatch.setenv("LEGACY_R2_" + name, "synthetic-fixture")
+    professional = user("import-author@patients.example", "professional")
+    approve(professional)
+    record = patient(org_for(professional), professional)
+    record.legacy_source = "d1"
+    record.legacy_owner = "synthetic-owner"
+    record.legacy_id = "synthetic-patient"
+    record.save()
+    client = Mock()
+    client.meta = SimpleNamespace(endpoint_url="https://synthetic.example")
+    client.get_object.side_effect = lambda **kwargs: {"Body": BytesIO(PDF)}
+    row = {
+        "source": "d1",
+        "owner": "synthetic-owner",
+        "patient_legacy_id": "synthetic-patient",
+        "organization": str(record.organization_id),
+        "author": str(professional.pk),
+        "key": "synthetic-owner/test",
+        "sha256": hashlib.sha256(PDF).hexdigest(),
+        "title": "Synthetic",
+    }
+    manifest = tmp_path / "import.jsonl"
+    manifest.write_text(json.dumps(row))
+    with (
+        patch(
+            "identity.management.commands.import_legacy_documents.boto3.client", return_value=client
+        ),
+        patch("identity.management.commands.import_legacy_documents.scan"),
+    ):
+        call_command("import_legacy_documents", str(manifest))
+        assert ClinicalDocumentVersion.objects.count() == 0
+        call_command("import_legacy_documents", str(manifest), "--apply")
+        call_command("import_legacy_documents", str(manifest), "--apply")
+        assert ClinicalDocumentVersion.objects.count() == 1
+        manifest.write_text(json.dumps({**row, "sha256": "0" * 64}))
+        with pytest.raises(CommandError):
+            call_command("import_legacy_documents", str(manifest), "--apply")

@@ -14,3 +14,7 @@ ruff
 mypy
 django-stubs
 djangorestframework-stubs
+boto3
+pypdf
+Pillow
+pydicom

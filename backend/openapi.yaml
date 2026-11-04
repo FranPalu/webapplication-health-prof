@@ -559,6 +559,99 @@ paths:
               schema:
                 $ref: '#/components/schemas/VersionOutput'
           description: ''
+  /api/v1/clinical/patients/{patient_id}/folders/:
+    get:
+      operationId: clinical_patients_folders_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFolderOutputList'
+          description: ''
+    post:
+      operationId: clinical_patients_folders_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FolderInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FolderInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderOutput'
+          description: ''
+  /api/v1/clinical/patients/{patient_id}/reports/:
+    post:
+      operationId: clinical_patients_reports_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/clinical/versions/{version_id}/download/:
     get:
       operationId: clinical_versions_download_retrieve
@@ -636,9 +729,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConsentTextOutput'
           description: ''
+  /api/v1/fhir/Consent/{resource_id}:
+    get:
+      operationId: fhir_Consent_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/DiagnosticReport/{resource_id}:
+    get:
+      operationId: fhir_DiagnosticReport_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/fhir/DocumentReference/{resource_id}:
     get:
       operationId: fhir_DocumentReference_retrieve
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - fhir
+          - json
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/Observation/{resource_id}:
+    get:
+      operationId: fhir_Observation_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/Organization/{resource_id}:
+    get:
+      operationId: fhir_Organization_retrieve
       parameters:
       - in: path
         name: resource_id
@@ -662,6 +849,35 @@ paths:
     get:
       operationId: fhir_Patient_retrieve
       parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - fhir
+          - json
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/Practitioner/{resource_id}:
+    get:
+      operationId: fhir_Practitioner_retrieve
+      parameters:
       - in: path
         name: resource_id
         schema:
@@ -683,6 +899,14 @@ paths:
   /api/v1/fhir/metadata:
     get:
       operationId: fhir_metadata_retrieve
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - fhir
+          - json
       tags:
       - fhir
       security:
@@ -1369,6 +1593,35 @@ components:
           minLength: 1
       required:
       - email
+    FolderInputRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        parent_folder:
+          type: string
+          format: uuid
+      required:
+      - title
+    FolderOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - id
+      - title
     LinkInputRequest:
       type: object
       properties:
@@ -1455,6 +1708,30 @@ components:
       - id
       - read
       - resource_id
+    ObservationInputRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          pattern: ^[0-9]{1,12}-[0-9]$
+        display:
+          type: string
+          minLength: 1
+          maxLength: 160
+        value:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,6})?$
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 32
+      required:
+      - code
+      - display
+      - unit
+      - value
     Organization:
       type: object
       properties:
@@ -1497,6 +1774,29 @@ components:
       required:
       - kind
       - name
+    PaginatedFolderOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderOutput'
     PaginatedOrganizationList:
       type: object
       required:
@@ -1744,6 +2044,29 @@ components:
           default: true
       required:
       - professional
+    ReportInputRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          pattern: ^[0-9]{1,12}-[0-9]$
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        effective_at:
+          type: string
+          format: date-time
+        observations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservationInputRequest'
+      required:
+      - code
+      - effective_at
+      - observations
+      - title
     ResetInputRequest:
       type: object
       properties:
@@ -1821,6 +2144,12 @@ components:
     ShareInputRequest:
       type: object
       properties:
+        folder:
+          type: string
+          format: uuid
+        document:
+          type: string
+          format: uuid
         patient:
           type: string
           format: uuid
@@ -1856,10 +2185,12 @@ components:
     ShareInputScopeEnum:
       enum:
       - item
+      - folder
       - chart
       type: string
       description: |-
         * `item` - item
+        * `folder` - folder
         * `chart` - chart
     ShareOutput:
       type: object
@@ -1876,6 +2207,16 @@ components:
           type: string
           format: uuid
           readOnly: true
+        document:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        folder:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
         recipient_user:
           type: string
           format: uuid
@@ -1912,14 +2253,23 @@ components:
         active:
           type: boolean
           readOnly: true
+        clinical_active:
+          type: boolean
+          readOnly: true
+        resource_label:
+          type: string
+          readOnly: true
         consent_decision:
           type: string
           readOnly: true
       required:
       - active
+      - clinical_active
       - consent_decision
       - created_at
+      - document
       - expires_at
+      - folder
       - granted_by
       - id
       - patient
@@ -1927,15 +2277,18 @@ components:
       - purpose
       - recipient_organization
       - recipient_user
+      - resource_label
       - revoked_at
       - scope
     ShareOutputScopeEnum:
       enum:
       - item
+      - folder
       - chart
       type: string
       description: |-
         * `item` - Item
+        * `folder` - Folder
         * `chart` - Chart
     StatusOutput:
       type: object
@@ -1980,6 +2333,9 @@ components:
         file:
           type: string
           format: binary
+        folder:
+          type: string
+          format: uuid
         title:
           type: string
           minLength: 1
@@ -2129,9 +2485,27 @@ components:
           type: string
           format: date-time
           readOnly: true
+        can_download:
+          type: boolean
+          readOnly: true
+        can_edit:
+          type: boolean
+          readOnly: true
+        can_share:
+          type: boolean
+          readOnly: true
+        folder:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
       required:
+      - can_download
+      - can_edit
+      - can_share
       - created_at
       - document
+      - folder
       - id
       - media_type
       - number

@@ -110,3 +110,10 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CLINICAL_MASTER_KEY = os.environ.get("CLINICAL_MASTER_KEY", "")
+
+CELERY_BEAT_SCHEDULE = {
+    "clinical-storage-reconciliation": {
+        "task": "identity.tasks.reconcile_clinical_storage",
+        "schedule": 60.0,
+    },
+}

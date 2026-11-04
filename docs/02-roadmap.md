@@ -67,6 +67,10 @@ di M2.
 
 ## M3 — Documenti e interoperabilità
 
+Implementata e verificata in ambiente locale. Le prove usano dati sintetici,
+ClamAV e SeaweedFS. Le attivazioni AWS KMS e R2 dipendono dalle credenziali
+del destinatario. Vedere [guida M3](04-clinical-documents.md).
+
 Dipende da M2. PDF, immagini e DICOM, note psicologiche ristrette, quarantena,
 antivirus, envelope encryption/KMS, limiti, versionamento, retention e ricerca.
 Import R2 con hash e riconciliazione. Dati strutturati e API FHIR R4 di lettura

@@ -101,3 +101,5 @@ La repository è pubblica, sulla branch `main`. La GitHub Action `Studio checks`
 Template PDF coordinati per fatture e piani alimentari, contributo ENPAB 4% nelle nuove fatture, archiviazione/eliminazione pazienti, avvisi immediati sulle sovrapposizioni con suggerimenti di orari liberi. Email e WhatsApp dispongono di configurazione server, webhook firmati e scheduler predisposto (disattivato fino al collaudo).
 
 Leggi [la guida alla configurazione](docs/COMMUNICATIONS_SETUP.md) per credenziali, migrazione `0002`, webhook e attivazione dei reminder. Le credenziali reali non fanno parte del repository.
+
+I documenti clinici M3 sono disponibili nel portale autenticato sotto **Anagrafiche autorizzate → Documenti clinici**. Per storage, conservazione, FHIR e test, vedere la [guida M3](docs/04-clinical-documents.md).

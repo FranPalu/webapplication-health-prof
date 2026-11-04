@@ -7,12 +7,12 @@ import os
 import socket
 import struct
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, MultiFernet
 from django.conf import settings
 from django.db.models import Q
 from rest_framework.exceptions import APIException, ValidationError
 
-from identity.models import ClinicalDocument
+from identity.models import ClinicalDocument, ClinicalFolder
 from identity.services import (
     share_is_active,
     share_recipient_queryset,
@@ -20,6 +20,7 @@ from identity.services import (
     visible_patients,
 )
 
+CLINICAL_CONSENT_VERSION = 2
 MAX_BYTES = 10 * 1024 * 1024
 
 
@@ -37,13 +38,37 @@ def clinical_patients(user):
     )
 
 
+def shared_scopes(user, permission):
+    charts, items, folders = [], [], []
+    for share in share_recipient_queryset(user).select_related("parent"):
+        if permission not in share.permissions or not share_is_active(
+            share, CLINICAL_CONSENT_VERSION
+        ):
+            continue
+        if share.scope == "chart":
+            charts.append(share.patient_id)
+        elif share.document_id:
+            items.append(share.document_id)
+        elif share.scope == "folder" and share.folder_id:
+            folders.append(share.folder_id)
+    return charts, items, folders
+
+
+def descendant_folders(roots):
+    seen = set(roots)
+    frontier = seen.copy()
+    while frontier:
+        children = ClinicalFolder.objects.filter(parent_id__in=frontier).values_list(
+            "pk", flat=True
+        )
+        frontier = set(children) - seen
+        seen.update(frontier)
+    return seen
+
+
 def visible_documents(user, permission="view"):
     direct = visible_patients(user)
-    shared = [
-        share.patient_id
-        for share in share_recipient_queryset(user).filter(scope="chart").select_related("parent")
-        if permission in share.permissions and share_is_active(share)
-    ]
+    charts, items, folders = shared_scopes(user, permission)
     authored = Q(pk__in=[])
     if verified_professional(user):
         authored = Q(patient__in=clinical_patients(user), author=user)
@@ -51,7 +76,12 @@ def visible_documents(user, permission="view"):
         authored
         | (
             ~Q(kind=ClinicalDocument.Kind.PSYCHOLOGY)
-            & (Q(patient__in=direct) | Q(patient_id__in=shared))
+            & (
+                Q(patient__in=direct)
+                | Q(patient_id__in=charts)
+                | Q(pk__in=items)
+                | Q(folder_id__in=descendant_folders(folders))
+            )
         )
     )
 
@@ -80,7 +110,15 @@ def scan(data):
                 connection.sendall(struct.pack("!I", len(chunk)) + chunk)
             connection.sendall(b"\0" * 4)
             with connection.makefile("rb") as stream:
-                verdict = stream.read(512).split(b"\0", 1)[0]
+                reply = bytearray()
+                while len(reply) < 512:
+                    byte = stream.read(1)
+                    if byte == b"\0":
+                        break
+                    if not byte:
+                        raise DocumentUnavailable()
+                    reply.extend(byte)
+                verdict = bytes(reply)
     except OSError as exc:
         raise DocumentUnavailable() from exc
     if verdict == b"stream: OK":
@@ -91,20 +129,39 @@ def scan(data):
 
 
 def tenant_cipher(organization_id):
-    try:
-        master = base64.b64decode(settings.CLINICAL_MASTER_KEY, altchars=b"-_", validate=True)
-    except ValueError as exc:
-        raise DocumentUnavailable() from exc
-    if len(master) != 32:
-        raise DocumentUnavailable()
-    tenant_key = hmac.digest(master, f"claria-clinical-v1:{organization_id}".encode(), "sha256")
-    return Fernet(base64.urlsafe_b64encode(tenant_key))
+    keys = [settings.CLINICAL_MASTER_KEY]
+    keys.extend(filter(None, os.environ.get("CLINICAL_PREVIOUS_MASTER_KEYS", "").split(",")))
+    ciphers = []
+    for encoded in keys:
+        try:
+            master = base64.b64decode(encoded, altchars=b"-_", validate=True)
+        except ValueError as exc:
+            raise DocumentUnavailable() from exc
+        if len(master) != 32:
+            raise DocumentUnavailable()
+        tenant_key = hmac.digest(master, f"claria-clinical-v1:{organization_id}".encode(), "sha256")
+        ciphers.append(Fernet(base64.urlsafe_b64encode(tenant_key)))
+    return MultiFernet(ciphers)
+
+
+def search_tokens(text, organization_id):
+    from identity.clinical_formats import terms
+
+    key = os.environ.get("CLINICAL_SEARCH_KEY", "")
+    if not key:
+        return []
+    tenant_key = hmac.digest(key.encode(), str(organization_id).encode(), "sha256")
+    return sorted(hmac.digest(tenant_key, word.encode(), "sha256").hex() for word in terms(text))
 
 
 def seal(data, organization_id):
+    from identity.clinical_storage import wrap_key
+
     key = Fernet.generate_key()
+    key_id, wrapped = wrap_key(key, organization_id)
     return {
         "sha256": hashlib.sha256(data).hexdigest(),
-        "wrapped_key": tenant_cipher(organization_id).encrypt(key),
+        "wrapped_key": wrapped,
+        "key_id": key_id,
         "ciphertext": Fernet(key).encrypt(data),
     }

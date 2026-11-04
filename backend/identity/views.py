@@ -606,6 +606,30 @@ class SharesView(InputView):
                 raise PermissionDenied("A re-share must refer to the parent resource")
         else:
             patient = get_object_or_404(visible_patients(request.user), pk=data["patient"])
+        from identity.clinical import descendant_folders, visible_documents
+        from identity.models import ClinicalFolder
+
+        document = None
+        folder = None
+        if data.get("document"):
+            document = get_object_or_404(
+                visible_documents(request.user).exclude(kind="psychology"),
+                pk=data["document"],
+                patient=patient,
+            )
+        if data.get("folder"):
+            folder = get_object_or_404(ClinicalFolder, pk=data["folder"], patient=patient)
+        if (
+            parent
+            and parent.scope == "item"
+            and parent.document_id != getattr(document, "pk", None)
+        ):
+            raise PermissionDenied("A re-share cannot change its resource")
+        if parent and parent.scope == "folder":
+            allowed_folders = descendant_folders([parent.folder_id])
+            selected_folder = document.folder_id if document else getattr(folder, "pk", None)
+            if selected_folder not in allowed_folders:
+                raise PermissionDenied("A re-share cannot expand its folder scope")
         if not patient.account_id:
             raise ValidationError("Patient account must be linked before requesting consent")
         recipient_user = None
@@ -633,6 +657,8 @@ class SharesView(InputView):
                 raise PermissionDenied("A re-share cannot outlive its parent")
         share = Share.objects.create(
             patient=patient,
+            document=document,
+            folder=folder,
             granted_by=request.user,
             recipient_user=recipient_user,
             recipient_organization=recipient_org,
@@ -764,7 +790,12 @@ class SharedPatientView(InputView):
 
     @extend_schema(responses=PatientSerializer)
     def get(self, request, share_id):
-        share = get_object_or_404(share_recipient_queryset(request.user), pk=share_id)
+        share = get_object_or_404(
+            share_recipient_queryset(request.user),
+            pk=share_id,
+            document__isnull=True,
+            folder__isnull=True,
+        )
         if not share_is_active(share) or "view" not in share.permissions:
             audit(request.user, "share.access_denied", share.id, share.patient.organization)
             raise PermissionDenied()
@@ -777,7 +808,12 @@ class DownloadSharedPatientView(InputView):
 
     @extend_schema(responses=PatientSerializer)
     def get(self, request, share_id):
-        share = get_object_or_404(share_recipient_queryset(request.user), pk=share_id)
+        share = get_object_or_404(
+            share_recipient_queryset(request.user),
+            pk=share_id,
+            document__isnull=True,
+            folder__isnull=True,
+        )
         if not share_is_active(share) or "download" not in share.permissions:
             audit(request.user, "share.download_denied", share.id, share.patient.organization)
             raise PermissionDenied()
@@ -882,7 +918,25 @@ class AccessHistoryView(InputView):
             return Response([])
         share_ids = Share.objects.filter(patient_id__in=patient_ids).values_list("id", flat=True)
         resource_ids = [str(value) for value in patient_ids] + [str(value) for value in share_ids]
-        events = AuditEvent.objects.filter(resource_id__in=resource_ids)
+        from django.db.models.functions import Cast
+
+        from identity.models import ClinicalDocumentVersion, ClinicalObservation, ClinicalReport
+
+        versions = ClinicalDocumentVersion.objects.filter(
+            document__patient_id__in=patient_ids
+        ).exclude(document__kind="psychology")
+        reports = ClinicalReport.objects.filter(patient_id__in=patient_ids)
+        observations = ClinicalObservation.objects.filter(report__in=reports)
+        from django.db.models import CharField
+
+        clinical_ids = Q()
+        for records in (versions, reports, observations):
+            clinical_ids |= Q(
+                resource_id__in=records.annotate(
+                    text_id=Cast("pk", output_field=CharField())
+                ).values("text_id")
+            )
+        events = AuditEvent.objects.filter(Q(resource_id__in=resource_ids) | clinical_ids)
         return Response(
             [
                 {

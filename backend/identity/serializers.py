@@ -162,10 +162,12 @@ class ProfileInput(serializers.Serializer):
 
 
 class ShareInput(serializers.Serializer):
+    folder = serializers.UUIDField(required=False)
+    document = serializers.UUIDField(required=False)
     patient = serializers.UUIDField()
     recipient_user = serializers.UUIDField(required=False)
     recipient_organization = serializers.UUIDField(required=False)
-    scope = serializers.ChoiceField(choices=["item", "chart"])
+    scope = serializers.ChoiceField(choices=["item", "folder", "chart"])
     permissions = serializers.ListField(
         child=serializers.ChoiceField(choices=["view", "download", "comment", "reshare"]),
         allow_empty=False,
@@ -178,6 +180,10 @@ class ShareInput(serializers.Serializer):
     def validate(self, attrs):
         if bool(attrs.get("recipient_user")) == bool(attrs.get("recipient_organization")):
             raise serializers.ValidationError("Specify exactly one recipient")
+        if bool(attrs.get("folder")) != (attrs["scope"] == "folder"):
+            raise serializers.ValidationError("Folder scope requires a folder")
+        if attrs.get("document") and attrs["scope"] != "item":
+            raise serializers.ValidationError("Document shares require item scope")
         if len(set(attrs["permissions"])) != len(attrs["permissions"]):
             raise serializers.ValidationError("Duplicate permissions")
         if attrs.get("expires_at") and attrs["expires_at"] <= timezone.now():
@@ -203,12 +209,34 @@ class BreakGlassInput(serializers.Serializer):
 
 class ShareOutput(serializers.ModelSerializer):
     active = serializers.SerializerMethodField()
+    clinical_active = serializers.SerializerMethodField()
+    resource_label = serializers.SerializerMethodField()
     consent_decision = serializers.SerializerMethodField()
 
     def get_active(self, obj) -> bool:
         from .services import share_is_active
 
         return share_is_active(obj)
+
+    def get_clinical_active(self, obj) -> bool:
+        from .clinical import CLINICAL_CONSENT_VERSION
+        from .services import share_is_active
+
+        return bool(
+            (obj.scope in ("chart", "folder") or obj.document_id)
+            and share_is_active(obj, CLINICAL_CONSENT_VERSION)
+        )
+
+    def get_resource_label(self, obj) -> str:
+        request = self.context.get("request")
+        if not request or request.user.pk != obj.patient.account_id:
+            return ""
+        if obj.document_id and obj.document.deleted_at is None:
+            return (
+                obj.document.versions.order_by("-number").values_list("title", flat=True).first()
+                or ""
+            )
+        return obj.folder.title if obj.folder_id else ""
 
     def get_consent_decision(self, obj) -> str:
         from .models import PatientConsent
@@ -227,6 +255,8 @@ class ShareOutput(serializers.ModelSerializer):
             "id",
             "patient",
             "granted_by",
+            "document",
+            "folder",
             "recipient_user",
             "recipient_organization",
             "scope",
@@ -236,6 +266,8 @@ class ShareOutput(serializers.ModelSerializer):
             "revoked_at",
             "created_at",
             "active",
+            "clinical_active",
+            "resource_label",
             "consent_decision",
         ]
         read_only_fields = fields
