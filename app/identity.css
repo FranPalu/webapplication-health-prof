@@ -1,1 +1,121 @@
-.identity{--surface:#fff;--ink:#233b34;--accent:#345d50;--border:#c9d5cf;max-width:1060px;margin:auto;padding:32px 20px;color:var(--ink);font-family:Arial,sans-serif}.identity header{display:flex;justify-content:space-between;gap:24px;align-items:start}.identity h1{font-size:clamp(2rem,4vw,3rem);line-height:1.15;margin:16px 0}.identity h2{font-size:1.25rem;margin:0 0 20px}.identity h3{font-size:1rem}.identity p{line-height:1.6}.identity-brand{font-size:.75rem;letter-spacing:.15em;font-weight:bold}.identity-body{border:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;min-width:0}.identity-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;min-width:0}.identity form{display:grid;gap:16px}.identity label{display:grid;gap:6px;font-size:.9rem}.identity input,.identity select{border:1px solid #82998d;border-radius:7px;padding:10px;min-height:44px;width:100%;background:var(--surface);color:var(--ink)}.identity input[type=checkbox]{width:22px;min-height:22px}.identity button{border:1px solid var(--accent);background:var(--accent);color:white;padding:10px 16px;border-radius:7px;min-height:44px;cursor:pointer}.identity button:disabled{opacity:.6}.identity :focus-visible{outline:3px solid #9c5c10;outline-offset:3px}.identity nav,.identity-account{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:16px 0}.identity-account{grid-column:1/-1}.identity-notice{background:#e5eee8;padding:16px;border-radius:10px}.identity-error{color:#8a1725;background:#fff0f0;padding:16px;overflow-wrap:anywhere}.identity article{border-bottom:1px solid var(--border);padding:12px 0}.identity details{margin:20px 0}.identity summary{cursor:pointer;margin-bottom:16px}.identity-secret,.identity code,.identity small{overflow-wrap:anywhere}.identity footer{margin:30px 0}.identity a{color:var(--accent);text-decoration:underline}.identity fieldset[disabled]{opacity:.7}@media(max-width:600px){.identity header{display:block}.identity-body{grid-template-columns:1fr}}@media(prefers-color-scheme:dark){.identity{--surface:#1b2924;--ink:#f0f6f2;--accent:#34654f;--border:#698073;background:#14201b}.identity-notice{background:#284236}.identity a{color:#b3e2c8}.identity-error{background:#391b20;color:#ffc6cb}}
+.identity {
+  --surface: #fff;
+  --ink: #201a30;
+  --muted: #5c546c;
+  --accent: #6d28d9;
+  --link: #5925b4;
+  --border: #ded7e9;
+  --wash: #f5efff;
+  --canvas: #faf8fd;
+  --error: #912338;
+  --error-bg: #fff0f2;
+  --shadow: 0 12px 32px #32205a0d;
+  min-height: 100vh;
+  padding: clamp(16px, 4vw, 48px) max(16px, calc((100% - 1120px) / 2));
+  color: var(--ink);
+  background: var(--canvas);
+  font: 1rem/1.55 system-ui, sans-serif;
+}
+
+[data-theme="dark"] .identity {
+  --surface: #211e28;
+  --ink: #f8f4ff;
+  --muted: #cec4db;
+  --accent: #7439d0;
+  --link: #d8baff;
+  --border: #51475e;
+  --wash: #2f223f;
+  --canvas: #15131a;
+  --error: #ffbdca;
+  --error-bg: #3a1d29;
+  --shadow: 0 12px 32px #0003;
+}
+
+.identity .identity-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(22px, 5vw, 56px);
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: linear-gradient(120deg, var(--surface), var(--wash));
+}
+
+.identity h1, .identity h2, .identity h3 { font-family: inherit; color: var(--ink); }
+.identity h1 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.08; letter-spacing: -.045em; margin: 18px 0 10px; }
+.identity h2 { font-size: 1.35rem; margin: 0 0 16px; }
+.identity h3 { font-size: 1rem; }
+.identity p { color: var(--muted); margin: 0 0 10px; }
+.identity .identity-brand { display: flex; align-items: center; gap: 10px; font-weight: 750; color: var(--ink); }
+.identity-brand span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+}
+.identity-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.identity-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 18px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+.identity-card, .identity-account {
+  min-width: 0;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.identity form { display: grid; gap: 14px; }
+.identity label { display: grid; gap: 5px; font-size: .9rem; font-weight: 600; }
+.identity input, .identity select {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.identity input[type=checkbox] { width: 22px; min-height: 22px; accent-color: var(--accent); }
+.identity button {
+  min-height: 44px;
+  padding: 9px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 650;
+  cursor: pointer;
+}
+.identity button:hover { filter: brightness(1.08); }
+.identity :focus-visible { outline: 3px solid var(--link); outline-offset: 3px; }
+.identity nav, .identity-account, .demo-links { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.identity nav { margin: 16px 0; }
+.identity nav button { background: var(--wash); color: var(--link); border-color: var(--border); }
+.identity-account { grid-column: 1/-1; }
+.identity-account p { flex: 1 1 240px; margin: 0; }
+.identity .identity-notice, .identity .identity-error { margin-bottom: 18px; padding: 16px 20px; border-radius: 14px; }
+.identity .identity-notice { background: var(--wash); color: var(--ink); }
+.identity-notice p { margin: 4px 0; }
+.identity .identity-error { color: var(--error); background: var(--error-bg); overflow-wrap: anywhere; }
+.identity-card article { border-bottom: 1px solid var(--border); padding: 12px 0; }
+.identity details { margin: 18px 0; }
+.identity summary { cursor: pointer; margin-bottom: 12px; }
+.identity-secret, .identity code, .identity small { overflow-wrap: anywhere; }
+.identity footer { margin: 28px 0 0; }
+.identity a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+.identity fieldset[disabled] { opacity: .7; }
+.demo-picker { max-width: 340px; margin-bottom: 24px; }
+.demo-profile > p { margin-bottom: 18px; }
+.demo-stat strong { display: block; color: var(--link); font-size: 1.2rem; margin: 8px 0; }

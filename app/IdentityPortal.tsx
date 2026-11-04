@@ -3,7 +3,7 @@ import {useEffect, useState, type FormEvent, type ReactNode} from 'react';
 import Link from 'next/link';
 import {api} from '../lib/api/client';
 import type {components} from '../lib/api/schema';
-import './identity.css';
+import {ThemePicker} from './PortalTheme';
 type User = components['schemas']['UserOutput'];
 type Org = components['schemas']['Organization'];
 type Patient = components['schemas']['Patient'];
@@ -82,6 +82,7 @@ function Field({label,name,type='text',required=true,value,onChange}:{label:stri
 export default function IdentityPortal() {
   const [locale,setLocale]=useState<'it'|'en'>('it'); const t=words[locale];
   const [user,setUser]=useState<User|null>(null), [loading,setLoading]=useState(true), [busy,setBusy]=useState(false);
+  const [localMail,setLocalMail]=useState(false);
   const [mode,setMode]=useState('login'), [message,setMessage]=useState(''), [error,setError]=useState('');
   const [token,setToken]=useState(''), [action,setAction]=useState(''), [uri,setUri]=useState(''), [codes,setCodes]=useState<string[]>([]);
   const [orgNext,setOrgNext]=useState<string|null>(null), [patientNext,setPatientNext]=useState<string|null>(null), [reviewNext,setReviewNext]=useState<string|null>(null);
@@ -90,12 +91,15 @@ export default function IdentityPortal() {
     [consentEvents,setConsentEvents]=useState<ConsentEvent[]>([]), [accessHistory,setAccessHistory]=useState<AccessEvent[]>([]),
     [notifications,setNotifications]=useState<Notification[]>([]), [openThread,setOpenThread]=useState(''),
     [messageThreads,setMessageThreads]=useState<Record<string,SecureMessage[]>>({});
+  const checkEmail = localMail
+    ? (locale === 'it' ? 'Controlla Mailpit per continuare.' : 'Check Mailpit to continue.')
+    : t.check;
   const ready=!!user?.email_verified && (!user.requires_mfa || user.mfa_verified);
   async function session() {
     const result=await api<User|{status:string}>('auth/session/');
     const current='id' in result?result:null; setUser(current); return current;
   }
-  useEffect(()=>{async function init(){try{const current=await api<User|{status:string}>('auth/session/');setUser('id' in current?current:null);
+  useEffect(()=>{async function init(){setLocalMail(['localhost','127.0.0.1','[::1]'].includes(window.location.hostname)&&window.location.port==='8080');try{const current=await api<User|{status:string}>('auth/session/');setUser('id' in current?current:null);
     if('id' in current && (!current.requires_mfa||current.mfa_verified)){
       const [o,p,s,n]=await Promise.all([api<Page<Org>>('organizations/'),api<Page<Patient>>('patients/'),api<Page<Share>>('shares/'),api<Notification[]>('notifications/')]);setOrganizations(o.results);setOrgNext(o.next);setPatients(p.results);setPatientNext(p.next);setShares(s.results);setNotifications(n);
       if(current.role==='patient'){
@@ -123,19 +127,23 @@ export default function IdentityPortal() {
   function card(title:string, children:ReactNode){return <section className="identity-card"><h2>{title}</h2>{children}</section>;}
   async function send(path:string,data:unknown){await api(path,data);setMessage(t.done);}
   if(loading)return <main className="identity"><p role="status">{t.loading}</p></main>;
-  return <main className="identity" lang={locale}><header><div><p className="identity-brand">HEALTH · COLLABORATION</p><h1>{t.title}</h1><p>{t.intro}</p></div><label>Lingua / Language<select value={locale} onChange={e=>setLocale(e.target.value as 'it'|'en')}><option value="it">Italiano</option><option value="en">English</option></select></label></header>
-    <p className="identity-notice">{t.notice}</p>{error&&<p role="alert" className="identity-error">{error}</p>}{message&&<p role="status">{message}</p>}
+  return <main className="identity" lang={locale}><header className="identity-hero"><div><p className="identity-brand"><span aria-hidden="true">✚</span> Health Collaboration</p><h1>{t.title}</h1><p>{t.intro}</p></div><div className="identity-controls"><ThemePicker english={locale==='en'}/><label>Lingua / Language<select value={locale} onChange={e=>setLocale(e.target.value as 'it'|'en')}><option value="it">Italiano</option><option value="en">English</option></select></label></div></header>
+    {localMail&&!user&&<aside className="identity-notice">
+      <strong>{locale==='it'?'Email di prova':'Development email'}</strong>
+      <p>{locale==='it'?'In locale, verifica e recupero password arrivano in Mailpit. Se hai già creato l’account, usa «Reinvia verifica».':'Local verification and password reset messages go to Mailpit. If you already registered, use “Resend verification”.'}</p>
+      <a href="http://localhost:8025" target="_blank" rel="noreferrer">{locale==='it'?'Apri Mailpit':'Open Mailpit'} ↗</a>
+    </aside>}{error&&<p role="alert" className="identity-error">{error}</p>}{message&&<p role="status">{message}</p>}
     <fieldset disabled={busy} className="identity-body">
     {action&&card(t.confirm,<form onSubmit={form(async d=>{if(action==='verify')await send('auth/verify/',d);else if(action==='reset')await send('auth/reset/',d);else if(action==='link')await send('patients/link/accept/',d);setAction('');setToken('');await refresh();})}>
       <Field label={t.token} name="token" value={token} onChange={setToken}/>{action==='reset'&&<Field label={t.newPassword} name="password" type="password"/>}<button>{action==='link'?t.accept:t.confirm}</button></form>)}
     {!user&&card(mode==='register'?t.register:mode==='login'?t.login:t.forgot,<><form onSubmit={form(async d=>{
-      if(mode==='register'){await api('auth/register/',{...d,locale});setMessage(t.check);setMode('login');}
+      if(mode==='register'){await api('auth/register/',{...d,locale});setMessage(checkEmail);setMode('login');}
       else if(mode==='login'){await api('auth/login/',d);await refresh();}
-      else {await api('auth/reset/request/',d);setMessage(t.check);}
+      else {await api('auth/reset/request/',d);setMessage(checkEmail);}
     })}><Field label={t.email} name="email" type="email"/>{mode!=='reset'&&<Field label={mode==='register'?t.newPassword:t.password} name="password" type="password"/>}
     {mode==='register'&&<label>{t.role}<select name="role">{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select></label>}
     <button>{mode==='register'?t.register:mode==='login'?t.login:t.forgot}</button></form><nav>{['login','register','reset'].filter(x=>x!==mode).map(x=><button type="button" key={x} onClick={()=>setMode(x)}>{x==='login'?t.login:x==='register'?t.register:t.forgot}</button>)}</nav>
-    <details><summary>{t.resend}</summary><form onSubmit={form(async d=>{await api('auth/resend/',d);setMessage(t.check);})}><Field label={t.email} name="email" type="email"/><button>{t.resend}</button></form></details></>)}
+    <details><summary>{t.resend}</summary><form onSubmit={form(async d=>{await api('auth/resend/',d);setMessage(checkEmail);})}><Field label={t.email} name="email" type="email"/><button>{t.resend}</button></form></details></>)}
     {user&&<><section className="identity-account"><p>{user.email} · {t[user.role]}<br/><small>ID: {user.id}</small></p><button onClick={()=>void run(async()=>{await api('auth/logout/',{});setUser(null);setPatients([]);setOrganizations([]);setReviews([]);setShares([]);setConsentEvents([]);setAccessHistory([]);setNotifications([]);setOrg('');setOrgNext(null);setPatientNext(null);setReviewNext(null);setCodes([]);setUri('');})}>{t.logout}</button><button onClick={()=>void run(refresh)}>{t.refresh}</button></section>
     {!user.mfa_enabled&&card(t.mfa,<><form onSubmit={form(async d=>{const result=await api<{uri:string}>('auth/mfa/setup/',d);setUri(result.uri);})}><Field label={t.password} name="password" type="password"/><button>{t.setup}</button></form>{uri&&<><p>{t.secret}</p><code className="identity-secret">{new URL(uri).searchParams.get('secret')}</code><form onSubmit={form(async d=>{const result=await api<{recovery_codes:string[]}>('auth/mfa/confirm/',d);setCodes(result.recovery_codes);setUri('');await refresh();})}><Field label={t.code} name="code"/><button>{t.confirm}</button></form></>}</>)}
     {user.mfa_enabled&&!user.mfa_verified&&card(t.mfa,<form onSubmit={form(async d=>{await api('auth/mfa/verify/',d);await refresh();})}><Field label={t.code} name="code"/><button>{t.verify}</button></form>)}

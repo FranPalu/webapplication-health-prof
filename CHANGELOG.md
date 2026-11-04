@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-04 — Portale e anteprime
+
+- Nuova identità Health Collaboration, temi chiaro e scuro, anteprime per ruolo e indicazioni per la verifica email in Mailpit.
+
 ## 2026-11-04 — M2 (implementazione in verifica)
 
 - Aggiunti grant di condivisione con destinatario individuale/organizzativo,

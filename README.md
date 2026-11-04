@@ -1,4 +1,4 @@
-# Clarissa Bandini · Studio
+# Health Collaboration
 
 Web application in italiano per l’organizzazione di uno studio di nutrizione: agenda, schede pazienti, documenti PDF, bozze di fattura e comunicazioni. Interfaccia responsive, palette salvia e prugna.
 
@@ -14,7 +14,10 @@ Lo storage S3 di sviluppo è SeaweedFS, raggiungibile dai container su
 Registrati, verifica l’email e accedi. Professionisti e amministratori devono
 configurare TOTP. Per creare un amministratore di piattaforma locale, usa
 `make admin EMAIL=indirizzo@example.test` e scegli la password al prompt.
-La demo del gestionale è disponibile su `/demo`.
+Le email locali vengono catturate da Mailpit, anche se inserisci un indirizzo
+reale. Se l’account esiste già, usa **Reinvia verifica** nel portale e apri il
+messaggio più recente in Mailpit. La demo per profili è su `/demo`.
+La demo interattiva del gestionale è su `/demo/agenda`.
 
 Esegui `make check` e `make test` con Node 24 e pnpm 11.25 installati
 sull’host. Vedi anche [architettura](docs/01-architecture.md),
@@ -64,7 +67,7 @@ pnpm dev
 Per generare una demo autonoma senza backend:
 
 ```bash
-node scripts/create-preview.mjs /percorso/assoluto/Clarissa_Bandini_Anteprima.html
+node scripts/create-preview.mjs /percorso/assoluto/Health_Collaboration_Anteprima.html
 ```
 
 La demo contiene solo dati fittizi, conserva le modifiche in memoria e non invia comunicazioni.

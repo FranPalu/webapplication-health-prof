@@ -1,2 +1,5 @@
-import Studio from '../Studio';
-export default function DemoPage() { return <Studio/>; }
+import DemoProfiles from './DemoProfiles';
+
+export default function DemoPage() {
+  return <DemoProfiles />;
+}
