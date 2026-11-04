@@ -75,3 +75,37 @@ test('archive and reactivate a patient; cancelling deletion preserves the record
   await page.getByRole('button', { name: 'Attivi', exact: true }).click();
   await expect(page.getByRole('button', { name: /EL Emma Laurent/ })).toBeVisible();
 });
+
+for (const theme of ['light', 'dark']) {
+  test('patient form contrast and fiscal field in ' + theme, async ({ page }) => {
+    await page.goto('/demo/agenda');
+    await page.getByLabel('Aspetto').selectOption(theme);
+    await page.getByRole('button', { name: 'Pazienti', exact: true }).click();
+    await page.getByRole('button', { name: /EL Emma Laurent/ }).click();
+    await page.getByRole('button', { name: 'Modifica scheda' }).click();
+    await expect(page.getByLabel(/^Codice Fiscale/)).toBeVisible();
+    await expect(page.getByLabel('Codice del Comune o Stato di nascita')).not.toBeVisible();
+    const contrast = await page.locator('.modal').evaluate(modal => {
+      function rgb(value: string) { return value.match(/[\d.]+/g)!.slice(0, 3).map(Number); }
+      function luminance(channels: number[]) {
+        const linear = channels.map(v => v / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
+        return linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722;
+      }
+      return [...modal.querySelectorAll('h2,.modal-heading p,.field > span:first-child,.field small,input,select,.modal-footer button')].filter(el => (el as HTMLElement).checkVisibility()).map(el => {
+        let ancestor: Element | null = el;
+        let background = '';
+        while (ancestor) {
+          background = getComputedStyle(ancestor).backgroundColor;
+          if (background !== 'rgba(0, 0, 0, 0)' && background !== 'transparent') break;
+          ancestor = ancestor.parentElement;
+        }
+        const fg = luminance(rgb(getComputedStyle(el).color)), bg = luminance(rgb(background));
+        return { text: el.textContent?.slice(0, 45), ratio: (Math.max(fg, bg) + .05) / (Math.min(fg, bg) + .05) };
+      });
+    });
+    for (const item of contrast) expect(item.ratio, item.text).toBeGreaterThanOrEqual(4.5);
+    await page.screenshot({ path: '/tmp/claria-form-' + theme + '.png' });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator('body')).toHaveJSProperty('scrollWidth', 390);
+  });
+}

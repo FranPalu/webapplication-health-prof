@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-04 — Leggibilità e anagrafica
+
+- Codice Fiscale nella griglia principale; verifica catastale facoltativa espandibile.
+- Token di contrasto per finestre, campi, tabelle, notifiche e stati nei due temi; caratteri più leggibili.
+- Controlli browser del contrasto del modulo paziente e del layout mobile.
+
 ## 2026-11-04 — Correzioni interazioni demo
 
 - Corretto il focus dei moduli: digitazione continua nella conferma di eliminazione e nelle schede.

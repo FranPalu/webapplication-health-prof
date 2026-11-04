@@ -177,3 +177,46 @@
   .studio-theme .topbar { height: auto; min-height: 63px; flex-wrap: wrap; gap: 8px; padding-block: 8px; }
   .studio-theme .topbar-right { flex-wrap: wrap; }
 }
+
+/* All legacy studio surfaces use paired theme tokens, including modal chrome. */
+.studio-theme {
+  --positive-bg: #e5f5ee; --positive-ink: #176044;
+  --warning-bg: #fff1d6; --warning-ink: #744b08;
+  --negative-bg: #fff0f0; --negative-ink: #a32536;
+  font-size: 14px;
+}
+[data-theme="dark"] .studio-theme {
+  --positive-bg: #173c30; --positive-ink: #a1e6c5;
+  --warning-bg: #43351c; --warning-ink: #f4d18a;
+  --negative-bg: #45232d; --negative-ink: #ffb8c3;
+  color-scheme: dark;
+}
+.studio-theme :is(.modal-heading,.modal-footer,.toast,th,.search-input,.calendar,.mini-calendar) {
+  background: var(--surface); color: var(--ink); border-color: var(--border);
+}
+.studio-theme :is(.notice,.info-box,.message-preview,.upload-zone,.invoice-breakdown,.clinical-note,.empty-state,.sidebar-note,.calendar-header) {
+  background: var(--lavender); color: var(--ink); border-color: var(--border);
+}
+.studio-theme :is(.notice,.info-box,.message-preview,.upload-zone,.portal-hero,.portal-tools,.portal-appointment,.sidebar-note) :is(p,strong,span,small,h2,h3) { color: inherit; }
+.studio-theme :is(td,.field,.checkbox-label,.clinical-note,.integration-row,.readiness-list li,.invoice-total,.detail-appointment,.portal-document) { color: var(--ink); }
+.studio-theme :is(th,td small,.field small,.modal-heading p,.patient-summary p,.detail-grid small,.table-footer,.table-footer span,.tabs button,.person-link span,.appointment-time span,.stat-card small,.empty-state p,.channel-card p,.reminder-row small,.portal-brand span,.portal-tools span,.or-divider) { color: var(--muted); }
+.studio-theme :is(.text-button,.tabs button.selected,.validation-state,.validation-state.valid) { color: var(--sage-ink); }
+.studio-theme :is(input,textarea)::placeholder { color: var(--muted); opacity: 1; }
+.studio-theme :is(.status.green,.cf-feedback.good) { background: var(--positive-bg); color: var(--positive-ink) !important; }
+.studio-theme :is(.status.orange,.status.yellow,.status.amber,.booking-conflict) { background: var(--warning-bg); color: var(--warning-ink); border-color: var(--warning-ink); }
+.studio-theme :is(.booking-conflict p,.booking-conflict strong) { color: inherit; }
+.studio-theme :is(.status.neutral,.status.purple,.status.rose,.status.blue,.soft-tag,.avatar) { background: var(--lavender); color: var(--sage-ink); }
+.studio-theme :is(.form-error,.danger-button,.cf-feedback.bad) { background: var(--negative-bg); color: var(--negative-ink) !important; }
+.studio-theme .danger-button { border-color: var(--negative-ink); }
+.studio-theme :is(.primary-button,.channel-switch button.selected) { background: var(--plum); color: #fff; }
+.studio-theme :is(.field input,.field select,.field textarea) { min-height: 44px; border-radius: 10px; font-size: 14px; }
+.studio-theme :is(.field,.checkbox-label,.field small,.notice p,.modal-heading p,td,td strong,.person-link strong,.tabs button,.nav-item,.secondary-button,.primary-button) { font-size: 14px; }
+.studio-theme :is(th,td small,.soft-tag,.status,.table-footer,.detail-grid small) { font-size: 12px; }
+.studio-theme .modal-heading h2 { font-size: 24px; font-weight: 650; letter-spacing: -.5px; }
+.studio-theme .modal-footer { box-shadow: 0 -6px 20px #00000008; }
+.studio-theme .card { border: 1px solid var(--border); box-shadow: 0 4px 24px #32135408; }
+.studio-theme .birth-details { padding: 16px; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); }
+.studio-theme .birth-details summary { cursor: pointer; font-size: 13px; }
+.studio-theme .birth-details[open] .field { margin-top: 16px; margin-bottom: 0; }
+.studio-theme button:not(:disabled):hover { filter: brightness(.96); }
+.studio-theme .tabs button.selected { font-weight: 650; }
