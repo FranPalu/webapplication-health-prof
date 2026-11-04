@@ -16,13 +16,18 @@ from rest_framework.test import APIClient
 
 from identity.models import (
     AccountToken,
+    AuditChainHead,
     AuditEvent,
     CareRelationship,
+    ConsentTextVersion,
     Membership,
     Organization,
     Patient,
+    PatientConsent,
     ProfessionalVerification,
     RecoveryCode,
+    SecureMessage,
+    Share,
     User,
 )
 from identity.security import cipher, consume_recovery, digest
@@ -362,6 +367,277 @@ def test_membership_and_relationship_changes_invalidate_sessions():
         ).status_code
         == 200
     )
+
+
+def test_share_requires_patient_consent_and_revocation_blocks_access_and_messages():
+    patient_user = user("consenting@patients.example")
+    professional = user("sharing@patients.example", "professional")
+    recipient = user("recipient@patients.example", "professional")
+    approve(professional)
+    approve(recipient)
+    sender = signed(professional)
+    receiver = signed(recipient)
+    org = org_for(professional)
+    Membership.objects.create(user=recipient, organization=org, role="professional")
+    p = patient(org, professional)
+    p.account = patient_user
+    p.save(update_fields=["account"])
+
+    created = sender.post(
+        "shares/",
+        {
+            "patient": str(p.id),
+            "recipient_user": str(recipient.id),
+            "scope": "item",
+            "permissions": ["view", "download", "comment"],
+            "purpose": "Continuity of care",
+        },
+    )
+    assert created.status_code == 201, created.data
+    share_id = created.data["id"]
+    assert created.data["active"] is False
+    assert receiver.get(f"shares/{share_id}/patient/").status_code == 403
+
+    patient_browser = signed(patient_user)
+    texts = patient_browser.get("consents/texts/").data
+    assert any(item["purpose"] == "care_sharing" and item["locale"] == "it" for item in texts)
+    consent_text = next(
+        item for item in texts if item["purpose"] == "care_sharing" and item["locale"] == "it"
+    )
+    assert (
+        patient_browser.post(
+            "consents/",
+            {
+                "share": share_id,
+                "text_version": consent_text["version"],
+                "locale": "it",
+                "decision": "granted",
+            },
+        ).status_code
+        == 200
+    )
+    assert receiver.get(f"shares/{share_id}/patient/").status_code == 200
+    assert receiver.get(f"shares/{share_id}/download/").status_code == 200
+    message = receiver.post(f"shares/{share_id}/messages/", {"body": "Richiesta di chiarimento"})
+    assert message.status_code == 201
+    assert (
+        patient_browser.get(f"shares/{share_id}/messages/").data[0]["body"]
+        == "Richiesta di chiarimento"
+    )
+    assert patient_browser.get("consents/").data[0]["decision"] == "granted"
+    assert patient_browser.get("shares/").data["count"] == 1
+    assert len(receiver.get("notifications/").data) > 0
+    assert patient_browser.get("patients/access-history/").status_code == 200
+    assert any(
+        event["action"] == "share.patient_read"
+        for event in patient_browser.get("patients/access-history/").data
+    )
+
+    assert (
+        patient_browser.post(
+            "consents/",
+            {
+                "share": share_id,
+                "text_version": consent_text["version"],
+                "locale": "it",
+                "decision": "revoked",
+            },
+        ).status_code
+        == 200
+    )
+    assert receiver.get(f"shares/{share_id}/patient/").status_code == 403
+    assert receiver.post(f"shares/{share_id}/messages/", {"body": "Dopo revoca"}).status_code == 403
+    for model, field in (
+        (PatientConsent, "decision"),
+        (SecureMessage, "body"),
+        (ConsentTextVersion, "text"),
+    ):
+        record = model.objects.first()
+        with pytest.raises(DatabaseError), transaction.atomic():
+            model.objects.filter(pk=record.pk).update(**{field: "tampered"})
+
+
+def test_break_glass_is_mfa_gated_reasoned_and_audited():
+    professional = user("emergency@patients.example", "professional")
+    approve(professional)
+    b = signed(professional)
+    org = org_for(professional)
+    p = patient(org)
+    rejected = b.post("break-glass/", {"patient": str(p.id), "reason": "emergency"})
+    assert rejected.status_code == 403
+    granted = b.post(
+        "break-glass/",
+        {
+            "patient": str(p.id),
+            "reason": "Urgent emergency assessment while normal access is unavailable",
+        },
+    )
+    assert granted.status_code == 201, granted.data
+    assert b.get(f"break-glass/patients/{p.id}/").status_code == 200
+    assert AuditEvent.objects.filter(action="break_glass.started", resource_id=str(p.id)).exists()
+
+
+def test_organization_recipient_expiry_and_child_share_cannot_outlive_revocation():
+    patient_user = user("owner2@patients.example")
+    sender_user = user("sender2@patients.example", "professional")
+    middle_user = user("middle@patients.example", "professional")
+    final_user = user("final@patients.example", "professional")
+    for account in (sender_user, middle_user, final_user):
+        approve(account)
+    sender, middle, final = signed(sender_user), signed(middle_user), signed(final_user)
+    source_org = org_for(sender_user)
+    recipient_org = Organization.objects.create(name="Receiving clinic", kind="clinic")
+    Membership.objects.create(user=middle_user, organization=recipient_org, role="professional")
+    Membership.objects.create(user=final_user, organization=recipient_org, role="professional")
+    p = patient(source_org, sender_user)
+    p.account = patient_user
+    p.save(update_fields=["account"])
+
+    org_share = sender.post(
+        "shares/",
+        {
+            "patient": str(p.id),
+            "recipient_organization": str(recipient_org.id),
+            "scope": "chart",
+            "permissions": ["view"],
+            "purpose": "Care coordination",
+        },
+    )
+    assert org_share.status_code == 201, org_share.data
+    patient_browser = signed(patient_user)
+    consent = patient_browser.get("consents/texts/").data[0]
+    assert (
+        patient_browser.post(
+            "consents/",
+            {
+                "share": org_share.data["id"],
+                "text_version": consent["version"],
+                "locale": consent["locale"],
+                "decision": "granted",
+            },
+        ).status_code
+        == 200
+    )
+    assert middle.get(f"shares/{org_share.data['id']}/patient/").status_code == 200
+
+    expiring = sender.post(
+        "shares/",
+        {
+            "patient": str(p.id),
+            "recipient_user": str(middle_user.id),
+            "scope": "item",
+            "permissions": ["view", "reshare"],
+            "purpose": "Short access",
+        },
+    )
+    assert expiring.status_code == 201
+    share = Share.objects.get(pk=expiring.data["id"])
+    share.expires_at = timezone.now() - timedelta(seconds=1)
+    share.save(update_fields=["expires_at"])
+    assert (
+        patient_browser.post(
+            "consents/",
+            {
+                "share": expiring.data["id"],
+                "text_version": consent["version"],
+                "locale": consent["locale"],
+                "decision": "granted",
+            },
+        ).status_code
+        == 400
+    )
+    assert middle.get(f"shares/{share.id}/patient/").status_code == 403
+
+    share.expires_at = None
+    share.save(update_fields=["expires_at"])
+    parent_consent = patient_browser.post(
+        "consents/",
+        {
+            "share": share.id,
+            "text_version": consent["version"],
+            "locale": consent["locale"],
+            "decision": "granted",
+        },
+    )
+    assert parent_consent.status_code == 200
+    child = middle.post(
+        "shares/",
+        {
+            "patient": str(p.id),
+            "recipient_user": str(final_user.id),
+            "scope": "item",
+            "permissions": ["view"],
+            "purpose": "Referred care",
+            "parent_share": str(share.id),
+        },
+    )
+    assert child.status_code == 201, child.data
+    wider_child = middle.post(
+        "shares/",
+        {
+            "patient": str(p.id),
+            "recipient_user": str(final_user.id),
+            "scope": "item",
+            "permissions": ["view", "download"],
+            "purpose": "Too broad",
+            "parent_share": str(share.id),
+        },
+    )
+    assert wider_child.status_code == 403
+    assert (
+        patient_browser.post(
+            "consents/",
+            {
+                "share": child.data["id"],
+                "text_version": consent["version"],
+                "locale": consent["locale"],
+                "decision": "granted",
+            },
+        ).status_code
+        == 200
+    )
+    assert final.get(f"shares/{child.data['id']}/patient/").status_code == 200
+    assert sender.post(f"shares/{share.id}/revoke/", {}).status_code == 200
+    assert final.get(f"shares/{child.data['id']}/patient/").status_code == 403
+
+
+def test_audit_events_are_hash_chained_and_head_tracks_latest_event():
+    account = user()
+    first = AuditEvent.objects.create(actor=account, action="test.first", resource_id="synthetic-1")
+    second = AuditEvent.objects.create(
+        actor=account, action="test.second", resource_id="synthetic-2"
+    )
+    assert first.event_hash and second.previous_hash == first.event_hash
+    assert second.sequence == first.sequence + 1
+    assert AuditChainHead.objects.get(pk="global").event_hash == second.event_hash
+    assert len(first.event_hash) == 64 and len(second.event_hash) == 64
+    call_command("verify_audit_chain")
+
+
+@pytest.mark.django_db(transaction=True)
+def test_concurrent_audit_appends_preserve_sequence_and_hash_chain():
+    from concurrent.futures import ThreadPoolExecutor
+
+    from django.db import close_old_connections
+
+    actor = user("audit-concurrent@patients.example")
+
+    def append(index):
+        close_old_connections()
+        try:
+            AuditEvent.objects.create(
+                actor=User.objects.get(pk=actor.pk), action=f"parallel.{index}"
+            )
+        finally:
+            close_old_connections()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        list(pool.map(append, range(2)))
+    events = list(AuditEvent.objects.order_by("sequence"))
+    for previous, current in zip(events, events[1:], strict=False):
+        assert current.sequence == previous.sequence + 1
+        assert current.previous_hash == previous.event_hash
+    call_command("verify_audit_chain")
 
 
 def test_patient_link_requires_both_verified_identity_and_current_relationship():

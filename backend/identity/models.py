@@ -1,10 +1,29 @@
+import hashlib
+import json
 import uuid
 from typing import ClassVar
 
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as DjangoUserManager
-from django.db import models
+from django.db import models, transaction
 from django.db.models.functions import Lower
+from django.utils import timezone
+
+
+def audit_event_hash(event, previous_hash: str) -> str:
+    payload = {
+        "id": str(event.pk),
+        "sequence": event.sequence,
+        "actor": str(event.actor_id or ""),
+        "organization": str(event.organization_id or ""),
+        "action": event.action,
+        "resource_id": event.resource_id,
+        "at": event.at.isoformat(),
+        "previous_hash": previous_hash,
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 class UserManager(DjangoUserManager["User"]):
@@ -165,7 +184,117 @@ class AuditEvent(models.Model):
     organization = models.ForeignKey(Organization, null=True, on_delete=models.PROTECT)
     action = models.CharField(max_length=100)
     resource_id = models.CharField(max_length=100, blank=True)
-    at = models.DateTimeField(auto_now_add=True)
+    at = models.DateTimeField(default=timezone.now)
+    previous_hash = models.CharField(max_length=64, blank=True)
+    event_hash = models.CharField(max_length=64, blank=True)
+    sequence = models.PositiveBigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            return super().save(*args, **kwargs)
+        with transaction.atomic():
+            head, _ = AuditChainHead.objects.select_for_update().get_or_create(key="global")
+            self.at = self.at or timezone.now()
+            self.previous_hash = head.event_hash
+            head.sequence += 1
+            self.sequence = head.sequence
+            self.event_hash = audit_event_hash(self, self.previous_hash)
+            super().save(*args, **kwargs)
+            head.event_hash = self.event_hash
+            head.save(update_fields=["event_hash", "sequence"])
+
+
+class AuditChainHead(models.Model):
+    key = models.CharField(max_length=20, primary_key=True)
+    event_hash = models.CharField(max_length=64, blank=True)
+    sequence = models.PositiveBigIntegerField(default=0)
+
+
+class ConsentTextVersion(models.Model):
+    purpose = models.CharField(max_length=40)
+    version = models.PositiveIntegerField()
+    locale = models.CharField(max_length=2)
+    text = models.TextField()
+    content_hash = models.CharField(max_length=64)
+    published_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["purpose", "version", "locale"], name="unique_consent_text_version"
+            )
+        ]
+
+
+class PatientConsent(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="consents")
+    share = models.ForeignKey(
+        "Share", null=True, blank=True, on_delete=models.PROTECT, related_name="consent_events"
+    )
+    text_version = models.ForeignKey(ConsentTextVersion, on_delete=models.PROTECT)
+    actor = models.ForeignKey(User, on_delete=models.PROTECT)
+    decision = models.CharField(
+        max_length=12, choices=[("granted", "Granted"), ("revoked", "Revoked")]
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+class Share(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name="shares")
+    granted_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name="shares_created")
+    recipient_user = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.PROTECT, related_name="shares_received"
+    )
+    recipient_organization = models.ForeignKey(
+        Organization,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="shares_received",
+    )
+    scope = models.CharField(max_length=12, choices=[("item", "Item"), ("chart", "Chart")])
+    permissions = models.JSONField(default=list)
+    purpose = models.CharField(max_length=300)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(recipient_user__isnull=False, recipient_organization__isnull=True)
+                    | models.Q(recipient_user__isnull=True, recipient_organization__isnull=False)
+                ),
+                name="share_exactly_one_recipient",
+            )
+        ]
+
+
+class SecureMessage(models.Model):
+    share = models.ForeignKey(Share, on_delete=models.PROTECT, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.PROTECT)
+    body = models.TextField(max_length=5000)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+class InAppNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="notifications")
+    category = models.CharField(max_length=32)
+    resource_id = models.UUIDField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    read_at = models.DateTimeField(null=True, blank=True)
+
+
+class BreakGlassAccess(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    professional = models.ForeignKey(User, on_delete=models.PROTECT)
+    reason = models.CharField(max_length=1000)
+    created_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField()
+    reviewed_at = models.DateTimeField(null=True, blank=True)
 
 
 class RateBucket(models.Model):

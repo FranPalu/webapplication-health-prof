@@ -53,10 +53,17 @@ consensi versionati, dashboard accessi, emergenza controllata, messaggi e commen
 email senza contenuto clinico e notifiche in-app. Audit hash-chained, checkpoint
 esterni e permessi append-only. M3 estende il registro ai documenti binari.
 
-Accettazione: test delle coppie di attori richieste, grant scaduti/revocati,
-revoca dei discendenti, finalità incompatibili, nessun aumento di privilegi nella
-ri-condivisione; accessi e break-glass registrati. Job e download non conservano
-permessi revocati; concorrenza nella catena di audit verificata.
+Consegna in corso: modelli e API su anagrafica paziente, destinatario professionista
+singolo o organizzazione, consenso esplicito versionato, messaggi append-only,
+notifiche generiche, storico accessi, break-glass di 15 minuti e comando per
+verificare l'hash-chain. Limiti espliciti in [docs M2](03-sharing-consent.md).
+
+Accettazione prima della chiusura: test delle coppie di attori supportate, grant
+scaduti/revocati, revoca dei discendenti, nessun aumento privilegi nella
+ri-condivisione; accessi e break-glass registrati; test PostgreSQL, CI, OpenAPI,
+lint e typecheck verdi. Checkpoint esterni, risorse documentali e cartelle
+gerarchiche restano limitazioni dichiarate e non sono requisito di completamento
+di M2.
 
 ## M3 — Documenti e interoperabilità
 

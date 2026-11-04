@@ -92,13 +92,14 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "identity.security.exception_handler",
 }
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Health collaboration — M1",
+    "TITLE": "Health collaboration — M2",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
     "ENUM_NAME_OVERRIDES": {
         "ProfileRoleEnum": ["patient", "professional", "researcher", "organization_admin"],
         "MembershipRoleEnum": ["admin", "professional", "researcher"],
+        "LocaleEnum": ["it", "en"],
     },
 }
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")

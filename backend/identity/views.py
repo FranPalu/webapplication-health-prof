@@ -1,8 +1,11 @@
 import secrets
+from datetime import timedelta
 
 import pyotp
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
 from django.db import transaction
+from django.db.models import Q
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -14,12 +17,19 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
 from .models import (
+    AuditEvent,
+    BreakGlassAccess,
     CareRelationship,
+    ConsentTextVersion,
+    InAppNotification,
     Membership,
     Organization,
     Patient,
+    PatientConsent,
     ProfessionalVerification,
     RecoveryCode,
+    SecureMessage,
+    Share,
     User,
     UserProfile,
 )
@@ -33,13 +43,20 @@ from .security import (
     rate_limit,
 )
 from .serializers import (
+    AccessHistoryOutput,
+    BreakGlassInput,
+    BreakGlassOutput,
     CodeInput,
     ConfirmPasswordInput,
+    ConsentEventOutput,
+    ConsentInput,
+    ConsentTextOutput,
     EmailInput,
     LinkInput,
     LoginInput,
     MembershipInput,
     MFASetupOutput,
+    NotificationOutput,
     OrganizationSerializer,
     PatientSerializer,
     ProfileInput,
@@ -48,6 +65,11 @@ from .serializers import (
     RelationshipInput,
     ResetInput,
     ReviewInput,
+    SecureMessageCreatedOutput,
+    SecureMessageInput,
+    SecureMessageOutput,
+    ShareInput,
+    ShareOutput,
     StatusOutput,
     TokenInput,
     UserOutput,
@@ -59,10 +81,34 @@ from .services import (
     issue_token,
     org_member,
     require_org_admin,
+    share_is_active,
+    share_recipient_queryset,
     token_entry,
+    user_is_share_participant,
     verified_professional,
     visible_patients,
 )
+
+
+def notify_user_id(user_id, category, resource_id):
+    InAppNotification.objects.create(user_id=user_id, category=category, resource_id=resource_id)
+    user = User.objects.filter(pk=user_id).only("email", "locale").first()
+    if user:
+        subject = (
+            "Health — secure notification" if user.locale == "en" else "Health — notifica protetta"
+        )
+        body = (
+            "You have a new notification in the Health portal. Sign in to view it securely."
+            if user.locale == "en"
+            else "Hai una nuova notifica nel portale Health. Accedi per visualizzarla in modo sicuro."
+        )
+        transaction.on_commit(
+            lambda: send_mail(subject, body, None, [user.email], fail_silently=True), robust=True
+        )
+
+
+def notify_user(user, category, resource_id):
+    notify_user_id(user.pk, category, resource_id)
 
 
 class InputView(GenericAPIView):
@@ -513,3 +559,387 @@ class ProfilesView(InputView):
             audit(user, "profile.selected")
         logout(request)
         return self.status("login_required")
+
+
+class ConsentTextsView(InputView):
+    serializer_class = ConsentTextOutput
+    pagination_class = None
+
+    def get(self, request):
+        qs = ConsentTextVersion.objects.order_by("purpose", "locale", "-version")
+        latest: dict[tuple[str, str], ConsentTextVersion] = {}
+        for entry in qs:
+            latest.setdefault((entry.purpose, entry.locale), entry)
+        return Response(self.get_serializer(list(latest.values()), many=True).data)
+
+
+class SharesView(InputView):
+    serializer_class = ShareInput
+
+    @extend_schema(responses=ShareOutput(many=True))
+    def get(self, request):
+        received = share_recipient_queryset(request.user)
+        qs = Share.objects.filter(
+            Q(granted_by=request.user)
+            | Q(patient__account=request.user)
+            | Q(pk__in=received.values("pk"))
+        ).select_related("patient", "granted_by", "recipient_user", "recipient_organization")
+        return self.get_paginated_response(
+            ShareOutput(
+                self.paginate_queryset(qs.order_by("-created_at")),
+                many=True,
+                context=self.get_serializer_context(),
+            ).data
+        )
+
+    @transaction.atomic
+    @extend_schema(request=ShareInput, responses=ShareOutput)
+    def post(self, request):
+        data = self.data(request)
+        parent = None
+        if data.get("parent_share"):
+            parent = get_object_or_404(Share.objects.select_for_update(), pk=data["parent_share"])
+            if not share_is_active(parent) or not user_is_share_participant(request.user, parent):
+                raise PermissionDenied()
+            if "reshare" not in parent.permissions:
+                raise PermissionDenied("Re-sharing is not permitted")
+            patient = parent.patient
+            if str(patient.pk) != str(data["patient"]):
+                raise PermissionDenied("A re-share must refer to the parent resource")
+        else:
+            patient = get_object_or_404(visible_patients(request.user), pk=data["patient"])
+        if not patient.account_id:
+            raise ValidationError("Patient account must be linked before requesting consent")
+        recipient_user = None
+        recipient_org = None
+        if data.get("recipient_user"):
+            recipient_user = get_object_or_404(User, pk=data["recipient_user"], is_active=True)
+            if recipient_user == request.user or not (
+                verified_professional(recipient_user) or recipient_user == patient.account
+            ):
+                raise PermissionDenied(
+                    "Recipient must be the linked patient or a verified professional"
+                )
+        else:
+            recipient_org = get_object_or_404(Organization, pk=data["recipient_organization"])
+        if parent:
+            if not set(data["permissions"]).issubset(parent.permissions):
+                raise PermissionDenied("A re-share cannot increase permissions")
+            if parent.expires_at and (
+                not data.get("expires_at") or data["expires_at"] > parent.expires_at
+            ):
+                raise PermissionDenied("A re-share cannot outlive its parent")
+        share = Share.objects.create(
+            patient=patient,
+            granted_by=request.user,
+            recipient_user=recipient_user,
+            recipient_organization=recipient_org,
+            scope=data["scope"],
+            permissions=data["permissions"],
+            purpose=data["purpose"],
+            expires_at=data.get("expires_at"),
+            parent=parent,
+        )
+        if recipient_user:
+            notify_user(recipient_user, "share.pending_consent", share.id)
+        elif recipient_org:
+            members = User.objects.filter(
+                membership__organization=recipient_org,
+                membership__active=True,
+                membership__role="professional",
+            ).distinct()
+            for member in members:
+                notify_user(member, "share.pending_consent", share.id)
+        notify_user_id(patient.account_id, "share.pending_consent", share.id)
+        audit(request.user, "share.created", share.id, patient.organization)
+        return Response(ShareOutput(share, context=self.get_serializer_context()).data, status=201)
+
+
+class ShareRevokeView(InputView):
+    @transaction.atomic
+    def post(self, request, share_id):
+        share = get_object_or_404(
+            Share.objects.select_for_update().filter(
+                Q(granted_by=request.user) | Q(patient__account=request.user)
+            ),
+            pk=share_id,
+        )
+        if share.revoked_at is None:
+            share.revoked_at = timezone.now()
+            share.save(update_fields=["revoked_at"])
+            # Revocation cascades to all descendants, so no copied grant survives.
+            frontier = [share.pk]
+            while frontier:
+                children = list(Share.objects.filter(parent_id__in=frontier, revoked_at=None))
+                child_ids = [child.pk for child in children]
+                for child in children:
+                    child.revoked_at = timezone.now()
+                    child.save(update_fields=["revoked_at"])
+                    audit(
+                        request.user, "share.revoked_cascade", child.id, child.patient.organization
+                    )
+                frontier = child_ids
+            audit(request.user, "share.revoked", share.id, share.patient.organization)
+        return self.status("revoked")
+
+
+class PatientConsentView(InputView):
+    serializer_class = ConsentInput
+    pagination_class = None
+
+    @extend_schema(responses=ConsentEventOutput(many=True))
+    def get(self, request):
+        events = (
+            PatientConsent.objects.filter(patient__account=request.user)
+            .select_related("text_version", "share")
+            .order_by("-created_at")[:100]
+        )
+        return Response(
+            [
+                {
+                    "share": str(event.share_id),
+                    "purpose": event.text_version.purpose,
+                    "version": event.text_version.version,
+                    "locale": event.text_version.locale,
+                    "content_hash": event.text_version.content_hash,
+                    "decision": event.decision,
+                    "created_at": event.created_at,
+                }
+                for event in events
+            ]
+        )
+
+    @transaction.atomic
+    @extend_schema(request=ConsentInput, responses=StatusOutput)
+    def post(self, request):
+        data = self.data(request)
+        share = get_object_or_404(
+            Share.objects.select_for_update().filter(patient__account=request.user),
+            pk=data["share"],
+        )
+        text = get_object_or_404(
+            ConsentTextVersion,
+            purpose="care_sharing",
+            version=data["text_version"],
+            locale=data["locale"],
+        )
+        latest_version = (
+            ConsentTextVersion.objects.filter(purpose=text.purpose, locale=text.locale)
+            .order_by("-version")
+            .values_list("version", flat=True)
+            .first()
+        )
+        if text.version != latest_version:
+            raise ValidationError("Only the current consent text version can be accepted")
+        if data["decision"] == "granted" and (
+            share.revoked_at is not None
+            or (share.expires_at and share.expires_at <= timezone.now())
+        ):
+            raise ValidationError("A revoked or expired share cannot be activated")
+        event = PatientConsent.objects.create(
+            patient=share.patient,
+            share=share,
+            text_version=text,
+            actor=request.user,
+            decision=data["decision"],
+        )
+        audit(request.user, f"consent.{event.decision}", share.id, share.patient.organization)
+        if event.decision == "granted":
+            if share.recipient_user_id:
+                notify_user_id(share.recipient_user_id, "share.active", share.id)
+            elif share.recipient_organization_id:
+                for member_id in Membership.objects.filter(
+                    organization=share.recipient_organization,
+                    active=True,
+                    role__in=["professional", "admin"],
+                ).values_list("user_id", flat=True):
+                    notify_user_id(member_id, "share.active", share.id)
+        else:
+            if share.recipient_user_id:
+                notify_user_id(share.recipient_user_id, "share.revoked", share.id)
+            elif share.recipient_organization_id:
+                for member_id in Membership.objects.filter(
+                    organization=share.recipient_organization,
+                    active=True,
+                    role__in=["professional", "admin"],
+                ).values_list("user_id", flat=True):
+                    notify_user_id(member_id, "share.revoked", share.id)
+        return self.status(event.decision)
+
+
+class SharedPatientView(InputView):
+    serializer_class = PatientSerializer
+
+    @extend_schema(responses=PatientSerializer)
+    def get(self, request, share_id):
+        share = get_object_or_404(share_recipient_queryset(request.user), pk=share_id)
+        if not share_is_active(share) or "view" not in share.permissions:
+            audit(request.user, "share.access_denied", share.id, share.patient.organization)
+            raise PermissionDenied()
+        audit(request.user, "share.patient_read", share.id, share.patient.organization)
+        return Response(self.get_serializer(share.patient).data)
+
+
+class DownloadSharedPatientView(InputView):
+    serializer_class = PatientSerializer
+
+    @extend_schema(responses=PatientSerializer)
+    def get(self, request, share_id):
+        share = get_object_or_404(share_recipient_queryset(request.user), pk=share_id)
+        if not share_is_active(share) or "download" not in share.permissions:
+            audit(request.user, "share.download_denied", share.id, share.patient.organization)
+            raise PermissionDenied()
+        audit(request.user, "share.patient_downloaded", share.id, share.patient.organization)
+        response = Response(PatientSerializer(share.patient).data)
+        response["Content-Disposition"] = 'attachment; filename="patient-record.json"'
+        return response
+
+
+class ShareMessagesView(InputView):
+    serializer_class = SecureMessageInput
+    pagination_class = None
+
+    def get_share(self, request, share_id):
+        participants = Q(granted_by=request.user) | Q(patient__account=request.user)
+        recipients = share_recipient_queryset(request.user).values("pk")
+        share = get_object_or_404(
+            Share.objects.filter(participants | Q(pk__in=recipients)), pk=share_id
+        )
+        if not share_is_active(share):
+            raise PermissionDenied()
+        return share
+
+    @extend_schema(responses=SecureMessageOutput(many=True))
+    def get(self, request, share_id):
+        share = self.get_share(request, share_id)
+        if "comment" not in share.permissions:
+            raise PermissionDenied()
+        messages = SecureMessage.objects.filter(share=share).order_by("created_at")[:100]
+        audit(request.user, "share.messages_read", share.id, share.patient.organization)
+        return Response(
+            [
+                {
+                    "id": message.id,
+                    "sender": str(message.sender_id),
+                    "body": message.body,
+                    "created_at": message.created_at,
+                }
+                for message in messages
+            ]
+        )
+
+    @extend_schema(request=SecureMessageInput, responses=SecureMessageCreatedOutput)
+    @transaction.atomic
+    def post(self, request, share_id):
+        share = self.get_share(request, share_id)
+        if "comment" not in share.permissions:
+            raise PermissionDenied()
+        message = SecureMessage.objects.create(
+            share=share, sender=request.user, body=self.data(request)["body"]
+        )
+        recipient_ids = set()
+        if share.recipient_user_id:
+            recipient_ids.add(share.recipient_user_id)
+        else:
+            recipient_ids.update(
+                Membership.objects.filter(
+                    organization=share.recipient_organization,
+                    active=True,
+                    role__in=["professional", "admin"],
+                ).values_list("user_id", flat=True)
+            )
+        recipient_ids.add(share.granted_by_id)
+        recipient_ids.discard(request.user.pk)
+        for user_id in recipient_ids:
+            notify_user_id(user_id, "share.message", share.id)
+        audit(request.user, "share.message_sent", share.id, share.patient.organization)
+        return Response({"id": message.id, "created_at": message.created_at}, status=201)
+
+
+class NotificationsView(InputView):
+    pagination_class = None
+
+    @extend_schema(responses=NotificationOutput(many=True))
+    def get(self, request):
+        items = InAppNotification.objects.filter(user=request.user).order_by("-created_at")[:100]
+        return Response(
+            [
+                {
+                    "id": item.id,
+                    "category": item.category,
+                    "resource_id": item.resource_id,
+                    "created_at": item.created_at,
+                    "read": item.read_at is not None,
+                }
+                for item in items
+            ]
+        )
+
+
+class AccessHistoryView(InputView):
+    pagination_class = None
+
+    @extend_schema(responses=AccessHistoryOutput(many=True))
+    def get(self, request):
+        patient_ids = list(
+            Patient.objects.filter(account=request.user).values_list("id", flat=True)
+        )
+        if not patient_ids:
+            return Response([])
+        share_ids = Share.objects.filter(patient_id__in=patient_ids).values_list("id", flat=True)
+        resource_ids = [str(value) for value in patient_ids] + [str(value) for value in share_ids]
+        events = AuditEvent.objects.filter(resource_id__in=resource_ids)
+        return Response(
+            [
+                {
+                    "actor": str(event.actor_id) if event.actor_id else None,
+                    "action": event.action,
+                    "at": event.at,
+                }
+                for event in events.order_by("-at")[:200]
+            ]
+        )
+
+
+class BreakGlassView(InputView):
+    serializer_class = BreakGlassInput
+
+    @transaction.atomic
+    @extend_schema(request=BreakGlassInput, responses=BreakGlassOutput)
+    def post(self, request):
+        data = self.data(request)
+        if not verified_professional(request.user) or len(data["reason"].strip()) < 15:
+            raise PermissionDenied("Verified professional and a specific emergency reason required")
+        patient = get_object_or_404(Patient, pk=data["patient"])
+        membership = org_member(request.user, patient.organization)
+        if not membership or membership.role not in ("professional", "admin"):
+            raise PermissionDenied()
+        now = timezone.now()
+        entry = BreakGlassAccess.objects.create(
+            patient=patient,
+            professional=request.user,
+            reason=data["reason"].strip(),
+            expires_at=now + timedelta(minutes=15),
+        )
+        if patient.account_id:
+            InAppNotification.objects.create(
+                user_id=patient.account_id, category="security.break_glass", resource_id=None
+            )
+        audit(request.user, "break_glass.started", patient.id, patient.organization)
+        return Response({"id": entry.id, "expires_at": entry.expires_at}, status=201)
+
+    @extend_schema(responses=PatientSerializer)
+    def get(self, request, patient_id):
+        entry = (
+            BreakGlassAccess.objects.filter(
+                patient_id=patient_id, professional=request.user, expires_at__gt=timezone.now()
+            )
+            .order_by("-created_at")
+            .first()
+        )
+        if not entry:
+            raise PermissionDenied()
+        audit(
+            request.user, "break_glass.patient_read", entry.patient_id, entry.patient.organization
+        )
+        return Response(PatientSerializer(entry.patient).data)

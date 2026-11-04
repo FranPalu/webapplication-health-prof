@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-04 — M2 (implementazione in verifica)
+
+- Aggiunti grant di condivisione con destinatario individuale/organizzativo,
+  scope, permessi, finalità, scadenza, revoca e controlli sui discendenti.
+- Aggiunti consensi paziente versionati e append-only, messaggi sicuri, notifiche
+  generiche, storico accessi e accesso break-glass limitato a 15 minuti.
+- Esteso l'audit append-only con hash-chain sequenziale e comando di verifica;
+  documentati i limiti e le decisioni M2.
+- La suite PostgreSQL non è stata eseguita localmente: Docker non è installato
+  e l'avvio di PostgreSQL locale è impedito dai vincoli di shared memory del
+  sandbox. La CI PostgreSQL resta il gate prima del merge.
+
 ## 2026-11-04 — M1
 
 - Backend Django con verifica email, TOTP, profili e accesso alle anagrafiche per relazione di cura.

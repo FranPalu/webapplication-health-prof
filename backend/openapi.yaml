@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Health collaboration — M1
+  title: Health collaboration — M2
   version: 1.0.0
 paths:
   /api/v1/admin/verifications/:
@@ -390,6 +390,169 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
           description: ''
+  /api/v1/break-glass/:
+    get:
+      operationId: break_glass_retrieve
+      tags:
+      - break-glass
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+    post:
+      operationId: break_glass_create
+      tags:
+      - break-glass
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BreakGlassInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BreakGlassInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BreakGlassInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BreakGlassOutput'
+          description: ''
+  /api/v1/break-glass/patients/{patient_id}/:
+    get:
+      operationId: break_glass_patients_retrieve
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - break-glass
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+    post:
+      operationId: break_glass_patients_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - break-glass
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BreakGlassInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BreakGlassInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BreakGlassInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BreakGlassOutput'
+          description: ''
+  /api/v1/consents/:
+    get:
+      operationId: consents_list
+      tags:
+      - consents
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsentEventOutput'
+          description: ''
+    post:
+      operationId: consents_create
+      tags:
+      - consents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConsentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConsentInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/consents/texts/:
+    get:
+      operationId: consents_texts_retrieve
+      tags:
+      - consents
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentTextOutput'
+          description: ''
+  /api/v1/notifications/:
+    get:
+      operationId: notifications_list
+      tags:
+      - notifications
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationOutput'
+          description: ''
   /api/v1/organizations/:
     get:
       operationId: organizations_list
@@ -654,6 +817,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedPatientList'
           description: ''
+  /api/v1/patients/access-history/:
+    get:
+      operationId: patients_access_history_list
+      tags:
+      - patients
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccessHistoryOutput'
+          description: ''
   /api/v1/patients/link/accept/:
     post:
       operationId: patients_link_accept_create
@@ -706,8 +885,224 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
           description: ''
+  /api/v1/shares/:
+    get:
+      operationId: shares_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - shares
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedShareOutputList'
+          description: ''
+    post:
+      operationId: shares_create
+      tags:
+      - shares
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShareInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShareInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareOutput'
+          description: ''
+  /api/v1/shares/{share_id}/download/:
+    get:
+      operationId: shares_download_retrieve
+      parameters:
+      - in: path
+        name: share_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - shares
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+  /api/v1/shares/{share_id}/messages/:
+    get:
+      operationId: shares_messages_list
+      parameters:
+      - in: path
+        name: share_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - shares
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SecureMessageOutput'
+          description: ''
+    post:
+      operationId: shares_messages_create
+      parameters:
+      - in: path
+        name: share_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - shares
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureMessageInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SecureMessageInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SecureMessageInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessageCreatedOutput'
+          description: ''
+  /api/v1/shares/{share_id}/patient/:
+    get:
+      operationId: shares_patient_retrieve
+      parameters:
+      - in: path
+        name: share_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - shares
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+  /api/v1/shares/{share_id}/revoke/:
+    post:
+      operationId: shares_revoke_create
+      parameters:
+      - in: path
+        name: share_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - shares
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusOutputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StatusOutputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StatusOutputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
 components:
   schemas:
+    AccessHistoryOutput:
+      type: object
+      properties:
+        actor:
+          type: string
+          format: uuid
+          nullable: true
+        action:
+          type: string
+        at:
+          type: string
+          format: date-time
+      required:
+      - action
+      - actor
+      - at
+    BreakGlassInputRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+      - patient
+      - reason
+    BreakGlassOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - expires_at
+      - id
     CodeInputRequest:
       type: object
       properties:
@@ -728,6 +1123,85 @@ components:
           maxLength: 128
       required:
       - password
+    ConsentEventOutput:
+      type: object
+      properties:
+        share:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+        version:
+          type: integer
+        locale:
+          type: string
+        content_hash:
+          type: string
+        decision:
+          $ref: '#/components/schemas/DecisionEnum'
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - content_hash
+      - created_at
+      - decision
+      - locale
+      - purpose
+      - share
+      - version
+    ConsentInputRequest:
+      type: object
+      properties:
+        share:
+          type: string
+          format: uuid
+        text_version:
+          type: integer
+        locale:
+          $ref: '#/components/schemas/LocaleEnum'
+        decision:
+          $ref: '#/components/schemas/DecisionEnum'
+      required:
+      - decision
+      - locale
+      - share
+      - text_version
+    ConsentTextOutput:
+      type: object
+      properties:
+        purpose:
+          type: string
+          maxLength: 40
+        version:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        locale:
+          type: string
+          maxLength: 2
+        text:
+          type: string
+        content_hash:
+          type: string
+          maxLength: 64
+        published_at:
+          type: string
+          format: date-time
+      required:
+      - content_hash
+      - locale
+      - purpose
+      - text
+      - version
+    DecisionEnum:
+      enum:
+      - granted
+      - revoked
+      type: string
+      description: |-
+        * `granted` - granted
+        * `revoked` - revoked
     EmailInputRequest:
       type: object
       properties:
@@ -760,6 +1234,14 @@ components:
           minLength: 1
       required:
       - email
+    LocaleEnum:
+      enum:
+      - it
+      - en
+      type: string
+      description: |-
+        * `it` - it
+        * `en` - en
     LoginInputRequest:
       type: object
       properties:
@@ -807,6 +1289,28 @@ components:
         * `admin` - admin
         * `professional` - professional
         * `researcher` - researcher
+    NotificationOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        resource_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+      required:
+      - category
+      - created_at
+      - id
+      - read
+      - resource_id
     Organization:
       type: object
       properties:
@@ -881,6 +1385,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Patient'
+    PaginatedShareOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShareOutput'
     PaginatedVerificationOutputList:
       type: object
       required:
@@ -962,6 +1489,18 @@ components:
       - birth_date
       - first_name
       - last_name
+    PermissionsEnum:
+      enum:
+      - view
+      - download
+      - comment
+      - reshare
+      type: string
+      description: |-
+        * `view` - view
+        * `download` - download
+        * `comment` - comment
+        * `reshare` - reshare
     ProfileInputRequest:
       type: object
       properties:
@@ -990,14 +1529,6 @@ components:
             type: string
       required:
       - recovery_codes
-    RegisterInputLocaleEnum:
-      enum:
-      - it
-      - en
-      type: string
-      description: |-
-        * `it` - it
-        * `en` - en
     RegisterInputRequest:
       type: object
       properties:
@@ -1015,7 +1546,7 @@ components:
           $ref: '#/components/schemas/ProfileRoleEnum'
         locale:
           allOf:
-          - $ref: '#/components/schemas/RegisterInputLocaleEnum'
+          - $ref: '#/components/schemas/LocaleEnum'
           default: it
       required:
       - email
@@ -1068,6 +1599,163 @@ components:
       description: |-
         * `approved` - approved
         * `rejected` - rejected
+    SecureMessageCreatedOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - id
+    SecureMessageInputRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+      - body
+    SecureMessageOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        sender:
+          type: string
+          format: uuid
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - body
+      - created_at
+      - id
+      - sender
+    ShareInputRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        recipient_user:
+          type: string
+          format: uuid
+        recipient_organization:
+          type: string
+          format: uuid
+        scope:
+          $ref: '#/components/schemas/ShareInputScopeEnum'
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsEnum'
+          maxItems: 4
+        purpose:
+          type: string
+          minLength: 1
+          maxLength: 300
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        parent_share:
+          type: string
+          format: uuid
+      required:
+      - patient
+      - permissions
+      - purpose
+      - scope
+    ShareInputScopeEnum:
+      enum:
+      - item
+      - chart
+      type: string
+      description: |-
+        * `item` - item
+        * `chart` - chart
+    ShareOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        granted_by:
+          type: string
+          format: uuid
+          readOnly: true
+        recipient_user:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        recipient_organization:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        scope:
+          allOf:
+          - $ref: '#/components/schemas/ShareOutputScopeEnum'
+          readOnly: true
+        permissions:
+          readOnly: true
+        purpose:
+          type: string
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        revoked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+        consent_decision:
+          type: string
+          readOnly: true
+      required:
+      - active
+      - consent_decision
+      - created_at
+      - expires_at
+      - granted_by
+      - id
+      - patient
+      - permissions
+      - purpose
+      - recipient_organization
+      - recipient_user
+      - revoked_at
+      - scope
+    ShareOutputScopeEnum:
+      enum:
+      - item
+      - chart
+      type: string
+      description: |-
+        * `item` - Item
+        * `chart` - Chart
     StatusOutput:
       type: object
       properties:

@@ -9,6 +9,7 @@ decisioni traducono il piano approvato in vincoli di implementazione.
 - [0003 — Autenticazione autonoma](0003-authentication.md)
 - [0004 — Migrazione progressiva senza doppia scrittura](0004-legacy-migration.md)
 - [0005 — Worker, storage e ricerca separati](0005-workers-and-storage.md)
+- [0006 — Consenso, condivisione e audit](0006-sharing-consent-audit.md)
 
 Modificare una decisione richiede un nuovo ADR che espliciti quale sostituisce,
 con motivazione, conseguenze e migrazione. Non riscrivere lo storico per far

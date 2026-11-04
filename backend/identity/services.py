@@ -8,7 +8,15 @@ from django.db.models import Q
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
-from .models import AccountToken, CareRelationship, Membership, Patient, ProfessionalVerification
+from .models import (
+    AccountToken,
+    CareRelationship,
+    Membership,
+    Patient,
+    PatientConsent,
+    ProfessionalVerification,
+    Share,
+)
 from .security import audit, digest
 
 
@@ -77,6 +85,47 @@ def visible_patients(user, org=None):
         "patient_id"
     )
     return qs.filter(own | Q(organization_id__in=orgs, id__in=relationships))
+
+
+def share_recipient_queryset(user):
+    org_ids = Membership.objects.filter(
+        user=user, active=True, role__in=["professional", "admin"]
+    ).values("organization_id")
+    if verified_professional(user):
+        return Share.objects.filter(
+            Q(recipient_user=user) | Q(recipient_organization_id__in=org_ids)
+        )
+    return Share.objects.none()
+
+
+def share_consent_granted(share) -> bool:
+    latest = (
+        PatientConsent.objects.filter(share=share)
+        .order_by("-created_at", "-pk")
+        .values_list("decision", flat=True)
+        .first()
+    )
+    return latest == "granted"
+
+
+def share_is_active(share) -> bool:
+    now = timezone.now()
+    current = share
+    while current is not None:
+        if (
+            current.revoked_at is not None
+            or (current.expires_at is not None and current.expires_at <= now)
+            or not share_consent_granted(current)
+        ):
+            return False
+        current = current.parent
+    return True
+
+
+def user_is_share_participant(user, share) -> bool:
+    if share.granted_by_id == user.pk or share.patient.account_id == user.pk:
+        return True
+    return share_recipient_queryset(user).filter(pk=share.pk).exists()
 
 
 @transaction.atomic

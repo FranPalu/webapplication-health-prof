@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Organization, Patient, ProfessionalVerification, User
+from .models import ConsentTextVersion, Organization, Patient, ProfessionalVerification, Share, User
 
 
 class PasswordField(serializers.CharField):
@@ -159,3 +159,130 @@ class ProfileInput(serializers.Serializer):
     role = serializers.ChoiceField(
         choices=["patient", "professional", "researcher", "organization_admin"]
     )
+
+
+class ShareInput(serializers.Serializer):
+    patient = serializers.UUIDField()
+    recipient_user = serializers.UUIDField(required=False)
+    recipient_organization = serializers.UUIDField(required=False)
+    scope = serializers.ChoiceField(choices=["item", "chart"])
+    permissions = serializers.ListField(
+        child=serializers.ChoiceField(choices=["view", "download", "comment", "reshare"]),
+        allow_empty=False,
+        max_length=4,
+    )
+    purpose = serializers.CharField(max_length=300, trim_whitespace=True)
+    expires_at = serializers.DateTimeField(required=False, allow_null=True)
+    parent_share = serializers.UUIDField(required=False)
+
+    def validate(self, attrs):
+        if bool(attrs.get("recipient_user")) == bool(attrs.get("recipient_organization")):
+            raise serializers.ValidationError("Specify exactly one recipient")
+        if len(set(attrs["permissions"])) != len(attrs["permissions"]):
+            raise serializers.ValidationError("Duplicate permissions")
+        if attrs.get("expires_at") and attrs["expires_at"] <= timezone.now():
+            raise serializers.ValidationError("Expiration must be in the future")
+        return attrs
+
+
+class ConsentInput(serializers.Serializer):
+    share = serializers.UUIDField()
+    text_version = serializers.IntegerField()
+    locale = serializers.ChoiceField(choices=["it", "en"])
+    decision = serializers.ChoiceField(choices=["granted", "revoked"])
+
+
+class SecureMessageInput(serializers.Serializer):
+    body = serializers.CharField(max_length=5000, trim_whitespace=True)
+
+
+class BreakGlassInput(serializers.Serializer):
+    patient = serializers.UUIDField()
+    reason = serializers.CharField(max_length=1000, trim_whitespace=True)
+
+
+class ShareOutput(serializers.ModelSerializer):
+    active = serializers.SerializerMethodField()
+    consent_decision = serializers.SerializerMethodField()
+
+    def get_active(self, obj) -> bool:
+        from .services import share_is_active
+
+        return share_is_active(obj)
+
+    def get_consent_decision(self, obj) -> str:
+        from .models import PatientConsent
+
+        decision = (
+            PatientConsent.objects.filter(share=obj)
+            .order_by("-created_at", "-pk")
+            .values_list("decision", flat=True)
+            .first()
+        )
+        return decision or "pending"
+
+    class Meta:
+        model = Share
+        fields = [
+            "id",
+            "patient",
+            "granted_by",
+            "recipient_user",
+            "recipient_organization",
+            "scope",
+            "permissions",
+            "purpose",
+            "expires_at",
+            "revoked_at",
+            "created_at",
+            "active",
+            "consent_decision",
+        ]
+        read_only_fields = fields
+
+
+class ConsentTextOutput(serializers.ModelSerializer):
+    class Meta:
+        model = ConsentTextVersion
+        fields = ["purpose", "version", "locale", "text", "content_hash", "published_at"]
+
+
+class ConsentEventOutput(serializers.Serializer):
+    share = serializers.UUIDField()
+    purpose = serializers.CharField()
+    version = serializers.IntegerField()
+    locale = serializers.CharField()
+    content_hash = serializers.CharField()
+    decision = serializers.ChoiceField(choices=["granted", "revoked"])
+    created_at = serializers.DateTimeField()
+
+
+class SecureMessageOutput(serializers.Serializer):
+    id = serializers.IntegerField()
+    sender = serializers.UUIDField()
+    body = serializers.CharField()
+    created_at = serializers.DateTimeField()
+
+
+class SecureMessageCreatedOutput(serializers.Serializer):
+    id = serializers.IntegerField()
+    created_at = serializers.DateTimeField()
+
+
+class NotificationOutput(serializers.Serializer):
+    id = serializers.IntegerField()
+    category = serializers.CharField()
+    resource_id = serializers.UUIDField(allow_null=True)
+    created_at = serializers.DateTimeField()
+    read = serializers.BooleanField()
+
+
+class AccessHistoryOutput(serializers.Serializer):
+    actor = serializers.UUIDField(allow_null=True)
+    action = serializers.CharField()
+    at = serializers.DateTimeField()
+
+
+class BreakGlassOutput(serializers.Serializer):
+    id = serializers.IntegerField()
+    expires_at = serializers.DateTimeField()

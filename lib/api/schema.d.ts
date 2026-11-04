@@ -244,6 +244,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/break-glass/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["break_glass_retrieve"];
+        put?: never;
+        post: operations["break_glass_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/break-glass/patients/{patient_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["break_glass_patients_retrieve"];
+        put?: never;
+        post: operations["break_glass_patients_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/consents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["consents_list"];
+        put?: never;
+        post: operations["consents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/consents/texts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["consents_texts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["notifications_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations/": {
         parameters: {
             query?: never;
@@ -356,6 +436,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/patients/access-history/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["patients_access_history_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients/link/accept/": {
         parameters: {
             query?: never;
@@ -388,16 +484,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/shares/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["shares_list"];
+        put?: never;
+        post: operations["shares_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shares/{share_id}/download/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["shares_download_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shares/{share_id}/messages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["shares_messages_list"];
+        put?: never;
+        post: operations["shares_messages_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shares/{share_id}/patient/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["shares_patient_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shares/{share_id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["shares_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccessHistoryOutput: {
+            /** Format: uuid */
+            actor: string | null;
+            action: string;
+            /** Format: date-time */
+            at: string;
+        };
+        BreakGlassInputRequest: {
+            /** Format: uuid */
+            patient: string;
+            reason: string;
+        };
+        BreakGlassOutput: {
+            id: number;
+            /** Format: date-time */
+            expires_at: string;
+        };
         CodeInputRequest: {
             code: string;
         };
         ConfirmPasswordInputRequest: {
             password: string;
         };
+        ConsentEventOutput: {
+            /** Format: uuid */
+            share: string;
+            purpose: string;
+            version: number;
+            locale: string;
+            content_hash: string;
+            decision: components["schemas"]["DecisionEnum"];
+            /** Format: date-time */
+            created_at: string;
+        };
+        ConsentInputRequest: {
+            /** Format: uuid */
+            share: string;
+            text_version: number;
+            locale: components["schemas"]["LocaleEnum"];
+            decision: components["schemas"]["DecisionEnum"];
+        };
+        ConsentTextOutput: {
+            purpose: string;
+            version: number;
+            locale: string;
+            text: string;
+            content_hash: string;
+            /** Format: date-time */
+            published_at?: string;
+        };
+        /**
+         * @description * `granted` - granted
+         *     * `revoked` - revoked
+         * @enum {string}
+         */
+        DecisionEnum: "granted" | "revoked";
         EmailInputRequest: {
             /** Format: email */
             email: string;
@@ -415,6 +641,12 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        /**
+         * @description * `it` - it
+         *     * `en` - en
+         * @enum {string}
+         */
+        LocaleEnum: "it" | "en";
         LoginInputRequest: {
             /** Format: email */
             email: string;
@@ -437,6 +669,15 @@ export interface components {
          * @enum {string}
          */
         MembershipRoleEnum: "admin" | "professional" | "researcher";
+        NotificationOutput: {
+            id: number;
+            category: string;
+            /** Format: uuid */
+            resource_id: string | null;
+            /** Format: date-time */
+            created_at: string;
+            read: boolean;
+        };
         Organization: {
             /** Format: uuid */
             readonly id: string;
@@ -477,6 +718,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Patient"][];
         };
+        PaginatedShareOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ShareOutput"][];
+        };
         PaginatedVerificationOutputList: {
             /** @example 123 */
             count: number;
@@ -510,6 +766,14 @@ export interface components {
             birth_date: string;
             email?: string;
         };
+        /**
+         * @description * `view` - view
+         *     * `download` - download
+         *     * `comment` - comment
+         *     * `reshare` - reshare
+         * @enum {string}
+         */
+        PermissionsEnum: "view" | "download" | "comment" | "reshare";
         ProfileInputRequest: {
             role: components["schemas"]["ProfileRoleEnum"];
         };
@@ -524,19 +788,13 @@ export interface components {
         RecoveryOutput: {
             recovery_codes: string[];
         };
-        /**
-         * @description * `it` - it
-         *     * `en` - en
-         * @enum {string}
-         */
-        RegisterInputLocaleEnum: "it" | "en";
         RegisterInputRequest: {
             /** Format: email */
             email: string;
             password: string;
             role: components["schemas"]["ProfileRoleEnum"];
             /** @default it */
-            locale: components["schemas"]["RegisterInputLocaleEnum"];
+            locale: components["schemas"]["LocaleEnum"];
         };
         RelationshipInputRequest: {
             /** Format: uuid */
@@ -558,6 +816,72 @@ export interface components {
          * @enum {string}
          */
         ReviewInputStatusEnum: "approved" | "rejected";
+        SecureMessageCreatedOutput: {
+            id: number;
+            /** Format: date-time */
+            created_at: string;
+        };
+        SecureMessageInputRequest: {
+            body: string;
+        };
+        SecureMessageOutput: {
+            id: number;
+            /** Format: uuid */
+            sender: string;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+        };
+        ShareInputRequest: {
+            /** Format: uuid */
+            patient: string;
+            /** Format: uuid */
+            recipient_user?: string;
+            /** Format: uuid */
+            recipient_organization?: string;
+            scope: components["schemas"]["ShareInputScopeEnum"];
+            permissions: components["schemas"]["PermissionsEnum"][];
+            purpose: string;
+            /** Format: date-time */
+            expires_at?: string | null;
+            /** Format: uuid */
+            parent_share?: string;
+        };
+        /**
+         * @description * `item` - item
+         *     * `chart` - chart
+         * @enum {string}
+         */
+        ShareInputScopeEnum: "item" | "chart";
+        ShareOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly patient: string;
+            /** Format: uuid */
+            readonly granted_by: string;
+            /** Format: uuid */
+            readonly recipient_user: string | null;
+            /** Format: uuid */
+            readonly recipient_organization: string | null;
+            readonly scope: components["schemas"]["ShareOutputScopeEnum"];
+            readonly permissions: unknown;
+            readonly purpose: string;
+            /** Format: date-time */
+            readonly expires_at: string | null;
+            /** Format: date-time */
+            readonly revoked_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly active: boolean;
+            readonly consent_decision: string;
+        };
+        /**
+         * @description * `item` - Item
+         *     * `chart` - Chart
+         * @enum {string}
+         */
+        ShareOutputScopeEnum: "item" | "chart";
         StatusOutput: {
             status: string;
         };
@@ -994,6 +1318,180 @@ export interface operations {
             };
         };
     };
+    break_glass_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Patient"];
+                };
+            };
+        };
+    };
+    break_glass_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BreakGlassInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BreakGlassInputRequest"];
+                "multipart/form-data": components["schemas"]["BreakGlassInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BreakGlassOutput"];
+                };
+            };
+        };
+    };
+    break_glass_patients_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Patient"];
+                };
+            };
+        };
+    };
+    break_glass_patients_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BreakGlassInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BreakGlassInputRequest"];
+                "multipart/form-data": components["schemas"]["BreakGlassInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BreakGlassOutput"];
+                };
+            };
+        };
+    };
+    consents_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentEventOutput"][];
+                };
+            };
+        };
+    };
+    consents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ConsentInputRequest"];
+                "multipart/form-data": components["schemas"]["ConsentInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
+    consents_texts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentTextOutput"];
+                };
+            };
+        };
+    };
+    notifications_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationOutput"][];
+                };
+            };
+        };
+    };
     organizations_list: {
         parameters: {
             query?: {
@@ -1219,6 +1717,25 @@ export interface operations {
             };
         };
     };
+    patients_access_history_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessHistoryOutput"][];
+                };
+            };
+        };
+    };
     patients_link_accept_create: {
         parameters: {
             query?: never;
@@ -1256,6 +1773,170 @@ export interface operations {
                 "application/json": components["schemas"]["VerificationInputRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["VerificationInputRequest"];
                 "multipart/form-data": components["schemas"]["VerificationInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
+    shares_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedShareOutputList"];
+                };
+            };
+        };
+    };
+    shares_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ShareInputRequest"];
+                "multipart/form-data": components["schemas"]["ShareInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareOutput"];
+                };
+            };
+        };
+    };
+    shares_download_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Patient"];
+                };
+            };
+        };
+    };
+    shares_messages_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecureMessageOutput"][];
+                };
+            };
+        };
+    };
+    shares_messages_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecureMessageInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SecureMessageInputRequest"];
+                "multipart/form-data": components["schemas"]["SecureMessageInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecureMessageCreatedOutput"];
+                };
+            };
+        };
+    };
+    shares_patient_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Patient"];
+                };
+            };
+        };
+    };
+    shares_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                share_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusOutputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StatusOutputRequest"];
+                "multipart/form-data": components["schemas"]["StatusOutputRequest"];
             };
         };
         responses: {

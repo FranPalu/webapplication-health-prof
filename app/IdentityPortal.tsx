@@ -8,6 +8,12 @@ type User = components['schemas']['UserOutput'];
 type Org = components['schemas']['Organization'];
 type Patient = components['schemas']['Patient'];
 type Review = components['schemas']['VerificationOutput'];
+type Share = components['schemas']['ShareOutput'];
+type ConsentText = components['schemas']['ConsentTextOutput'];
+type ConsentEvent = components['schemas']['ConsentEventOutput'];
+type AccessEvent = components['schemas']['AccessHistoryOutput'];
+type Notification = components['schemas']['NotificationOutput'];
+type SecureMessage = components['schemas']['SecureMessageOutput'];
 type Page<T> = {results:T[];next:string|null};
 function nextPath(url:string){const parsed=new URL(url,window.location.origin);return parsed.pathname.replace(/^\/api\/v1\//,'')+parsed.search;}
 const words = {
@@ -26,10 +32,20 @@ const words = {
     link:'Invita account paziente',relationship:'Relazione di cura',professionalId:'ID professionista',
     token:'Token ricevuto per email',newPassword:'Nuova password (almeno 12 caratteri)',
     admin:'Verifiche professionali',approve:'Approva',reject:'Rifiuta',reason:'Motivazione',
-    empty:'Nessun elemento accessibile.',notice:'M1 · Identità e organizzazioni. Condivisione e funzioni cliniche saranno disponibili nelle milestone successive.',
+    empty:'Nessun elemento accessibile.',notice:'M2 · Identità, organizzazioni, consensi e condivisioni controllate.',
     resetMfa:'Reimposta MFA (richiede password e sessione MFA verificata)',demo:'Apri demo con dati fittizi',
     back:'Torna all’accesso', organization:'Organizzazione', refresh:'Aggiorna', membershipRole:'Ruolo organizzativo',
-    adminRole:'Amministratore', accept:'Accetta collegamento', selected:'Seleziona organizzazione',more:'Carica altri'},
+    adminRole:'Amministratore', accept:'Accetta collegamento', selected:'Seleziona organizzazione',more:'Carica altri',
+    shares:'Condivisioni e consensi',pendingConsent:'Richiede il tuo consenso',activeShare:'Condivisione attiva',
+    revokedShare:'Revocata',grant:'Concedi accesso',revoke:'Revoca accesso',purpose:'Finalità',
+    recipient:'Destinatario (ID professionista o organizzazione)',recipientKind:'Tipo destinatario',
+    individual:'Professionista',facility:'Organizzazione',share:'Richiedi condivisione',
+    consentCopy:'Condividi l’anagrafica con il destinatario e per la finalità indicata. Puoi revocare in ogni momento.',
+    accessHistory:'Storico degli accessi',noAccess:'Nessun accesso registrato.',notifications:'Notifiche',
+    consentGranted:'Consenso registrato.',consentRevoked:'Consenso revocato.',shareScope:'Ambito',
+    consentState:'Stato del consenso',expiredShare:'Scaduta',
+    messages:'Messaggi sicuri',messageText:'Scrivi un messaggio',sendMessage:'Invia messaggio',
+  },
   en: {title:'Your care workspace', intro:'Sign in securely and collaborate with your organization.',
     email:'Email',password:'Password',login:'Sign in',register:'Register',role:'Profile',
     patient:'Patient',professional:'Professional',researcher:'Researcher',organization_admin:'Organization administrator',
@@ -45,10 +61,20 @@ const words = {
     link:'Invite patient account',relationship:'Care relationship',professionalId:'Professional ID',
     token:'Token received by email',newPassword:'New password (at least 12 characters)',
     admin:'Professional verifications',approve:'Approve',reject:'Reject',reason:'Reason',
-    empty:'No accessible items.',notice:'M1 · Identity and organizations. Sharing and clinical features will follow in later milestones.',
+    empty:'No accessible items.',notice:'M2 · Identity, organizations, consent and controlled sharing.',
     resetMfa:'Reset MFA (requires password and verified MFA session)',demo:'Open synthetic demo',
     back:'Back to sign in', organization:'Organization', refresh:'Refresh', membershipRole:'Organization role',
-    adminRole:'Administrator', accept:'Accept link', selected:'Select organization',more:'Load more'},
+    adminRole:'Administrator', accept:'Accept link', selected:'Select organization',more:'Load more',
+    shares:'Shares and consent',pendingConsent:'Your consent is required',activeShare:'Active share',
+    revokedShare:'Revoked',grant:'Grant access',revoke:'Revoke access',purpose:'Purpose',
+    recipient:'Recipient (professional or organization ID)',recipientKind:'Recipient type',
+    individual:'Professional',facility:'Organization',share:'Request sharing',
+    consentCopy:'Share this patient record with the named recipient for the stated purpose. You can withdraw at any time.',
+    accessHistory:'Access history',noAccess:'No access recorded.',notifications:'Notifications',
+    consentGranted:'Consent recorded.',consentRevoked:'Consent withdrawn.',shareScope:'Scope',
+    consentState:'Consent state',expiredShare:'Expired',
+    messages:'Secure messages',messageText:'Write a message',sendMessage:'Send message',
+  },
 };
 function Field({label,name,type='text',required=true,value,onChange}:{label:string;name:string;type?:string;required?:boolean;value?:string;onChange?:(value:string)=>void}) {
   return <label>{label}<input name={name} type={type} required={required} {...(value === undefined ? {} : {value,onChange:e=>onChange?.(e.target.value)})} autoComplete={type==='password'?'current-password':undefined}/></label>;
@@ -60,6 +86,10 @@ export default function IdentityPortal() {
   const [token,setToken]=useState(''), [action,setAction]=useState(''), [uri,setUri]=useState(''), [codes,setCodes]=useState<string[]>([]);
   const [orgNext,setOrgNext]=useState<string|null>(null), [patientNext,setPatientNext]=useState<string|null>(null), [reviewNext,setReviewNext]=useState<string|null>(null);
   const [organizations,setOrganizations]=useState<Org[]>([]), [org,setOrg]=useState(''), [patients,setPatients]=useState<Patient[]>([]), [reviews,setReviews]=useState<Review[]>([]);
+  const [shares,setShares]=useState<Share[]>([]), [consentTexts,setConsentTexts]=useState<ConsentText[]>([]),
+    [consentEvents,setConsentEvents]=useState<ConsentEvent[]>([]), [accessHistory,setAccessHistory]=useState<AccessEvent[]>([]),
+    [notifications,setNotifications]=useState<Notification[]>([]), [openThread,setOpenThread]=useState(''),
+    [messageThreads,setMessageThreads]=useState<Record<string,SecureMessage[]>>({});
   const ready=!!user?.email_verified && (!user.requires_mfa || user.mfa_verified);
   async function session() {
     const result=await api<User|{status:string}>('auth/session/');
@@ -67,7 +97,11 @@ export default function IdentityPortal() {
   }
   useEffect(()=>{async function init(){try{const current=await api<User|{status:string}>('auth/session/');setUser('id' in current?current:null);
     if('id' in current && (!current.requires_mfa||current.mfa_verified)){
-      const [o,p]=await Promise.all([api<Page<Org>>('organizations/'),api<Page<Patient>>('patients/')]);setOrganizations(o.results);setOrgNext(o.next);setPatients(p.results);setPatientNext(p.next);
+      const [o,p,s,n]=await Promise.all([api<Page<Org>>('organizations/'),api<Page<Patient>>('patients/'),api<Page<Share>>('shares/'),api<Notification[]>('notifications/')]);setOrganizations(o.results);setOrgNext(o.next);setPatients(p.results);setPatientNext(p.next);setShares(s.results);setNotifications(n);
+      if(current.role==='patient'){
+        const [texts,events,access]=await Promise.all([api<ConsentText[]>('consents/texts/'),api<ConsentEvent[]>('consents/'),api<AccessEvent[]>('patients/access-history/')]);
+        setConsentTexts(texts);setConsentEvents(events);setAccessHistory(access);
+      }
       if(current.is_platform_admin){const r=await api<Page<Review>>('admin/verifications/');setReviews(r.results);setReviewNext(r.next);}
     }
     const url=new URL(window.location.href);setAction(url.searchParams.get('action')||'');setToken(new URLSearchParams(url.hash.slice(1)).get('token')||'');
@@ -76,8 +110,12 @@ export default function IdentityPortal() {
   async function refresh() {
     const current=await session();
     if(!current || (current.requires_mfa&&!current.mfa_verified))return;
-    const [o,p]=await Promise.all([api<Page<Org>>('organizations/'),api<Page<Patient>>('patients/')]);
-    setOrganizations(o.results);setOrgNext(o.next);setPatients(p.results);setPatientNext(p.next);
+    const [o,p,s,n]=await Promise.all([api<Page<Org>>('organizations/'),api<Page<Patient>>('patients/'),api<Page<Share>>('shares/'),api<Notification[]>('notifications/')]);
+    setOrganizations(o.results);setOrgNext(o.next);setPatients(p.results);setPatientNext(p.next);setShares(s.results);setNotifications(n);
+    if(current.role==='patient'){
+      const [texts,events,access]=await Promise.all([api<ConsentText[]>('consents/texts/'),api<ConsentEvent[]>('consents/'),api<AccessEvent[]>('patients/access-history/')]);
+      setConsentTexts(texts);setConsentEvents(events);setAccessHistory(access);
+    }
     if(current.is_platform_admin){const r=await api<Page<Review>>('admin/verifications/');setReviews(r.results);setReviewNext(r.next);}
   }
   async function run(job:()=>Promise<void>){setBusy(true);setError('');setMessage('');try{await job();}catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
@@ -98,7 +136,7 @@ export default function IdentityPortal() {
     {mode==='register'&&<label>{t.role}<select name="role">{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select></label>}
     <button>{mode==='register'?t.register:mode==='login'?t.login:t.forgot}</button></form><nav>{['login','register','reset'].filter(x=>x!==mode).map(x=><button type="button" key={x} onClick={()=>setMode(x)}>{x==='login'?t.login:x==='register'?t.register:t.forgot}</button>)}</nav>
     <details><summary>{t.resend}</summary><form onSubmit={form(async d=>{await api('auth/resend/',d);setMessage(t.check);})}><Field label={t.email} name="email" type="email"/><button>{t.resend}</button></form></details></>)}
-    {user&&<><section className="identity-account"><p>{user.email} · {t[user.role]}<br/><small>ID: {user.id}</small></p><button onClick={()=>void run(async()=>{await api('auth/logout/',{});setUser(null);setPatients([]);setOrganizations([]);setReviews([]);setOrg('');setOrgNext(null);setPatientNext(null);setReviewNext(null);setCodes([]);setUri('');})}>{t.logout}</button><button onClick={()=>void run(refresh)}>{t.refresh}</button></section>
+    {user&&<><section className="identity-account"><p>{user.email} · {t[user.role]}<br/><small>ID: {user.id}</small></p><button onClick={()=>void run(async()=>{await api('auth/logout/',{});setUser(null);setPatients([]);setOrganizations([]);setReviews([]);setShares([]);setConsentEvents([]);setAccessHistory([]);setNotifications([]);setOrg('');setOrgNext(null);setPatientNext(null);setReviewNext(null);setCodes([]);setUri('');})}>{t.logout}</button><button onClick={()=>void run(refresh)}>{t.refresh}</button></section>
     {!user.mfa_enabled&&card(t.mfa,<><form onSubmit={form(async d=>{const result=await api<{uri:string}>('auth/mfa/setup/',d);setUri(result.uri);})}><Field label={t.password} name="password" type="password"/><button>{t.setup}</button></form>{uri&&<><p>{t.secret}</p><code className="identity-secret">{new URL(uri).searchParams.get('secret')}</code><form onSubmit={form(async d=>{const result=await api<{recovery_codes:string[]}>('auth/mfa/confirm/',d);setCodes(result.recovery_codes);setUri('');await refresh();})}><Field label={t.code} name="code"/><button>{t.confirm}</button></form></>}</>)}
     {user.mfa_enabled&&!user.mfa_verified&&card(t.mfa,<form onSubmit={form(async d=>{await api('auth/mfa/verify/',d);await refresh();})}><Field label={t.code} name="code"/><button>{t.verify}</button></form>)}
     {!!codes.length&&card(t.recovery,<ul>{codes.map(code=><li key={code}><code>{code}</code></li>)}</ul>)}
@@ -111,7 +149,16 @@ export default function IdentityPortal() {
       {org&&card(t.members,<form onSubmit={form(async d=>{await send(`organizations/${org}/memberships/`,{...d,active:d.active==='on'});})}><Field label={t.email} name="email" type="email"/><label>{t.membershipRole}<select name="role"><option value="professional">{t.professional}</option><option value="researcher">{t.researcher}</option><option value="admin">{t.adminRole}</option></select></label><label><input type="checkbox" name="active" defaultChecked/>{t.active}</label><button>{t.save}</button></form>)}
       {org&&user.role==='professional'&&card(t.newPatient,<form onSubmit={form(async d=>{await send(`organizations/${org}/patients/`,d);await refresh();})}><Field label={t.first} name="first_name"/><Field label={t.last} name="last_name"/><Field label={t.birth} name="birth_date" type="date"/><Field label={t.email} name="email" type="email" required={false}/><button>{t.create}</button></form>)}
       {card(t.patients,<>{!patients.length&&<p>{t.empty}</p>}{patientNext&&<button onClick={()=>void run(async()=>{const p=await api<Page<Patient>>(nextPath(patientNext));setPatients([...patients,...p.results]);setPatientNext(p.next);})}>{t.more}</button>}{patients.map(p=><article key={p.id}><h3>{p.first_name} {p.last_name}</h3><p>{p.birth_date}</p><small>{p.id}</small>
-        {user.role==='professional'&&<details><summary>{t.link}</summary><form onSubmit={form(async d=>send(`organizations/${p.organization}/patients/${p.id}/link/`,d))}><Field label={t.email} name="email" type="email"/><button>{t.link}</button></form></details>}</article>)}</>)}
+        {user.role==='professional'&&<details><summary>{t.link}</summary><form onSubmit={form(async d=>send(`organizations/${p.organization}/patients/${p.id}/link/`,d))}><Field label={t.email} name="email" type="email"/><button>{t.link}</button></form></details>}
+        {user.role==='professional'&&<details><summary>{t.share}</summary><form onSubmit={form(async d=>{const target=d.recipientKind==='organization'?{recipient_organization:d.recipient}:{recipient_user:d.recipient};await api('shares/',{patient:p.id,...target,scope:'item',permissions:['view','download','comment'],purpose:d.purpose});await refresh();setMessage(t.done);})}><label>{t.recipientKind}<select name="recipientKind"><option value="user">{t.individual}</option><option value="organization">{t.facility}</option></select></label><Field label={t.recipient} name="recipient"/><Field label={t.purpose} name="purpose"/><button>{t.share}</button></form></details>}</article>)}</>)}
+      {card(t.shares,<>{shares.map(s=><article key={s.id}><h3>{s.revoked_at||s.consent_decision==='revoked'?t.revokedShare:s.consent_decision==='granted'?(s.active?t.activeShare:t.expiredShare):t.pendingConsent}</h3><p>{t.recipient}: {s.recipient_user||s.recipient_organization}</p><p>{t.purpose}: {s.purpose}</p><small>{s.patient} · {t.shareScope}: {s.scope}</small>
+        {user.role==='patient'&&s.consent_decision!=='granted'&&!s.revoked_at&&<><p>{consentTexts.find(text=>text.purpose==='care_sharing'&&text.locale===locale)?.text||t.consentCopy}</p><button onClick={()=>void run(async()=>{const text=consentTexts.find(item=>item.purpose==='care_sharing'&&item.locale===locale);if(!text)throw new Error('Consent text is unavailable');await api('consents/',{share:s.id,text_version:text.version,locale,decision:'granted'});await refresh();setMessage(t.consentGranted);})}>{t.grant}</button></>}
+        {user.role==='patient'&&s.consent_decision==='granted'&&!s.revoked_at&&<button onClick={()=>void run(async()=>{const text=consentTexts.find(item=>item.purpose==='care_sharing'&&item.locale===locale);if(!text)throw new Error('Consent text is unavailable');await api('consents/',{share:s.id,text_version:text.version,locale,decision:'revoked'});await refresh();setMessage(t.consentRevoked);})}>{t.revoke}</button>}
+        {user.role==='professional'&&s.granted_by===user.id&&!s.revoked_at&&<button onClick={()=>void run(async()=>{await api(`shares/${s.id}/revoke/`,{});await refresh();})}>{t.revoke}</button>}
+        {s.active&&Array.isArray(s.permissions)&&s.permissions.includes('comment')&&<><button type="button" onClick={()=>void run(async()=>{if(openThread===s.id){setOpenThread('');return;}const thread=await api<SecureMessage[]>(`shares/${s.id}/messages/`);setMessageThreads({...messageThreads,[s.id]:thread});setOpenThread(s.id);})}>{t.messages}</button>{openThread===s.id&&<><ul>{(messageThreads[s.id]||[]).map(m=><li key={m.id}><small>{m.sender} · {new Date(m.created_at).toLocaleString(locale)}</small><p>{m.body}</p></li>)}</ul><form onSubmit={form(async d=>{await api(`shares/${s.id}/messages/`,{body:d.body});const thread=await api<SecureMessage[]>(`shares/${s.id}/messages/`);setMessageThreads({...messageThreads,[s.id]:thread});setMessage('');})}><Field label={t.messageText} name="body"/><button>{t.sendMessage}</button></form></>}</>}
+      </article>)}{!shares.length&&<p>{t.empty}</p>}</>)}
+      {!!notifications.length&&card(t.notifications,<ul>{notifications.slice(0,10).map(n=><li key={n.id}>{n.category} · {new Date(n.created_at).toLocaleString(locale)}</li>)}</ul>)}
+      {user.role==='patient'&&card(t.accessHistory,<>{!accessHistory.length&&<p>{t.noAccess}</p>}<ul>{accessHistory.slice(0,50).map((event,index)=><li key={`${event.at}-${index}`}>{event.action} · {event.actor||'—'} · {new Date(event.at).toLocaleString(locale)}</li>)}</ul><details><summary>{t.consentState}</summary><ul>{consentEvents.map((event,index)=><li key={`${event.created_at}-${index}`}>{event.decision} · v{event.version} · {new Date(event.created_at).toLocaleString(locale)}</li>)}</ul></details></>)}
       {org&&card(t.relationship,<form onSubmit={form(async d=>send(`organizations/${org}/patients/${d.patient}/relationships/`,{professional:d.professional,active:d.active==='on'}))}><Field label="Patient ID" name="patient"/><Field label={t.professionalId} name="professional"/><label><input type="checkbox" name="active" defaultChecked/>{t.active}</label><button>{t.save}</button></form>)}
       {user.is_platform_admin&&card(t.admin,<>{!reviews.length&&<p>{t.empty}</p>}{reviewNext&&<button onClick={()=>void run(async()=>{const p=await api<Page<Review>>(nextPath(reviewNext));setReviews([...reviews,...p.results]);setReviewNext(p.next);})}>{t.more}</button>}{reviews.map(r=><article key={r.user}><h3>{r.register} · {r.license_number}</h3><p>{r.user}</p><form onSubmit={form(async d=>{await send(`admin/verifications/${r.user}/`,d);await refresh();})}><Field label={t.reason} name="reason"/><select name="status" aria-label={t.admin}><option value="approved">{t.approve}</option><option value="rejected">{t.reject}</option></select><button>{t.save}</button></form></article>)}</>)}
       {user.mfa_enabled&&user.mfa_verified&&<details><summary>{t.resetMfa}</summary><form onSubmit={form(async d=>{await send('auth/mfa/reset/',d);await session();setCodes([]);})}><Field label={t.password} name="password" type="password"/><button>{t.confirm}</button></form></details>}
