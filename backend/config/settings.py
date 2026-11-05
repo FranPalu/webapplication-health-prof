@@ -130,3 +130,8 @@ CELERY_BEAT_SCHEDULE["clinical-analysis-reconciliation"] = {
     "task": "identity.tasks.reconcile_analysis_jobs",
     "schedule": 15.0,
 }
+
+CELERY_BEAT_SCHEDULE["appointment-reminders"] = {
+    "task": "identity.tasks.appointment_reminders",
+    "schedule": 60.0,
+}

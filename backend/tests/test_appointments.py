@@ -81,3 +81,60 @@ def test_booking_excludes_overlaps_and_refunds_on_cancellation():
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         assert sorted(executor.map(compete, [first, second])) == [201, 409]
+
+
+def test_rescheduling_reminder_and_geographic_discovery():
+    from identity.models import InAppNotification
+    from identity.tasks import appointment_reminders
+
+    administrator = user("move-admin@patients.example", "organization_admin")
+    org = org_for(administrator)
+    admin = signed(administrator)
+    clinician = user("move-clinician@patients.example", "professional")
+    approve(clinician)
+    Membership.objects.create(organization=org, user=clinician, role="professional")
+    account = user("move-patient@patients.example")
+    record = patient(org)
+    record.account = account
+    record.save(update_fields=["account"])
+    browser = signed(account)
+    assert (
+        admin.post(
+            f"organizations/{org.pk}/location/",
+            {
+                "latitude": "41.900000",
+                "longitude": "12.500000",
+            },
+        ).status_code
+        == 200
+    )
+    nearby = browser.get("directory/nearby/?latitude=41.900000&longitude=12.500000&radius_km=1")
+    assert nearby.status_code == 200, nearby.content
+    assert nearby.data[0]["id"] == org.pk and nearby.data[0]["distance_m"] == 0
+    slot_path = f"organizations/{org.pk}/appointment-slots/"
+    slots = []
+    for hours in (1, 2):
+        starts = timezone.now() + timedelta(hours=hours)
+        slot = admin.post(
+            slot_path,
+            {
+                "title": "Synthetic",
+                "professional": str(clinician.pk),
+                "starts_at": starts.isoformat(),
+                "ends_at": (starts + timedelta(minutes=30)).isoformat(),
+            },
+        )
+        assert slot.status_code == 201
+        slots.append(slot.data["id"])
+    booking = browser.post(f"appointments/slots/{slots[0]}/book/", {}).data["id"]
+    for _ in range(2):
+        appointment_reminders()
+    assert (
+        InAppNotification.objects.filter(category="appointment.reminder", user=account).count() == 1
+    )
+    response = browser.post(f"appointments/bookings/{booking}/reschedule/", {"slot": slots[1]})
+    assert response.status_code == 200 and str(response.data["slot"]) == slots[1]
+    appointment_reminders()
+    assert (
+        InAppNotification.objects.filter(category="appointment.reminder", user=account).count() == 2
+    )

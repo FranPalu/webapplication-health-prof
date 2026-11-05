@@ -1,3 +1,6 @@
+import base64
+from types import SimpleNamespace
+
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
@@ -5,6 +8,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from identity import prescriptions
+from identity.analysis import decode, encode
 from identity.models import InAppNotification, Membership, PharmacyItem, PharmacyReservation, User
 from identity.security import audit, rate_limit
 from identity.views import InputView
@@ -31,6 +36,7 @@ class ItemOutput(serializers.ModelSerializer):
 class ReserveInput(serializers.Serializer):
     request_id = serializers.UUIDField()
     quantity = serializers.IntegerField(min_value=1, max_value=10)
+    nre = serializers.RegexField(r"^[0-9A-Z]{15}$", required=False)
 
 
 class PharmacyDecisionInput(serializers.Serializer):
@@ -95,13 +101,25 @@ class ReserveView(InputView):
                 return Response({"code": "reservation_conflict"}, status=409)
             return Response(ReservationOutput(existing).data)
         item = get_object_or_404(PharmacyItem.objects.select_for_update(), pk=item_id)
-        if item.prescription_required:
+        nre = data.pop("nre", None)
+        if item.prescription_required and (not nre or prescriptions.verifier is None):
             return Response({"code": "prescription_verification_unavailable"}, status=409)
+        if nre and not item.prescription_required:
+            return Response({"code": "prescription_not_required"}, status=400)
+        encrypted = None
+        if nre:
+            sealed = encode({"nre": nre}, item.pharmacy_id)
+            encrypted = {
+                key: base64.b64encode(value).decode() if isinstance(value, bytes) else value
+                for key, value in sealed.items()
+            }
         if item.stock < data["quantity"]:
             return Response({"code": "insufficient_stock"}, status=409)
         item.stock -= data["quantity"]
         item.save(update_fields=["stock"])
-        reservation = PharmacyReservation.objects.create(item=item, requester=request.user, **data)
+        reservation = PharmacyReservation.objects.create(
+            item=item, requester=request.user, prescription=encrypted, **data
+        )
         audit(request.user, "pharmacy.reserved", reservation.pk, item.pharmacy)
         return Response(ReservationOutput(reservation).data, status=201)
 
@@ -150,13 +168,27 @@ class PharmacyDecisionView(InputView):
         if reservation.state != "pending":
             return Response({"code": "reservation_already_decided"}, status=409)
         item = PharmacyItem.objects.select_for_update().get(pk=reservation.item_id)
-        if decision == "confirmed" and item.prescription_required:
-            return Response({"code": "prescription_verification_unavailable"}, status=409)
+        if decision == "confirmed" and (item.prescription_required or reservation.prescription):
+            if not reservation.prescription or prescriptions.verifier is None:
+                return Response({"code": "prescription_verification_unavailable"}, status=409)
+            payload = dict(reservation.prescription)
+            for key in ("ciphertext", "wrapped_key"):
+                payload[key] = base64.b64decode(payload[key])
+            context = SimpleNamespace(patient=SimpleNamespace(organization_id=item.pharmacy_id))
+            nre = decode(SimpleNamespace(**payload), context)["nre"]
+            if not prescriptions.verifier.verified(
+                reference=nre,
+                requester_id=str(reservation.requester_id),
+                pharmacy_id=str(item.pharmacy_id),
+                sku=item.sku,
+            ):
+                return Response({"code": "prescription_not_verified"}, status=409)
+        reservation.prescription = None
         if decision == "rejected":
             item.stock += reservation.quantity
             item.save(update_fields=["stock"])
         reservation.state = decision
-        reservation.save(update_fields=["state"])
+        reservation.save(update_fields=["state", "prescription"])
         InAppNotification.objects.create(
             user=reservation.requester,
             category="pharmacy." + decision,

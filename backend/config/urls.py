@@ -7,6 +7,7 @@ from identity import (
     analysis_views,
     appointment_views,
     clinical_views,
+    directory_views,
     fhir,
     payment_views,
     pharmacy_views,
@@ -116,4 +117,12 @@ urlpatterns += [
     endpoint(
         "pharmacy/reservations/<uuid:reservation_id>/decision/", pharmacy_views.PharmacyDecisionView
     ),
+]
+
+urlpatterns += [
+    endpoint(
+        "appointments/bookings/<uuid:booking_id>/reschedule/", appointment_views.MoveBookingView
+    ),
+    endpoint("organizations/<uuid:org_id>/location/", directory_views.LocationView),
+    endpoint("directory/nearby/", directory_views.NearbyView),
 ]

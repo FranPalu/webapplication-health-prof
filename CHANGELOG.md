@@ -88,3 +88,8 @@
 
 - API per disponibilità, prenotazioni e cancellazioni con pagamento e rimborso simulati.
 - Catalogo farmacia, riserva delle scorte, conferma o rifiuto con notifica.
+
+## 2026-11-05 — Flussi M6 nel portale
+
+- Riprogrammazione, promemoria, cataloghi CSV, migrazione agenda e ricerca geografica PostGIS.
+- Portale per pazienti e amministratori. Adapter SMS e verifica ufficiale delle ricette disattivati per default.

@@ -90,6 +90,8 @@ class Organization(models.Model):
         choices=[(x, x) for x in ("hospital", "clinic", "practice", "pharmacy", "research")],
     )
     break_glass_enabled = models.BooleanField(default=False)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -512,6 +514,7 @@ class AppointmentBooking(models.Model):
     payer = models.ForeignKey(User, on_delete=models.PROTECT)
     payment = models.OneToOneField(PaymentOrder, null=True, blank=True, on_delete=models.PROTECT)
     cancelled_at = models.DateTimeField(null=True)
+    reminded_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -545,6 +548,7 @@ class PharmacyReservation(models.Model):
     request_id = models.UUIDField()
     quantity = models.PositiveIntegerField()
     state = models.CharField(max_length=12, default="pending")
+    prescription = models.JSONField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

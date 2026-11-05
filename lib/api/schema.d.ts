@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/appointments/bookings/{booking_id}/reschedule/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["appointments_bookings_reschedule_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/appointments/slots/{slot_id}/book/": {
         parameters: {
             query?: never;
@@ -516,6 +532,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/directory/nearby/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["directory_nearby_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/fhir/Consent/{resource_id}": {
         parameters: {
             query?: never;
@@ -702,6 +734,22 @@ export interface paths {
         get: operations["organizations_appointment_slots_list"];
         put?: never;
         post: operations["organizations_appointment_slots_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{org_id}/location/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["organizations_location_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1115,6 +1163,11 @@ export interface components {
             cancelled_at?: string | null;
             /** Format: date-time */
             readonly created_at: string;
+            /** Format: date-time */
+            readonly starts_at: string;
+            /** Format: date-time */
+            readonly ends_at: string;
+            readonly title: string;
         };
         BreakGlassInputRequest: {
             /** Format: uuid */
@@ -1165,6 +1218,18 @@ export interface components {
             content_hash: string;
             /** Format: date-time */
             published_at?: string;
+        };
+        Coordinates: {
+            /** Format: decimal */
+            latitude: string;
+            /** Format: decimal */
+            longitude: string;
+        };
+        CoordinatesRequest: {
+            /** Format: decimal */
+            latitude: string;
+            /** Format: decimal */
+            longitude: string;
         };
         /**
          * @description * `granted` - granted
@@ -1244,6 +1309,10 @@ export interface components {
          * @enum {string}
          */
         MembershipRoleEnum: "admin" | "professional" | "researcher";
+        MoveBookingInputRequest: {
+            /** Format: uuid */
+            slot: string;
+        };
         NotificationOutput: {
             id: number;
             category: string;
@@ -1589,6 +1658,7 @@ export interface components {
             /** Format: uuid */
             request_id: string;
             quantity: number;
+            nre?: string;
         };
         ResetInputRequest: {
             token: string;
@@ -1889,6 +1959,33 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOutput"];
+                };
+            };
+        };
+    };
+    appointments_bookings_reschedule_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveBookingInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MoveBookingInputRequest"];
+                "multipart/form-data": components["schemas"]["MoveBookingInputRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -2722,6 +2819,31 @@ export interface operations {
             };
         };
     };
+    directory_nearby_retrieve: {
+        parameters: {
+            query: {
+                latitude: string;
+                longitude: string;
+                radius_km?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     fhir_Consent_retrieve: {
         parameters: {
             query?: never;
@@ -3046,6 +3168,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SlotOutput"];
+                };
+            };
+        };
+    };
+    organizations_location_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CoordinatesRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CoordinatesRequest"];
+                "multipart/form-data": components["schemas"]["CoordinatesRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Coordinates"];
                 };
             };
         };

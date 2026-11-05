@@ -99,6 +99,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/BookingOutput'
           description: ''
+  /api/v1/appointments/bookings/{booking_id}/reschedule/:
+    post:
+      operationId: appointments_bookings_reschedule_create
+      parameters:
+      - in: path
+        name: booking_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - appointments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveBookingInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MoveBookingInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MoveBookingInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingOutput'
+          description: ''
   /api/v1/appointments/slots/{slot_id}/book/:
     post:
       operationId: appointments_slots_book_create
@@ -951,6 +984,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConsentTextOutput'
           description: ''
+  /api/v1/directory/nearby/:
+    get:
+      operationId: directory_nearby_retrieve
+      parameters:
+      - in: query
+        name: latitude
+        schema:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        required: true
+      - in: query
+        name: longitude
+        schema:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        required: true
+      - in: query
+        name: radius_km
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 10
+      tags:
+      - directory
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/fhir/Consent/{resource_id}:
     get:
       operationId: fhir_Consent_retrieve
@@ -1283,6 +1353,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SlotOutput'
+          description: ''
+  /api/v1/organizations/{org_id}/location/:
+    post:
+      operationId: organizations_location_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoordinatesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CoordinatesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CoordinatesRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coordinates'
           description: ''
   /api/v1/organizations/{org_id}/memberships/:
     post:
@@ -2129,10 +2232,24 @@ components:
           type: string
           format: date-time
           readOnly: true
+        starts_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ends_at:
+          type: string
+          format: date-time
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
       required:
       - created_at
+      - ends_at
       - id
       - slot
+      - starts_at
+      - title
     BreakGlassInputRequest:
       type: object
       properties:
@@ -2263,6 +2380,34 @@ components:
       - purpose
       - text
       - version
+    Coordinates:
+      type: object
+      properties:
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+      required:
+      - latitude
+      - longitude
+    CoordinatesRequest:
+      type: object
+      properties:
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+      required:
+      - latitude
+      - longitude
     DecisionEnum:
       enum:
       - granted
@@ -2443,6 +2588,14 @@ components:
         * `admin` - admin
         * `professional` - professional
         * `researcher` - researcher
+    MoveBookingInputRequest:
+      type: object
+      properties:
+        slot:
+          type: string
+          format: uuid
+      required:
+      - slot
     NotificationOutput:
       type: object
       properties:
@@ -3116,6 +3269,10 @@ components:
           type: integer
           maximum: 10
           minimum: 1
+        nre:
+          type: string
+          minLength: 1
+          pattern: ^[0-9A-Z]{15}$
       required:
       - quantity
       - request_id

@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -23,11 +24,24 @@ from identity.services import verified_professional
 from identity.views import InputView
 
 
+class OffsetDateTimeField(serializers.DateTimeField):
+    def to_internal_value(self, value):
+        if not isinstance(value, str):
+            raise ValidationError("Send an ISO timestamp with an explicit offset.")
+        try:
+            parsed = parse_datetime(value)
+        except ValueError:
+            parsed = None
+        if parsed is None or timezone.is_naive(parsed):
+            raise ValidationError("Send an ISO timestamp with an explicit offset.")
+        return super().to_internal_value(value)
+
+
 class SlotInput(serializers.Serializer):
     title = serializers.CharField(max_length=120)
     professional = serializers.UUIDField()
-    starts_at = serializers.DateTimeField()
-    ends_at = serializers.DateTimeField()
+    starts_at = OffsetDateTimeField()
+    ends_at = OffsetDateTimeField()
     price = serializers.UUIDField(required=False)
 
 
@@ -41,10 +55,27 @@ class BookingInput(serializers.Serializer):
     payment = serializers.UUIDField(required=False)
 
 
+class MoveBookingInput(serializers.Serializer):
+    slot = serializers.UUIDField()
+
+
 class BookingOutput(serializers.ModelSerializer):
+    starts_at = serializers.DateTimeField(source="slot.starts_at", read_only=True)
+    ends_at = serializers.DateTimeField(source="slot.ends_at", read_only=True)
+    title = serializers.CharField(source="slot.title", read_only=True)
+
     class Meta:
         model = AppointmentBooking
-        fields = ("id", "slot", "payment", "cancelled_at", "created_at")
+        fields = (
+            "id",
+            "slot",
+            "payment",
+            "cancelled_at",
+            "created_at",
+            "starts_at",
+            "ends_at",
+            "title",
+        )
 
 
 def patient_organizations(user):
@@ -208,4 +239,51 @@ class CancelBookingView(InputView):
                     request.user, "payment.simulated_refund", payment.pk, booking.slot.organization
                 )
         audit(request.user, "appointment.cancelled", booking.pk, booking.slot.organization)
+        return Response(BookingOutput(booking).data)
+
+
+class MoveBookingView(InputView):
+    serializer_class = MoveBookingInput
+
+    @extend_schema(responses=BookingOutput)
+    @transaction.atomic
+    def post(self, request, booking_id):
+        data = self.data(request)
+        booking = get_object_or_404(
+            AppointmentBooking.objects.select_for_update(of=("self",)).select_related("slot"),
+            pk=booking_id,
+            payer=request.user,
+            cancelled_at__isnull=True,
+        )
+        now = timezone.now()
+        if booking.slot.starts_at <= now:
+            return Response({"code": "appointment_started"}, status=409)
+        if booking.slot_id == data["slot"]:
+            return Response(BookingOutput(booking).data)
+        target = get_object_or_404(
+            AppointmentSlot.objects.select_for_update().filter(
+                organization_id__in=patient_organizations(request.user),
+                organization_id=booking.slot.organization_id,
+                starts_at__gt=now,
+            ),
+            pk=data["slot"],
+        )
+        if target.price_id != booking.slot.price_id:
+            return Response({"code": "different_price"}, status=409)
+        if (
+            not verified_professional(target.professional)
+            or not Membership.objects.filter(
+                user=target.professional,
+                user__is_active=True,
+                organization=target.organization,
+                role="professional",
+                active=True,
+            ).exists()
+            or target.bookings.filter(cancelled_at__isnull=True).exists()
+        ):
+            return Response({"code": "slot_unavailable"}, status=409)
+        booking.slot = target
+        booking.reminded_at = None
+        booking.save(update_fields=["slot", "reminded_at"])
+        audit(request.user, "appointment.rescheduled", booking.pk, target.organization)
         return Response(BookingOutput(booking).data)

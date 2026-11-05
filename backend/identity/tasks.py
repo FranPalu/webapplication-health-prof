@@ -163,3 +163,45 @@ def run_clinical_analysis(job_id):
         job.lease_until = None
         job.save(update_fields=["state", "lease_until"])
         audit(job.requested_by, "analysis." + job.state, job.pk, organization)
+
+
+@shared_task(ignore_result=True)
+def appointment_reminders():
+    from datetime import timedelta
+
+    from django.db import transaction
+    from django.utils import timezone
+
+    from identity import appointment_reminders as delivery
+    from identity.models import AppointmentBooking
+    from identity.views import notify_user_id
+
+    with transaction.atomic():
+        now = timezone.now()
+        bookings = (
+            AppointmentBooking.objects.select_for_update(skip_locked=True, of=("self",))
+            .filter(
+                cancelled_at__isnull=True,
+                reminded_at__isnull=True,
+                payer__is_active=True,
+                slot__starts_at__gt=now,
+                slot__starts_at__lte=now + timedelta(hours=24),
+            )
+            .order_by("slot__starts_at", "pk")[:100]
+        )
+        for booking in bookings:
+            booking.reminded_at = now
+            booking.save(update_fields=["reminded_at"])
+            notify_user_id(booking.payer_id, "appointment.reminder", booking.pk)
+            adapter = delivery.sms_adapter
+            if adapter is not None:
+                from functools import partial
+
+                transaction.on_commit(
+                    partial(
+                        adapter.send_if_opted_in,
+                        account_id=str(booking.payer_id),
+                        idempotency_key=f"{booking.pk}:{booking.slot_id}:{booking.slot.starts_at.isoformat()}",
+                    ),
+                    robust=True,
+                )
