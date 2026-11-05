@@ -820,6 +820,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payments/orders/{order_id}/refund/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["payments_orders_refund_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/professional/verification/": {
         parameters: {
             query?: never;
@@ -955,12 +971,7 @@ export interface components {
             price: string;
             /** Format: uuid */
             request_id: string;
-        };
-        CheckoutOutput: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uri */
-            url: string;
+            outcome: components["schemas"]["OutcomeEnum"];
         };
         CodeInputRequest: {
             code: string;
@@ -1078,6 +1089,7 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             amount: number;
+            simulation_status?: string;
             /** Format: date-time */
             paid_at?: string | null;
             /** Format: date-time */
@@ -1102,6 +1114,13 @@ export interface components {
             name: string;
             kind: components["schemas"]["OrganizationKindEnum"];
         };
+        /**
+         * @description * `paid` - paid
+         *     * `declined` - declined
+         *     * `cancelled` - cancelled
+         * @enum {string}
+         */
+        OutcomeEnum: "paid" | "declined" | "cancelled";
         PaginatedFolderOutputList: {
             /** @example 123 */
             count: number;
@@ -2907,12 +2926,20 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOutput"];
+                };
+            };
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CheckoutOutput"];
+                    "application/json": components["schemas"]["OrderOutput"];
                 };
             };
         };
@@ -2935,6 +2962,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedOrderOutputList"];
+                };
+            };
+        };
+    };
+    payments_orders_refund_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderOutput"];
                 };
             };
         };

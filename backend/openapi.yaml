@@ -1488,7 +1488,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CheckoutOutput'
+                $ref: '#/components/schemas/OrderOutput'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOutput'
           description: ''
   /api/v1/payments/orders/:
     get:
@@ -1510,6 +1516,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedOrderOutputList'
+          description: ''
+  /api/v1/payments/orders/{order_id}/refund/:
+    post:
+      operationId: payments_orders_refund_create
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - payments
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOutput'
           description: ''
   /api/v1/professional/verification/:
     post:
@@ -1789,21 +1816,12 @@ components:
         request_id:
           type: string
           format: uuid
+        outcome:
+          $ref: '#/components/schemas/OutcomeEnum'
       required:
+      - outcome
       - price
       - request_id
-    CheckoutOutput:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        url:
-          type: string
-          format: uri
-      required:
-      - id
-      - url
     CodeInputRequest:
       type: object
       properties:
@@ -2087,6 +2105,9 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+        simulation_status:
+          type: string
+          maxLength: 16
         paid_at:
           type: string
           format: date-time
@@ -2141,6 +2162,16 @@ components:
       required:
       - kind
       - name
+    OutcomeEnum:
+      enum:
+      - paid
+      - declined
+      - cancelled
+      type: string
+      description: |-
+        * `paid` - paid
+        * `declined` - declined
+        * `cancelled` - cancelled
     PaginatedFolderOutputList:
       type: object
       required:

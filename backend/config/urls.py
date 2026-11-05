@@ -86,5 +86,5 @@ urlpatterns += [
     endpoint("organizations/<uuid:org_id>/payment-prices/", payment_views.PriceView),
     endpoint("payments/checkout/", payment_views.CheckoutView),
     endpoint("payments/orders/", payment_views.OrdersView),
-    path("api/v1/payments/stripe/webhook/", payment_views.stripe_webhook),
+    endpoint("payments/orders/<uuid:order_id>/refund/", payment_views.RefundView),
 ]

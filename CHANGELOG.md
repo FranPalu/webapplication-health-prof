@@ -79,3 +79,7 @@
 ## 2026-11-05 — Avvio M5
 
 - API sandbox per listini EUR, Checkout Stripe Connect e conferma idempotente via webhook firmato.
+
+## 2026-11-05 — Pagamenti simulati internamente
+
+- Sostituito Checkout Connect con ordini, esiti e rimborsi simulati in Clarìa.

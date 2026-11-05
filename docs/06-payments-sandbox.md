@@ -1,12 +1,10 @@
-# M5 — Prima consegna Stripe Connect
+# M5 — Simulazione interna
 
-Checkout è disponibile in DEBUG con chiave Stripe di test e segreto webhook. Impostare le variabili in .env.dev. STRIPE_TEST_DESTINATIONS contiene una mappa JSON da UUID dell'organizzazione ad account Connect di test. Il portale ritorna a PUBLIC_ORIGIN dopo Checkout. L'API invia a Stripe importo, commissione, destinazione e un riferimento casuale all'ordine. Il nome del servizio clinico resta nell'applicazione.
+La simulazione usa PostgreSQL e le sessioni Clarìa. Non richiede credenziali, carte, redirect o webhook. Tutti gli importi sono in centesimi di euro. Lo stato non prova un incasso e non genera documenti fiscali.
 
-- Un amministratore dell'organizzazione con MFA crea un prezzo EUR con POST /api/v1/organizations/{id}/payment-prices/. Il corpo contiene title, amount e fee in centesimi. Gli account paziente collegati possono leggere il listino.
-- Un paziente collegato apre Checkout con POST /api/v1/payments/checkout/ e invia price e request_id. Riutilizzare lo stesso request_id dopo un errore di rete. Importo e commissione vengono copiati dal listino. Il retry è limitato a 23 ore dalla creazione.
-- Configurare Stripe CLI per inoltrare gli eventi snapshot checkout.session.completed e checkout.session.async_payment_succeeded a /api/v1/payments/stripe/webhook/. L'ordine è pagato solo dopo un evento firmato che corrisponde a sessione, importo e valuta. Il ritorno dal browser non cambia lo stato.
-- GET /api/v1/payments/orders/ mostra gli ordini del pagante.
+- Un amministratore con MFA crea un prezzo con POST /api/v1/organizations/{id}/payment-prices/. Gli account paziente collegati possono leggere il listino.
+- POST /api/v1/payments/checkout/ accetta price, request_id e outcome tra paid, declined e cancelled. Importo e commissione derivano dal listino. Ripetere lo stesso request_id restituisce lo stesso ordine. Un esito diverso con lo stesso identificativo restituisce 409.
+- GET /api/v1/payments/orders/ mostra gli ordini del pagante e il campo simulation_status. Gli ordini precedenti mantengono lo stato legacy.
+- POST /api/v1/payments/orders/{id}/refund/ permette all'amministratore con MFA del tenant di simulare un rimborso integrale. Ripetere l'operazione non produce un secondo rimborso.
 
-Il test locale usa un provider simulato e verifica firme, replay, isolamento e importi. La prova dal vivo richiede un account Stripe Connect di test. Restano da implementare interfaccia nel portale, rimborsi, fatture e ricevute, imposte, riconciliazione periodica, import legacy e adapter SDI. Nessuna emissione fiscale è associata allo stato pagato.
-
-Fonti: [Destination charges](https://docs.stripe.com/connect/destination-charges), [webhook Stripe](https://docs.stripe.com/webhooks).
+Il flusso è disponibile via API. L'interfaccia nel portale, i documenti contabili e l'integrazione reale restano attività separate.

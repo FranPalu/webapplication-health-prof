@@ -1,20 +1,11 @@
-import json
-import re
-from datetime import timedelta
-
-from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 
-from identity import payments
 from identity.models import Membership, Patient, PaymentOrder, PaymentPrice
 from identity.security import audit, rate_limit
 from identity.views import InputView
@@ -38,17 +29,13 @@ class PriceOutput(serializers.ModelSerializer):
 class CheckoutInput(serializers.Serializer):
     price = serializers.UUIDField()
     request_id = serializers.UUIDField()
-
-
-class CheckoutOutput(serializers.Serializer):
-    id = serializers.UUIDField()
-    url = serializers.URLField()
+    outcome = serializers.ChoiceField(choices=["paid", "declined", "cancelled"])
 
 
 class OrderOutput(serializers.ModelSerializer):
     class Meta:
         model = PaymentOrder
-        fields = ("id", "amount", "paid_at", "created_at")
+        fields = ("id", "amount", "simulation_status", "paid_at", "created_at")
 
 
 class PriceView(InputView):
@@ -81,50 +68,60 @@ class PriceView(InputView):
 class CheckoutView(InputView):
     serializer_class = CheckoutInput
 
-    @extend_schema(responses={201: CheckoutOutput})
+    @extend_schema(responses={201: OrderOutput, 200: OrderOutput})
+    @transaction.atomic
     def post(self, request):
-        payments.require_sandbox()
         rate_limit(request, "payment-checkout", limit=12)
         data = self.data(request)
         orgs = Patient.objects.filter(account=request.user).values("organization_id")
         price = get_object_or_404(
             PaymentPrice.objects.filter(organization_id__in=orgs, active=True), pk=data["price"]
         )
-        from django.conf import settings
-
-        try:
-            destination = json.loads(settings.STRIPE_TEST_DESTINATIONS).get(
-                str(price.organization_id)
-            )
-        except (ValueError, AttributeError) as exc:
-            raise payments.PaymentUnavailable() from exc
-        if not isinstance(destination, str) or not re.fullmatch(
-            r"acct_[A-Za-z0-9]{1,70}", destination
-        ):
-            raise payments.PaymentUnavailable()
-        order, _ = PaymentOrder.objects.get_or_create(
+        outcome = data["outcome"]
+        order, created = PaymentOrder.objects.get_or_create(
             payer=request.user,
             request_id=data["request_id"],
             defaults={
                 "price": price,
                 "amount": price.amount,
                 "fee": price.fee,
-                "destination": destination,
+                "simulation_status": outcome,
+                "paid_at": timezone.now() if outcome == "paid" else None,
             },
         )
-        if (
-            order.price_id != price.pk
-            or order.paid_at
-            or order.created_at < timezone.now() - timedelta(hours=23)
-        ):
+        current = order.simulation_status
+        if current == "refunded":
+            current = "paid"
+        if order.price_id != price.pk or current != outcome:
             return Response({"code": "checkout_conflict"}, status=409)
-        session, url = payments.provider.checkout(order)
-        if order.checkout_session and order.checkout_session != session:
-            raise payments.PaymentUnavailable()
-        PaymentOrder.objects.filter(pk=order.pk, checkout_session="").update(
-            checkout_session=session
+        if created:
+            audit(request.user, "payment.simulated_" + outcome, order.pk, price.organization)
+        return Response(OrderOutput(order).data, status=201 if created else 200)
+
+
+class RefundView(InputView):
+    serializer_class = OrderOutput
+
+    @extend_schema(request=None, responses=OrderOutput)
+    @transaction.atomic
+    def post(self, request, order_id):
+        if request.session.get("mfa_version") != request.user.auth_version:
+            raise PermissionDenied()
+        orgs = Membership.objects.filter(user=request.user, active=True, role="admin").values(
+            "organization_id"
         )
-        return Response({"id": str(order.pk), "url": url}, status=201)
+        order = get_object_or_404(
+            PaymentOrder.objects.select_for_update(of=("self",)).filter(
+                price__organization_id__in=orgs,
+                simulation_status__in=["paid", "refunded"],
+            ),
+            pk=order_id,
+        )
+        if order.simulation_status == "paid":
+            order.simulation_status = "refunded"
+            order.save(update_fields=["simulation_status"])
+            audit(request.user, "payment.simulated_refund", order.pk, order.price.organization)
+        return Response(OrderOutput(order).data)
 
 
 class OrdersView(InputView):
@@ -136,23 +133,3 @@ class OrdersView(InputView):
         return self.get_paginated_response(
             OrderOutput(self.paginate_queryset(orders), many=True).data
         )
-
-
-@csrf_exempt
-@require_POST
-def stripe_webhook(request):
-    from django.conf import settings
-
-    try:
-        payments.require_sandbox()
-        event = payments.verified_event(
-            request.body,
-            request.headers.get("Stripe-Signature", ""),
-            settings.STRIPE_WEBHOOK_SECRET,
-        )
-        payments.reconcile_checkout(event)
-    except payments.PaymentUnavailable:
-        return JsonResponse({"code": "sandbox_unavailable"}, status=503)
-    except (ValueError, KeyError, TypeError, AttributeError, DjangoValidationError):
-        return JsonResponse({"code": "invalid_event"}, status=400)
-    return JsonResponse({"received": True})

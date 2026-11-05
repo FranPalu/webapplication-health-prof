@@ -31,10 +31,9 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
   L'attestazione è interna. Restano da validare sul campo la pipeline, i termini
   dei pesi imaging, la retention delle copie derivate e il rilascio clinico.
   Vedere [guida M4](05-supervised-analysis.md).
-- **L08 / M5 in corso:** Checkout Connect sandbox disponibile via API. Restano
-  portale, rimborsi, documenti contabili, import legacy, riconciliazione e adapter SDI.
-  Il collaudo live della sandbox richiede credenziali Stripe di test.
-  Vedere [prima consegna M5](06-payments-sandbox.md).
+- **L08 / M5 in corso:** simulazione interna via API, inclusi rimborsi integrali.
+  Restano portale, documenti contabili e integrazione reale.
+  Vedere [simulazione M5](06-payments-sandbox.md).
 - **L09 / M6:** portale paziente è un'anteprima interna; mancano prenotazione
   autonoma, farmacia, validazione ricette ufficiale e ricerca geografica.
 - **L10 / M7:** nessun archivio ricerca, anonimizzazione validata o catalogo.

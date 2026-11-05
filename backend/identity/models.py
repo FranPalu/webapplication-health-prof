@@ -478,6 +478,7 @@ class PaymentOrder(models.Model):
     fee = models.PositiveIntegerField()
     destination = models.CharField(max_length=80)
     checkout_session = models.CharField(max_length=200, blank=True)
+    simulation_status = models.CharField(max_length=16, default="legacy")
     paid_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
