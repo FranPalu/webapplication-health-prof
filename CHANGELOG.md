@@ -1,5 +1,12 @@
 # Changelog
 
+## M9 — Benchmark e ripristino locale
+
+- Benchmark riproducibile di otto rotte e riuso delle connessioni PostgreSQL.
+- Quote per account sulle letture della sessione autenticata.
+- Prova di ripristino PostgreSQL con verifica di audit e decifratura, aggiunta alla CI.
+- Aggiornati Next.js, Zod e le dipendenze indirette segnalate dalla scansione npm.
+
 ## M9 — Controlli di disponibilità
 
 - Endpoint distinti per verificare che Django risponda e che il database sia raggiungibile.

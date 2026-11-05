@@ -45,16 +45,18 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
   Django per ruolo. Restano il collaudo con lettore di schermo e la verifica
   completa delle traduzioni IT/EN dei moduli.
   Vedere [design system](design-system.md).
-- **L12 / M9:** assenti prova di restore, audit immutabile esterno, osservabilità
-  completa, workflow GDPR, CI/CD produttiva ed E2E completi.
+- **L12 / M9:** ripristino PostgreSQL verificato su dati sintetici nello stack locale.
+  Restano il ripristino completo di storage e chiavi, audit immutabile esterno,
+  osservabilità completa, workflow GDPR, CI/CD produttiva ed E2E integrato.
+  Vedere il [rapporto di verifica](09-release-verification.md).
 
 ## Integrazioni e prove esterne
 
 - Email e WhatsApp hanno adapter e test con mock; credenziali, consegna reale,
   scheduler e webhook produttivi non verificati. Accettazione provider non è consegna.
-- Non verificati deployment, dati remoti, residenza UE, DPA, scansione segreti
-  completa, dipendenze vulnerabili o tempi p95. Non dedurre assenza di segreti o
-  dati reali dall'assenza di evidenze durante questo audit.
+- Restano da verificare deployment, dati remoti, residenza UE, DPA, segreti,
+  immagini dei container e p95 con carico produttivo. Il rapporto M9
+  documenta il perimetro delle scansioni delle dipendenze e del carico locale.
 - SPID/CIE, registri, SDI e sistemi ricette saranno interfacce documentate nelle
   rispettive milestone. Nessun endpoint finto è stato aggiunto in M0.
 - Qualificazione MDR/AI Act, DPIA e procedure operative restano da valutare;

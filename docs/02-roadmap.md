@@ -173,6 +173,7 @@ In caso di errore del database restituisce HTTP 503 con uno stato generico.
 Compose usa questo secondo controllo prima di avviare i servizi dipendenti.
 Storage, coda, worker e archivio di ricerca richiedono verifiche distinte.
 
-Il collaudo browser ha riprodotto HTTP 429 su `/api/v1/auth/session/`
-quando più sessioni passano dallo stesso proxy. La verifica del limite deve
-coprire anche gli utenti che condividono lo stesso indirizzo e i proxy di produzione.
+Le letture di `/api/v1/auth/session/` usano una quota per account dopo
+l'autenticazione. Per gli accessi anonimi resta la quota per indirizzo.
+I risultati del carico locale e del ripristino sono nel
+[rapporto di verifica](09-release-verification.md).
