@@ -101,6 +101,7 @@ SPECTACULAR_SETTINGS = {
         "MembershipRoleEnum": ["admin", "professional", "researcher"],
         "LocaleEnum": ["it", "en"],
         "DecisionEnum": ["granted", "revoked"],
+        "ResearchAccessDecisionEnum": ["approve", "reject", "revoke"],
         "AnalysisDecisionEnum": ["accept", "modify", "reject"],
         "PharmacyDecisionEnum": ["confirmed", "rejected"],
     },
@@ -134,4 +135,11 @@ CELERY_BEAT_SCHEDULE["clinical-analysis-reconciliation"] = {
 CELERY_BEAT_SCHEDULE["appointment-reminders"] = {
     "task": "identity.tasks.appointment_reminders",
     "schedule": 60.0,
+}
+
+RESEARCH_EXPORT_ENABLED = os.environ.get("RESEARCH_EXPORT_ENABLED", "") == "1"
+
+CELERY_BEAT_SCHEDULE["refresh-research-archive"] = {
+    "task": "identity.tasks.refresh_research_archive",
+    "schedule": 300.0,
 }

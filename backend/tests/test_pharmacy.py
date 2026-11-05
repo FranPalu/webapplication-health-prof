@@ -119,6 +119,8 @@ def test_prescription_attachment_only_reaches_verifier_for_its_owner(settings):
             requester_id=str(account.pk),
             pharmacy_id=str(org.pk),
             sku="RX",
+            quantity=1,
+            reservation_id=str(result.data["id"]),
         )
         verifier.verified.return_value = True
         assert pharmacy.post(route, {"decision": "confirmed"}).status_code == 200

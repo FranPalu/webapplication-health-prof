@@ -1,4 +1,4 @@
-from django.db import transaction
+from django.db import connection, transaction
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
@@ -47,6 +47,8 @@ class ResearchConsentView(InputView):
     @extend_schema(responses=ResearchConsentOutput)
     @transaction.atomic
     def post(self, request, patient_id):
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_advisory_xact_lock(%s)", (741309621,))
         patient = get_object_or_404(
             Patient.objects.select_for_update(), pk=patient_id, account=request.user
         )

@@ -884,6 +884,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations/{org_id}/research/requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_research_requests_list"];
+        put?: never;
+        post: operations["organizations_research_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients/": {
         parameters: {
             query?: never;
@@ -1060,6 +1076,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/research/admin/requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["research_admin_requests_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/admin/requests/{request_id}/decision/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["research_admin_requests_decision_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/catalog/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["research_catalog_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research/requests/{request_id}/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["research_requests_export_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/shares/": {
         parameters: {
             query?: never;
@@ -1144,12 +1224,29 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccessDecisionRequest: {
+            decision: components["schemas"]["ResearchAccessDecisionEnum"];
+        };
         AccessHistoryOutput: {
             /** Format: uuid */
             actor: string | null;
             action: string;
             /** Format: date-time */
             at: string;
+        };
+        AccessInputRequest: {
+            purpose: string;
+        };
+        AccessOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            organization: string;
+            purpose: string;
+            status?: string;
+            checksum?: string;
+            /** Format: date-time */
+            readonly created_at: string;
         };
         /**
          * @description * `accept` - accept
@@ -1269,6 +1366,14 @@ export interface components {
             /** Format: uuid */
             parent?: string | null;
         };
+        /**
+         * @description * `csv` - csv
+         *     * `parquet` - parquet
+         *     * `fhir` - fhir
+         *     * `dashboard` - dashboard
+         * @enum {string}
+         */
+        FormatNameEnum: "csv" | "parquet" | "fhir" | "dashboard";
         ItemInputRequest: {
             sku: string;
             title: string;
@@ -1381,6 +1486,21 @@ export interface components {
          * @enum {string}
          */
         OutcomeEnum: "paid" | "declined" | "cancelled";
+        PaginatedAccessOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["AccessOutput"][];
+        };
         PaginatedBookingOutputList: {
             /** @example 123 */
             count: number;
@@ -1660,6 +1780,13 @@ export interface components {
             effective_at: string;
             observations: components["schemas"]["ObservationInputRequest"][];
         };
+        /**
+         * @description * `approve` - approve
+         *     * `reject` - reject
+         *     * `revoke` - revoke
+         * @enum {string}
+         */
+        ResearchAccessDecisionEnum: "approve" | "reject" | "revoke";
         ResearchConsentInputRequest: {
             version: number;
             granted: boolean;
@@ -1668,6 +1795,9 @@ export interface components {
             version: number;
             granted: boolean;
             text: string;
+        };
+        ResearchExportInputRequest: {
+            format_name: components["schemas"]["FormatNameEnum"];
         };
         ReservationOutput: {
             /** Format: uuid */
@@ -3510,6 +3640,57 @@ export interface operations {
             };
         };
     };
+    organizations_research_requests_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAccessOutputList"];
+                };
+            };
+        };
+    };
+    organizations_research_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccessInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AccessInputRequest"];
+                "multipart/form-data": components["schemas"]["AccessInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessOutput"];
+                };
+            };
+        };
+    };
     patients_list: {
         parameters: {
             query?: {
@@ -3805,6 +3986,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
+    research_admin_requests_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAccessOutputList"];
+                };
+            };
+        };
+    };
+    research_admin_requests_decision_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccessDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AccessDecisionRequest"];
+                "multipart/form-data": components["schemas"]["AccessDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccessOutput"];
+                };
+            };
+        };
+    };
+    research_catalog_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    research_requests_export_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResearchExportInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ResearchExportInputRequest"];
+                "multipart/form-data": components["schemas"]["ResearchExportInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                    "application/vnd.apache.parquet": string;
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

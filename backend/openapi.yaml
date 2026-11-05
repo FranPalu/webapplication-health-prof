@@ -1729,6 +1729,65 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedReservationOutputList'
           description: ''
+  /api/v1/organizations/{org_id}/research/requests/:
+    get:
+      operationId: organizations_research_requests_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAccessOutputList'
+          description: ''
+    post:
+      operationId: organizations_research_requests_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccessInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccessInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessOutput'
+          description: ''
   /api/v1/patients/:
     get:
       operationId: patients_list
@@ -2038,6 +2097,121 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
           description: ''
+  /api/v1/research/admin/requests/:
+    get:
+      operationId: research_admin_requests_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - research
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAccessOutputList'
+          description: ''
+  /api/v1/research/admin/requests/{request_id}/decision/:
+    post:
+      operationId: research_admin_requests_decision_create
+      parameters:
+      - in: path
+        name: request_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - research
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccessDecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccessDecisionRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessOutput'
+          description: ''
+  /api/v1/research/catalog/:
+    get:
+      operationId: research_catalog_retrieve
+      tags:
+      - research
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/research/requests/{request_id}/export/:
+    post:
+      operationId: research_requests_export_create
+      parameters:
+      - in: path
+        name: request_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - research
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchExportInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResearchExportInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResearchExportInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+            application/vnd.apache.parquet:
+              schema:
+                type: string
+                format: binary
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/shares/:
     get:
       operationId: shares_list
@@ -2216,6 +2390,13 @@ paths:
           description: ''
 components:
   schemas:
+    AccessDecisionRequest:
+      type: object
+      properties:
+        decision:
+          $ref: '#/components/schemas/ResearchAccessDecisionEnum'
+      required:
+      - decision
     AccessHistoryOutput:
       type: object
       properties:
@@ -2232,6 +2413,43 @@ components:
       - action
       - actor
       - at
+    AccessInputRequest:
+      type: object
+      properties:
+        purpose:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - purpose
+    AccessOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        organization:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+          maxLength: 500
+        status:
+          type: string
+          maxLength: 16
+        checksum:
+          type: string
+          maxLength: 64
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - organization
+      - purpose
     AnalysisDecisionEnum:
       enum:
       - accept
@@ -2507,6 +2725,18 @@ components:
       required:
       - id
       - title
+    FormatNameEnum:
+      enum:
+      - csv
+      - parquet
+      - fhir
+      - dashboard
+      type: string
+      description: |-
+        * `csv` - csv
+        * `parquet` - parquet
+        * `fhir` - fhir
+        * `dashboard` - dashboard
     ItemInputRequest:
       type: object
       properties:
@@ -2773,6 +3003,29 @@ components:
         * `paid` - paid
         * `declined` - declined
         * `cancelled` - cancelled
+    PaginatedAccessOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessOutput'
     PaginatedBookingOutputList:
       type: object
       required:
@@ -3286,6 +3539,16 @@ components:
       - effective_at
       - observations
       - title
+    ResearchAccessDecisionEnum:
+      enum:
+      - approve
+      - reject
+      - revoke
+      type: string
+      description: |-
+        * `approve` - approve
+        * `reject` - reject
+        * `revoke` - revoke
     ResearchConsentInputRequest:
       type: object
       properties:
@@ -3309,6 +3572,13 @@ components:
       - granted
       - text
       - version
+    ResearchExportInputRequest:
+      type: object
+      properties:
+        format_name:
+          $ref: '#/components/schemas/FormatNameEnum'
+      required:
+      - format_name
     ReservationOutput:
       type: object
       properties:

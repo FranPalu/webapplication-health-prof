@@ -11,6 +11,7 @@ from identity import (
     fhir,
     payment_views,
     pharmacy_views,
+    research_release_views,
     research_views,
     views,
 )
@@ -131,4 +132,19 @@ urlpatterns += [
 
 urlpatterns += [
     endpoint("patients/<uuid:patient_id>/research-consent/", research_views.ResearchConsentView),
+]
+
+urlpatterns += [
+    endpoint("research/catalog/", research_release_views.ResearchCatalogView),
+    endpoint(
+        "organizations/<uuid:org_id>/research/requests/", research_release_views.ResearchAccessView
+    ),
+    endpoint("research/admin/requests/", research_release_views.ResearchReviewListView),
+    endpoint(
+        "research/admin/requests/<uuid:request_id>/decision/",
+        research_release_views.ResearchReviewView,
+    ),
+    endpoint(
+        "research/requests/<uuid:request_id>/export/", research_release_views.ResearchExportView
+    ),
 ]

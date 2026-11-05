@@ -171,3 +171,20 @@ test('professional reviews a local analysis and publishes only the final opinion
     await patient.close();
   }
 });
+
+test('patient grants and withdraws research consent from the portal', async ({page}) => {
+  const fixture = process.env.E2E_CLINICAL_FIXTURE;
+  test.skip(!fixture, 'Requires a linked synthetic patient.');
+  const account = JSON.parse(readFileSync(fixture!, 'utf8')) as {patient_email:string; patient_password:string};
+  await page.goto('/');
+  await page.getByLabel('Email', {exact:true}).first().fill(account.patient_email);
+  await page.getByLabel('Password', {exact:true}).fill(account.patient_password);
+  await page.getByRole('button', {name:'Accedi',exact:true}).click();
+  await expect(page.getByRole('heading', {name:'Prenotazioni e farmacia'})).toBeVisible();
+  await page.getByText('Consenso alla ricerca', {exact:true}).click();
+  await expect(page.getByText('Consenso assente', {exact:true})).toBeVisible();
+  await page.getByRole('button', {name:'Acconsento alla ricerca'}).click();
+  await expect(page.getByText('Consenso attivo', {exact:true})).toBeVisible();
+  await page.getByRole('button', {name:'Revoca consenso ricerca'}).click();
+  await expect(page.getByText('Consenso assente', {exact:true})).toBeVisible();
+});

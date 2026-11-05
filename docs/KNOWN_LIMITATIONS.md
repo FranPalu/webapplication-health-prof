@@ -37,9 +37,10 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
 - **L09 / M6:** SMS e verifica ufficiale NRE richiedono adapter di deployment.
   Allegati PDF e NRE sono utilizzabili quando è collegato un verificatore.
   Vedere [guida M6](07-bookings-pharmacy.md).
-- **L10 / M7 in corso:** consenso e archivio aggregato separato disponibili.
-  Refresh manuale. Catalogo, ETL programmato, pseudonimizzazione, dashboard ed export restano aperti. Vedere
-  [nota tecnica M7](research-anonymization.md).
+- **L10 / M7:** rilascio limitato alla proiezione aggregata fissa, disabilitato
+  per default. Gli export già consegnati non sono richiamabili. Cataloghi
+  terminologici completi e verifica dei profili FHIR dipendono dal deployment.
+  Vedere [nota tecnica M7](research-anonymization.md).
 - **L11 / M8:** interfaccia italiana e responsive, ma WCAG 2.2 AA, IT/EN complete,
   dashboard per tutti i ruoli e PWA non sono state verificate/implementate.
 - **L12 / M9:** assenti prova di restore, audit immutabile esterno, osservabilità

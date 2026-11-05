@@ -205,3 +205,14 @@ def appointment_reminders():
                     ),
                     robust=True,
                 )
+
+
+@shared_task(ignore_result=True)
+def refresh_research_archive():
+    import os
+
+    from identity.research_archive import refresh
+
+    dsn = os.environ.get("RESEARCH_DATABASE_DSN")
+    if dsn:
+        refresh(dsn)

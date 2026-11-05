@@ -106,3 +106,8 @@
 ## M7 — Archivio aggregato separato
 
 - Refresh PostgreSQL idempotente con sostituzione atomica delle celle e rimozione dei gruppi scesi sotto soglia dopo una revoca.
+
+## M7 — Archivio di ricerca e rilascio controllato
+
+- ETL schedulato, terminologie con provenienza e soglia minima su account distinti.
+- Approvazioni e revoche per organizzazioni di ricerca, dashboard ed export CSV, Parquet e FHIR vincolati a uno snapshot.

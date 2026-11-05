@@ -10,6 +10,8 @@ class PrescriptionVerifier(Protocol):
         requester_id: str,
         pharmacy_id: str,
         sku: str,
+        quantity: int,
+        reservation_id: str,
     ) -> bool: ...
 
 

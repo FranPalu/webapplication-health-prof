@@ -236,6 +236,8 @@ class PharmacyDecisionView(InputView):
                 requester_id=str(reservation.requester_id),
                 pharmacy_id=str(item.pharmacy_id),
                 sku=item.sku,
+                quantity=reservation.quantity,
+                reservation_id=str(reservation.pk),
             ):
                 return Response({"code": "prescription_not_verified"}, status=409)
         reservation.prescription = None

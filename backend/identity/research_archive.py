@@ -45,7 +45,9 @@ def refresh(dsn):
                 PRIMARY KEY (dataset, year, code)
             )
         """)
-        rows = list(eligible_cells().values_list("year", "code", "patients"))
+        rows = list(eligible_cells().values_list("year", "code", "patients")[:10001])
+        if len(rows) > 10000:
+            raise ValueError("Research release exceeds the configured cell limit.")
         digest = snapshot_digest(rows)
         cursor.execute(
             "SELECT checksum FROM claria_research_release WHERE dataset = %s", (DATASET,)
@@ -70,3 +72,33 @@ def refresh(dsn):
             [(DATASET, *row) for row in rows],
         )
         return len(rows), True
+
+
+def read_snapshot(dsn):
+    with connection.cursor() as source:
+        source.execute("SELECT current_database()")
+        source_name = source.fetchone()[0]
+    with psycopg.connect(dsn, connect_timeout=5) as target, target.cursor() as cursor:
+        cursor.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+        cursor.execute("SET LOCAL statement_timeout = '5s'")
+        cursor.execute("SELECT current_database()")
+        destination = cursor.fetchone()
+        if destination is None or destination[0] == source_name:
+            raise ValueError("Use the separate research database.")
+        cursor.execute(
+            "SELECT checksum FROM claria_research_release WHERE dataset = %s", (DATASET,)
+        )
+        release = cursor.fetchone()
+        if not release:
+            raise ValueError("Research archive has not been initialized.")
+        cursor.execute(
+            """
+            SELECT year, code, accounts FROM claria_research_cell
+            WHERE dataset = %s ORDER BY year, code LIMIT 10001
+        """,
+            (DATASET,),
+        )
+        rows = cursor.fetchall()
+        if len(rows) > 10000 or snapshot_digest(rows) != release[0]:
+            raise ValueError("Invalid research release.")
+        return release[0], rows

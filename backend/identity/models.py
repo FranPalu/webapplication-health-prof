@@ -572,3 +572,35 @@ class ResearchConsentEvent(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["patient", "-id"], name="research_consent_latest")]
+
+
+class ResearchAccessRequest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    requested_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name="+")
+    decided_by = models.ForeignKey(User, null=True, on_delete=models.PROTECT, related_name="+")
+    purpose = models.CharField(max_length=500)
+    status = models.CharField(max_length=16, default="pending")
+    checksum = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ResearchReleasedSnapshot(models.Model):
+    dataset = models.CharField(max_length=64, primary_key=True)
+    checksum = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ResearchTerminology(models.Model):
+    system = models.CharField(max_length=16)
+    code = models.CharField(max_length=32)
+    version = models.CharField(max_length=40)
+    source = models.URLField()
+    license = models.URLField()
+    loinc_target = models.CharField(max_length=32, blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["system", "code"], name="research_terminology_key")
+        ]

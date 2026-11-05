@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {api} from '../lib/api/client';
 import type {components} from '../lib/api/schema';
 import {AnalysisMetrics, PublishedOpinions} from './ClinicalAnalysis';
+import {ResearchWorkspace} from './ResearchWorkspace';
 import {ResearchConsent} from './ResearchConsent';
 import {BookingAdministration, BookingPortal} from './BookingPortal';
 import {ClinicalDocuments} from './ClinicalDocuments';
@@ -186,6 +187,8 @@ export default function IdentityPortal() {
       {card(t.organizations,<><ul>{organizations.map(o=><li key={o.id}>{o.name} · {o.kind}<br/><small>{o.id}</small></li>)}</ul>{!organizations.length&&<p>{t.empty}</p>}{orgNext&&<button onClick={()=>void run(async()=>{const p=await api<Page<Org>>(nextPath(orgNext));setOrganizations([...organizations,...p.results]);setOrgNext(p.next);})}>{t.more}</button>}
       {['professional','organization_admin'].includes(user.role)&&<form onSubmit={form(async d=>{await send('organizations/',d);await refresh();})}><Field label={t.name} name="name"/><label>{t.kind}<select name="kind">{['hospital','clinic','practice','pharmacy','research'].map(k=><option key={k}>{k}</option>)}</select></label><button>{t.create}</button></form>}
       <label>{t.selected}<select value={org} onChange={e=>setOrg(e.target.value)}><option value="">—</option>{organizations.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label></>)}
+      {user.is_platform_admin&&<ResearchWorkspace review english={locale==='en'}/>}
+      {org&&organizations.find(item=>item.id===org)?.kind==='research'&&<ResearchWorkspace key={org} organization={org} english={locale==='en'}/>}
       {org&&user.role==='organization_admin'&&<BookingAdministration key={org} organization={org} pharmacy={organizations.find(item=>item.id===org)?.kind==='pharmacy'} english={locale==='en'}/>}
       {org&&user.role==='organization_admin'&&<AnalysisMetrics key={org} organization={org} english={locale==='en'}/>}
       {org&&card(t.members,<form onSubmit={form(async d=>{await send(`organizations/${org}/memberships/`,{...d,active:d.active==='on'});})}><Field label={t.email} name="email" type="email"/><label>{t.membershipRole}<select name="role"><option value="professional">{t.professional}</option><option value="researcher">{t.researcher}</option><option value="admin">{t.adminRole}</option></select></label><label><input type="checkbox" name="active" defaultChecked/>{t.active}</label><button>{t.save}</button></form>)}
