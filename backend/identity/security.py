@@ -90,10 +90,13 @@ def exception_handler(exc, context):
     return JsonResponse({"code": "internal_error"}, status=500)
 
 
-def rate_limit(request, scope: str, limit=30, seconds=300) -> None:
+def rate_limit(request, scope: str, limit=30, seconds=300, *, by_user=False) -> None:
     # Do not trust X-Forwarded-For supplied by a client. Proxy overwrites REMOTE_ADDR via
     # a trusted deployment boundary only. Hash identifiers so no contact/IP is stored.
-    key = digest(settings.SECRET_KEY + scope + request.META.get("REMOTE_ADDR", "unknown"))
+    subject = request.META.get("REMOTE_ADDR", "unknown")
+    if by_user and request.user.is_authenticated:
+        subject = "user:" + str(request.user.pk)
+    key = digest(settings.SECRET_KEY + scope + subject)
     now = timezone.now()
     with transaction.atomic():
         RateBucket.objects.get_or_create(

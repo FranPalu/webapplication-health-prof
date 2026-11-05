@@ -231,6 +231,16 @@ def test_totp_next_step_and_failed_rate_limits_persist():
     assert result.status_code == 429
 
 
+def test_session_reads_have_separate_quotas_for_accounts_behind_one_proxy():
+    first = signed(user())
+    second = signed(user(email="second@patients.example"))
+    for _ in range(30):
+        assert first.get("auth/session/").status_code == 200
+    assert first.get("auth/session/").status_code == 429
+    assert second.get("auth/session/").status_code == 200
+    assert Browser().get("auth/session/").status_code == 200
+
+
 def test_professional_review_permissions_and_approval():
     professional = user(role="professional")
     b = signed(professional)

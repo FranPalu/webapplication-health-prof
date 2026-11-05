@@ -127,7 +127,14 @@ class PublicView(InputView):
         super().initial(request, *args, **kwargs)
 
 
-class SessionView(PublicView):
+class SessionView(InputView):
+    permission_classes = [AllowAny]
+
+    def initial(self, request, *args, **kwargs):
+        # Only the session read uses the authenticated account as its quota key.
+        super().initial(request, *args, **kwargs)
+        rate_limit(request, type(self).__name__, by_user=True)
+
     @extend_schema(responses=UserOutput)
     def get(self, request):
         get_token(request)
