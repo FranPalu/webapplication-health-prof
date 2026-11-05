@@ -90,6 +90,6 @@ jobs:
           docker compose --env-file .env.dev exec -T backend python manage.py shell -v 0 \
             < backend/tests/clinical_browser_fixture.py > "$fixture"
           E2E_CLINICAL_FIXTURE="$fixture" E2E_BASE_URL=http://localhost:8080 \
-            pnpm exec playwright test -g 'professional uploads|patient grants|workspace shortcuts'
+            pnpm exec playwright test -g 'professional uploads|patient grants|workspace shortcuts|real workspace operation'
       - if: always()
         run: docker compose --env-file .env.dev down

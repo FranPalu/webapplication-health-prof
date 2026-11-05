@@ -1,5 +1,10 @@
 # Changelog
 
+## M8 — Flussi per ruolo con Django
+
+- Collaudo browser con account sintetici per struttura, farmacia, ricerca e amministrazione di piattaforma.
+- Stati delle richieste di ricerca in italiano e inglese.
+
 ## M8 — Verifiche dei riepiloghi per ruolo
 
 - Lingua del documento e tipi di organizzazione sincronizzati con la scelta IT/EN.

@@ -41,9 +41,9 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
   per default. Gli export già consegnati non sono richiamabili. Cataloghi
   terminologici completi e verifica dei profili FHIR dipendono dal deployment.
   Vedere [nota tecnica M7](research-anonymization.md).
-- **L11 / M8:** riepiloghi dei sei profili e manifest installabile. Restano da
-  completare il collaudo con lettore di schermo, i flussi end-to-end di tutti
-  i ruoli e la verifica delle traduzioni IT/EN dei moduli.
+- **L11 / M8:** riepiloghi dei sei profili, manifest installabile e uno scenario
+  Django per ruolo. Restano il collaudo con lettore di schermo e la verifica
+  completa delle traduzioni IT/EN dei moduli.
   Vedere [design system](design-system.md).
 - **L12 / M9:** assenti prova di restore, audit immutabile esterno, osservabilità
   completa, workflow GDPR, CI/CD produttiva ed E2E completi.

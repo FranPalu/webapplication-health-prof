@@ -16,6 +16,12 @@ export function ResearchWorkspace({organization, review, english}: {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const t = (it: string, en: string) => english ? en : it;
+  const statuses: Record<string, string> = {
+    pending: t('In attesa', 'Pending'),
+    approved: t('Approvata', 'Approved'),
+    rejected: t('Rifiutata', 'Rejected'),
+    revoked: t('Revocata', 'Revoked'),
+  };
   const path = review ? 'research/admin/requests/' : 'organizations/' + organization + '/research/requests/';
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -59,7 +65,7 @@ export function ResearchWorkspace({organization, review, english}: {
         <button>{t('Richiedi accesso', 'Request access')}</button>
       </form>}
       <ul>{requests.map(row => <li key={row.id}>
-        <p>{row.purpose} · {row.status}</p>
+        <p>{row.purpose} · {statuses[row.status ?? ''] ?? row.status}</p>
         {review && <p>{row.organization}</p>}
         {review && (row.status === 'pending' || row.status === 'approved') &&
           (row.status === 'pending' ? (['approve', 'reject'] as const) : (['revoke'] as const)).map(decision =>

@@ -228,3 +228,62 @@ test('app manifest points to public icons and does not register a worker', async
   for (const icon of manifest.icons) expect((await page.request.get(icon.src)).ok()).toBe(true);
   expect(await page.evaluate(async () => (await navigator.serviceWorker?.getRegistrations())?.length ?? 0)).toBe(0);
 });
+
+const realWorkspaces = [
+  {key:'organization', heading:'La mia organizzazione'},
+  {key:'pharmacy', heading:'La mia farmacia'},
+  {key:'research', heading:'Spazio ricerca'},
+  {key:'platform', heading:'Verifiche della piattaforma'},
+];
+
+for (const {key, heading} of realWorkspaces) {
+  test(`real workspace operation for ${key}`, async ({page}) => {
+    const fixture = process.env.E2E_CLINICAL_FIXTURE;
+    test.skip(!fixture, 'Requires synthetic accounts in Django.');
+    const {workspaces} = JSON.parse(readFileSync(fixture!, 'utf8')) as {
+      workspaces: Record<string, {email:string; password:string; totp_secret:string; organization:string}>;
+    };
+    const account = workspaces[key];
+    await page.goto('/');
+    await page.getByLabel('Email',{exact:true}).first().fill(account.email);
+    await page.getByLabel('Password',{exact:true}).fill(account.password);
+    await page.getByRole('button',{name:'Accedi',exact:true}).click();
+    await page.getByLabel('Codice TOTP o di recupero').fill(totp(account.totp_secret));
+    await page.getByRole('button',{name:'Verifica',exact:true}).click();
+    await page.getByLabel('Seleziona organizzazione').selectOption(account.organization);
+    await expect(page.getByRole('heading',{name:heading,exact:true})).toBeVisible();
+
+    if (key === 'organization' || key === 'pharmacy') {
+      const management = page.locator('#workspace-management');
+      await management.locator('summary').click();
+      if (key === 'organization') {
+        await management.getByLabel('Latitudine').fill('44.4949');
+        await management.getByLabel('Longitudine').fill('11.3426');
+        await management.getByRole('button',{name:'Pubblica posizione della struttura'}).click();
+      } else {
+        await management.getByLabel('SKU').fill('E2E-'+randomUUID());
+        await management.getByLabel('Prodotto').fill('Prodotto sintetico');
+        await management.getByLabel('Unità disponibili').fill('4');
+        await management.getByRole('button',{name:'Salva prodotto'}).click();
+      }
+      await expect(management.getByRole('status')).toHaveText('Operazione completata.');
+    } else if (key === 'research') {
+      const research = page.locator('#workspace-research');
+      await research.locator('summary').click();
+      const purpose = 'Studio sintetico '+randomUUID();
+      await research.getByLabel('Finalità della ricerca').fill(purpose);
+      await research.getByRole('button',{name:'Richiedi accesso'}).click();
+      await expect(research.getByText(purpose+' · In attesa')).toBeVisible();
+      await page.getByLabel('Lingua / Language').selectOption('en');
+      await expect(research.getByText(purpose+' · Pending')).toBeVisible();
+    } else {
+      const review = page.locator('#workspace-review-research');
+      await review.locator('summary').click();
+      const loaded = page.waitForResponse(response =>
+        new URL(response.url()).pathname === '/api/v1/research/admin/requests/');
+      await review.getByRole('button',{name:'Aggiorna richieste'}).click();
+      expect((await loaded).status()).toBe(200);
+      await expect(review.getByRole('alert')).toHaveCount(0);
+    }
+  });
+}
