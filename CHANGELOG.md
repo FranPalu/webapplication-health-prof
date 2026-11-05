@@ -1,5 +1,11 @@
 # Changelog
 
+## M8 — Verifiche dei riepiloghi per ruolo
+
+- Lingua del documento e tipi di organizzazione sincronizzati con la scelta IT/EN.
+- Dati della sessione ripuliti al cambio profilo e selettore inizializzato sul ruolo attivo.
+- Playwright verifica navigazione, focus e layout mobile dei sei riepiloghi nei due temi.
+
 ## 2026-11-04 — M4 analisi preliminare supervisionata
 
 - Analisi locale di referti con OCR, regole decimali, Qwen e provenienza cifrata.

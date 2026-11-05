@@ -100,11 +100,18 @@ export default function IdentityPortal() {
   const checkEmail = localMail
     ? (locale === 'it' ? 'Controlla Mailpit per continuare.' : 'Check Mailpit to continue.')
     : t.check;
+  const organizationKinds: Record<string, string> = locale === 'it'
+    ? {hospital:'Ospedale', clinic:'Clinica', practice:'Studio', pharmacy:'Farmacia', research:'Ricerca'}
+    : {hospital:'Hospital', clinic:'Clinic', practice:'Practice', pharmacy:'Pharmacy', research:'Research'};
   const ready=!!user?.email_verified && (!user.requires_mfa || user.mfa_verified);
   async function session() {
     const result=await api<User|{status:string}>('auth/session/');
     const current='id' in result?result:null; setUser(current); return current;
   }
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    return () => { document.documentElement.lang = 'it'; };
+  }, [locale]);
   useEffect(()=>{async function init(){setLocalMail(['localhost','127.0.0.1','[::1]'].includes(window.location.hostname)&&window.location.port==='8080');try{const current=await api<User|{status:string}>('auth/session/');setUser('id' in current?current:null);
     if('id' in current && (!current.requires_mfa||current.mfa_verified)){
       const [o,p,s,n]=await Promise.all([api<Page<Org>>('organizations/'),api<Page<Patient>>('patients/'),api<Page<Share>>('shares/'),api<Notification[]>('notifications/')]);setOrganizations(o.results);setOrgNext(o.next);setPatients(p.results);setPatientNext(p.next);setShares(s.results);setNotifications(n);
@@ -203,10 +210,18 @@ export default function IdentityPortal() {
       <WorkspaceOverview role={user.role} platform={user.is_platform_admin} selectedKind={organizations.find(item=>item.id===org)?.kind}
         english={locale==='en'} patients={patients.length} organizations={organizations.length}
         notifications={notifications.filter(item=>!item.read).length}/>
-      {card(t.role,<form onSubmit={form(async d=>{await api('auth/profiles/',d);setOpenThread('');setMessageThreads({});await session();setCodes([]);setMessage(t.back);})}><select name="role" aria-label={t.role}>{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select><button>{t.save}</button></form>)}
+      {card(t.role,<form onSubmit={form(async d=>{
+        await api('auth/profiles/',d);
+        setOrg('');setOrganizations([]);setOrgNext(null);setPatients([]);setPatientNext(null);
+        setShares([]);setConsentEvents([]);setAccessHistory([]);setNotifications([]);
+        setReviews([]);setReviewNext(null);setOpenThread('');setMessageThreads({});setCodes([]);
+        setUser(null);setMode('login');
+        await session();
+        setMessage(t.back);
+      })}><select key={user.role} name="role" aria-label={t.role} defaultValue={user.role}>{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select><button>{t.save}</button></form>)}
       {user.role==='professional'&&card(t.pending,<><p>{user.verification_status}</p><form onSubmit={form(async d=>{await send('professional/verification/',d);await refresh();})}><Field label={t.registry} name="register"/><Field label={t.license} name="license_number"/><button>{t.submit}</button></form></>)}
-      {card(t.organizations,<><ul>{organizations.map(o=><li key={o.id}>{o.name} · {o.kind}<br/><small>{o.id}</small></li>)}</ul>{!organizations.length&&<p>{t.empty}</p>}{orgNext&&<button onClick={()=>void run(async()=>{const p=await api<Page<Org>>(nextPath(orgNext));setOrganizations([...organizations,...p.results]);setOrgNext(p.next);})}>{t.more}</button>}
-      {['professional','organization_admin'].includes(user.role)&&<form onSubmit={form(async d=>{await send('organizations/',d);await refresh();})}><Field label={t.name} name="name"/><label>{t.kind}<select name="kind">{['hospital','clinic','practice','pharmacy','research'].map(k=><option key={k}>{k}</option>)}</select></label><button>{t.create}</button></form>}
+      {card(t.organizations,<><ul>{organizations.map(o=><li key={o.id}>{o.name} · {organizationKinds[o.kind] ?? o.kind}<br/><small>{o.id}</small></li>)}</ul>{!organizations.length&&<p>{t.empty}</p>}{orgNext&&<button onClick={()=>void run(async()=>{const p=await api<Page<Org>>(nextPath(orgNext));setOrganizations([...organizations,...p.results]);setOrgNext(p.next);})}>{t.more}</button>}
+      {['professional','organization_admin'].includes(user.role)&&<form onSubmit={form(async d=>{await send('organizations/',d);await refresh();})}><Field label={t.name} name="name"/><label>{t.kind}<select name="kind">{Object.entries(organizationKinds).map(([kind,label])=><option key={kind} value={kind}>{label}</option>)}</select></label><button>{t.create}</button></form>}
       <label>{t.selected}<select value={org} onChange={e=>setOrg(e.target.value)}><option value="">—</option>{organizations.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label></>, 'workspace-organizations')}
       {user.is_platform_admin&&<div id="workspace-review-research" tabIndex={-1} className="workspace-section"><ResearchWorkspace review english={locale==='en'}/></div>}
       {org&&organizations.find(item=>item.id===org)?.kind==='research'&&<div id="workspace-research" tabIndex={-1} className="workspace-section"><ResearchWorkspace key={org} organization={org} english={locale==='en'}/></div>}
