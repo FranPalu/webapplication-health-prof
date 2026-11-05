@@ -1750,6 +1750,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedPatientList'
           description: ''
+  /api/v1/patients/{patient_id}/research-consent/:
+    get:
+      operationId: patients_research_consent_retrieve
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - patients
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchConsentOutput'
+          description: ''
+    post:
+      operationId: patients_research_consent_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - patients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchConsentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResearchConsentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResearchConsentInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchConsentOutput'
+          description: ''
   /api/v1/patients/access-history/:
     get:
       operationId: patients_access_history_list
@@ -3233,6 +3286,29 @@ components:
       - effective_at
       - observations
       - title
+    ResearchConsentInputRequest:
+      type: object
+      properties:
+        version:
+          type: integer
+        granted:
+          type: boolean
+      required:
+      - granted
+      - version
+    ResearchConsentOutput:
+      type: object
+      properties:
+        version:
+          type: integer
+        granted:
+          type: boolean
+        text:
+          type: string
+      required:
+      - granted
+      - text
+      - version
     ReservationOutput:
       type: object
       properties:

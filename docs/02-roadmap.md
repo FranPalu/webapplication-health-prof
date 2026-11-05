@@ -125,6 +125,8 @@ presenza o formato NRE non equivalgono a validazione ufficiale.
 
 ## M7 — Ricerca
 
+Avviata con consenso versionato e anteprima di eleggibilità delle celle aggregate. Vedere [nota tecnica M7](research-anonymization.md).
+
 Dipende da M2/M3 e dall'avanzamento sequenziale dopo M6. Database separato,
 ETL versionato/idempotente, consenso ricerca, HMAC/generalizzazione/k-anonymity/
 soppressione; catalogo, dizionario, qualità, lookup LOINC/SNOMED CT/ICD-10 con

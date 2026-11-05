@@ -557,3 +557,14 @@ class PharmacyReservation(models.Model):
                 fields=["requester", "request_id"], name="pharmacy_reservation_idempotency"
             )
         ]
+
+
+class ResearchConsentEvent(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    actor = models.ForeignKey(User, on_delete=models.PROTECT)
+    version = models.PositiveSmallIntegerField()
+    granted = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["patient", "-id"], name="research_consent_latest")]

@@ -11,6 +11,7 @@ from identity import (
     fhir,
     payment_views,
     pharmacy_views,
+    research_views,
     views,
 )
 from identity.security import Ready
@@ -125,4 +126,9 @@ urlpatterns += [
     ),
     endpoint("organizations/<uuid:org_id>/location/", directory_views.LocationView),
     endpoint("directory/nearby/", directory_views.NearbyView),
+]
+
+
+urlpatterns += [
+    endpoint("patients/<uuid:patient_id>/research-consent/", research_views.ResearchConsentView),
 ]

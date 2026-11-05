@@ -93,3 +93,8 @@
 
 - Riprogrammazione, promemoria, cataloghi CSV, migrazione agenda e ricerca geografica PostGIS.
 - Portale per pazienti e amministratori. Adapter SMS e verifica ufficiale delle ricette disattivati per default.
+
+## 2026-11-05 — Avvio M7
+
+- Consenso alla ricerca separato e revocabile nel portale.
+- Anteprima aggregata di eleggibilità con conteggio di account distinti e soglia minima.

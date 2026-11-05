@@ -36,9 +36,9 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
   Vedere [simulazione M5](06-payments-sandbox.md).
 - **L09 / M6:** SMS e verifica ufficiale NRE richiedono adapter di deployment.
   Non sono accettati allegati di ricetta. Vedere [guida M6](07-bookings-pharmacy.md).
-- **L10 / M7:** nessun archivio ricerca, anonimizzazione validata o catalogo.
-  Pseudonimi non equivalgono ad anonimato; export già scaricati non sono recuperabili
-  tecnicamente tramite una semplice revoca.
+- **L10 / M7 in corso:** consenso e anteprima aggregata disponibili. Archivio,
+  catalogo, ETL persistente, dashboard ed export restano aperti. Vedere
+  [nota tecnica M7](research-anonymization.md).
 - **L11 / M8:** interfaccia italiana e responsive, ma WCAG 2.2 AA, IT/EN complete,
   dashboard per tutti i ruoli e PWA non sono state verificate/implementate.
 - **L12 / M9:** assenti prova di restore, audit immutabile esterno, osservabilità
