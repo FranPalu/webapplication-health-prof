@@ -10,6 +10,12 @@ Playwright misura un contrasto minimo 4.5:1 su titoli, etichette, aiuti, campi e
 
 ## Portale autenticato M8
 
+La dashboard usa il ruolo assegnato all'account restituito dalla sessione.
+Con una sola organizzazione, il portale la apre come contesto iniziale.
+L'utente può scegliere il tipo di account alla registrazione. Le singole
+dashboard dimostrative mostrano un solo profilo. Il selettore della demo
+si trova nella galleria pubblica.
+
 Il riepilogo usa le superfici del tema e i colori di accento già condivisi con login e demo. Le azioni principali dipendono dal profilo attivo. Farmacia si seleziona dall'organizzazione, mentre l'amministratore di piattaforma ha collegamenti alle verifiche e alle approvazioni. I contatori descrivono gli elementi caricati nella pagina e le notifiche non lette ricevute. Non rappresentano totali di sistema.
 
 Gli accessi rapidi sono link nativi con destinazioni focalizzabili. Il salto al contenuto è il primo elemento raggiungibile a tastiera e conserva il frammento usato per i token di verifica. Campi, aree di testo e pulsanti rispettano il tema attivo. Gli esiti del portale usano una sola regione di stato e gli errori API vengono presentati in forma leggibile.

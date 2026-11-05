@@ -1,5 +1,10 @@
 # Changelog
 
+## Dashboard associata all’account
+
+- La sessione apre la dashboard del ruolo assegnato e seleziona l’unica organizzazione quando disponibile.
+- Rimossi il cambio di ruolo autonomo e il menu dei ruoli dalle singole dashboard dimostrative.
+
 ## Portale dimostrativo per ruolo
 
 - Il collegamento dalla demo apre lo spazio del profilo selezionato e conserva il ruolo nell’indirizzo.

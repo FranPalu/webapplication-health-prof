@@ -9,10 +9,14 @@ test('opening the demo portal preserves the selected role and its work area', as
   await expect(page.getByRole('heading', {name:'Fascicolo clinico DEMO-042'})).toBeVisible();
   await expect(page.getByRole('img', {name:'Schema di una sezione assiale del torace'})).toBeVisible();
 
-  const roles = page.getByRole('navigation', {name:'Spazi per ruolo'});
-  await roles.getByRole('link', {name:'Infermiere'}).click();
+  await expect(page.getByRole('navigation', {name:'Spazi per ruolo'})).toHaveCount(0);
+  async function openWorkspace(role: string, label: string) {
+    await page.getByRole('link', {name:'Torna ai profili demo'}).click();
+    await page.getByLabel('Profilo dimostrativo').selectOption(role);
+    await page.getByRole('link', {name:'Apri il portale · '+label}).click();
+  }
+  await openWorkspace('nurse', 'Infermiere');
   await expect(page).toHaveURL(/\/demo\/portale\/nurse$/);
-  await expect(roles.getByRole('link', {name:'Infermiere'})).toHaveAttribute('aria-current','page');
   await expect(page.getByRole('heading', {name:'Piano del turno e consegne'})).toBeVisible();
   await expect(page.getByRole('img')).toHaveCount(0);
   await page.getByLabel('Solo da seguire').check();
@@ -20,15 +24,15 @@ test('opening the demo portal preserves the selected role and its work area', as
   await page.getByText(/Consegna al turno del pomeriggio/).click();
   await expect(page.getByText(/Verificare il contatto in agenda/)).toBeVisible();
 
-  await roles.getByRole('link', {name:'Ricercatore'}).click();
+  await openWorkspace('research', 'Ricercatore');
   await expect(page).toHaveURL(/\/demo\/portale\/research$/);
   await page.reload();
   await expect(page.getByRole('table', {name:'Osservazioni sintetiche per anno e codice'})).toBeVisible();
   await expect(page.getByText(/DEMO-042/)).toHaveCount(0);
   await expect(page.locator('body')).toHaveJSProperty('scrollWidth',320);
-  await roles.getByRole('link', {name:'Amministrazione struttura'}).click();
+  await openWorkspace('organization', 'Amministrazione struttura');
   await expect(page.getByRole('heading', {name:'Accettazione e capacità'})).toBeVisible();
-  await roles.getByRole('link', {name:'Farmacia',exact:true}).click();
+  await openWorkspace('pharmacy', 'Farmacia');
   await expect(page.getByRole('heading', {name:'Richieste e ritiri'})).toBeVisible();
   await expect(page.getByRole('link', {name:'Accedi con un account'})).toHaveAttribute('href','/');
 });

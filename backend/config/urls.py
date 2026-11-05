@@ -28,7 +28,6 @@ urlpatterns = [
     path("api/v1/schema/", SpectacularAPIView.as_view(permission_classes=[Ready])),
     endpoint("auth/session/", views.SessionView),
     endpoint("auth/register/", views.RegisterView),
-    endpoint("auth/profiles/", views.ProfilesView),
     endpoint("auth/verify/", views.VerifyView),
     endpoint("auth/resend/", views.ResendView),
     endpoint("auth/login/", views.LoginView),

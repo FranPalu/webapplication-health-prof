@@ -29,6 +29,7 @@ from identity.models import (
     SecureMessage,
     Share,
     User,
+    UserProfile,
 )
 from identity.security import cipher, consume_recovery, digest
 from identity.services import issue_token
@@ -844,21 +845,15 @@ def test_concurrent_second_factor_consumption():
         assert sorted(pool.map(recover, range(2))) == [False, True]
 
 
-def test_multiple_profiles_require_mfa_even_after_switching_to_patient():
+def test_assigned_role_cannot_be_changed_or_extended_by_the_account():
     account = user()
-    b = signed(account)
-    assert b.post("auth/profiles/", {"role": "admin"}).status_code == 400
-    assert b.post("auth/profiles/", {"role": "professional"}).status_code == 200
-    assert b.get("auth/session/").data["status"] == "anonymous"
-    account.refresh_from_db()
-    assert account.has_profile("patient") and account.has_profile("professional")
-    b = signed(account, mfa=False)
-    assert b.get("patients/").status_code == 403
-    enroll(b)
-    assert b.post("auth/profiles/", {"role": "patient"}).status_code == 200
-    account.refresh_from_db()
+    UserProfile.objects.create(user=account, role="professional")
+    approve(account)
+    browser = signed(account)
+    assert browser.get("auth/session/").data["role"] == "patient"
+    assert browser.post("auth/profiles/", {"role": "organization_admin"}).status_code == 404
+    assert browser.get("auth/session/").data["role"] == "patient"
+    assert (
+        browser.post("organizations/", {"name": "Synthetic", "kind": "clinic"}).status_code == 403
+    )
     assert account.requires_mfa
-    assert sorted(
-        b.post("auth/login/", {"email": account.email, "password": PASSWORD}).data["profiles"]
-    ) == ["patient", "professional"]
-    assert b.get("patients/").status_code == 403

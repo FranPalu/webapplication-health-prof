@@ -84,31 +84,23 @@ export function DemoWorkspace({role}: {role: Profile}) {
       <p>Portale dimostrativo · Dati fittizi</p>
       <ThemePicker/>
     </header>
-    <div className="demo-workspace-layout">
-      <nav className="demo-workspace-nav" aria-label="Spazi per ruolo">
-        {Object.entries(profiles).map(([key, item]) =>
-          <Link key={key} href={`/demo/portale/${key}`} aria-current={key === role ? 'page' : undefined}>
-            {item.label}
-          </Link>)}
-      </nav>
-      <div id="demo-workspace-content" tabIndex={-1} className="demo-workspace-content">
-        <header className="identity-hero">
-          <div>
-            <p className="workspace-kicker">{profile.label}</p>
-            <h1>{profile.title}</h1>
-            <p>{profile.intro}</p>
-          </div>
-        </header>
-        <div className="demo-workspace-summary" aria-label="Riepilogo">
-          {profile.cards.map(([label, value]) => <div key={label}><p>{label}</p><strong>{value}</strong></div>)}
+    <div id="demo-workspace-content" tabIndex={-1} className="demo-workspace-content">
+      <header className="identity-hero">
+        <div>
+          <p className="workspace-kicker">{profile.label}</p>
+          <h1>{profile.title}</h1>
+          <p>{profile.intro}</p>
         </div>
-        {role === 'research' ? <ResearchCatalog/> : <Worklist list={worklists[role]}/>}
-        {role === 'physician' && <ImagingDemo/>}
-        <footer className="demo-links">
-          <Link href="/demo">Torna ai profili demo</Link>
-          <Link href="/">Accedi con un account</Link>
-        </footer>
+      </header>
+      <div className="demo-workspace-summary" aria-label="Riepilogo">
+        {profile.cards.map(([label, value]) => <div key={label}><p>{label}</p><strong>{value}</strong></div>)}
       </div>
+      {role === 'research' ? <ResearchCatalog/> : <Worklist list={worklists[role]}/>}
+      {role === 'physician' && <ImagingDemo/>}
+      <footer className="demo-links">
+        <Link href="/demo">Torna ai profili demo</Link>
+        <Link href="/">Accedi con un account</Link>
+      </footer>
     </div>
   </main>;
 }

@@ -76,7 +76,7 @@ def require_org_admin(user, org):
 
 def verified_professional(user) -> bool:
     return (
-        user.has_profile("professional")
+        user.role == "professional"
         and ProfessionalVerification.objects.filter(user=user, status="approved").exists()
     )
 
@@ -152,9 +152,9 @@ def change_membership(user, org, target, role: str, active: bool):
         raise ValidationError("Self membership changes are not allowed")
     if not target.email_verified:
         raise ValidationError("Account must verify email first")
-    if role == "professional" and not target.has_profile("professional"):
+    if role == "professional" and target.role != "professional":
         raise ValidationError("Professional profile required")
-    if role == "researcher" and not target.has_profile("researcher"):
+    if role == "researcher" and target.role != "researcher":
         raise ValidationError("Researcher profile required")
     if role == "admin" and not target.mfa_enabled:
         raise ValidationError("MFA enrollment required for administrators")

@@ -43,8 +43,10 @@ TOTP obbligatorio per professionisti e amministratori: la sessione incompleta
 accede solo al completamento dell'onboarding/MFA. Recovery code monouso protetti;
 reset MFA tracciato e senza scorciatoie amministrative silenziose.
 
-Un account può avere più profili e membership. Il cambio organizzazione verifica
-la membership sul server. Il paziente può esistere senza account di accesso:
+Un account ha un ruolo assegnato e può avere più appartenenze a organizzazioni.
+Le autorizzazioni usano il ruolo corrente e il server verifica l'appartenenza.
+Gli eventuali profili storici mantengono i requisiti MFA applicabili.
+Il paziente può esistere senza account di accesso:
 il collegamento a un account richiede una verifica, non un confronto automatico
 del codice fiscale. Le schede cliniche restano separate per organizzazione.
 

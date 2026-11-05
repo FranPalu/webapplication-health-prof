@@ -31,7 +31,6 @@ from .models import (
     SecureMessage,
     Share,
     User,
-    UserProfile,
 )
 from .security import (
     PlatformAdmin,
@@ -59,7 +58,6 @@ from .serializers import (
     NotificationOutput,
     OrganizationSerializer,
     PatientSerializer,
-    ProfileInput,
     RecoveryOutput,
     RegisterInput,
     RelationshipInput,
@@ -353,14 +351,9 @@ class OrganizationsView(InputView):
 
     @extend_schema(responses=OrganizationSerializer)
     def post(self, request):
-        if not (
-            request.user.has_profile("professional")
-            or request.user.has_profile("organization_admin")
-        ):
+        if request.user.role not in ("professional", "organization_admin"):
             raise PermissionDenied()
-        if not request.user.has_profile("organization_admin") and not verified_professional(
-            request.user
-        ):
+        if request.user.role != "organization_admin" and not verified_professional(request.user):
             raise PermissionDenied("Professional verification required")
         with transaction.atomic():
             organization = Organization.objects.create(**self.data(request))
@@ -387,7 +380,7 @@ class VerificationView(InputView):
 
     @extend_schema(responses=StatusOutput)
     def post(self, request):
-        if not request.user.has_profile("professional"):
+        if request.user.role != "professional":
             raise PermissionDenied()
         with transaction.atomic():
             # A new submission invalidates the previous approval immediately.
@@ -545,23 +538,6 @@ class MyPatientsView(InputView):
         return self.get_paginated_response(
             self.get_serializer(self.paginate_queryset(qs), many=True).data
         )
-
-
-class ProfilesView(InputView):
-    serializer_class = ProfileInput
-
-    @extend_schema(responses=StatusOutput)
-    def post(self, request):
-        role = self.data(request)["role"]
-        with transaction.atomic():
-            user = User.objects.select_for_update().get(pk=request.user.pk)
-            UserProfile.objects.get_or_create(user=user, role=role)
-            user.role = role
-            user.auth_version += 1
-            user.save(update_fields=["role", "auth_version"])
-            audit(user, "profile.selected")
-        logout(request)
-        return self.status("login_required")
 
 
 class ConsentTextsView(InputView):

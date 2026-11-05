@@ -57,10 +57,6 @@ class ConfirmPasswordInput(serializers.Serializer):
 
 class UserOutput(serializers.ModelSerializer):
     requires_mfa = serializers.BooleanField()
-    profiles = serializers.SerializerMethodField()
-
-    def get_profiles(self, obj) -> list[str]:
-        return sorted(set([obj.role, *obj.userprofile_set.values_list("role", flat=True)]))
 
     mfa_verified = serializers.SerializerMethodField()
     verification_status = serializers.SerializerMethodField()
@@ -89,7 +85,6 @@ class UserOutput(serializers.ModelSerializer):
             "mfa_verified",
             "verification_status",
             "is_platform_admin",
-            "profiles",
         ]
 
 
@@ -153,12 +148,6 @@ class MFASetupOutput(serializers.Serializer):
 
 class RecoveryOutput(serializers.Serializer):
     recovery_codes = serializers.ListField(child=serializers.CharField())
-
-
-class ProfileInput(serializers.Serializer):
-    role = serializers.ChoiceField(
-        choices=["patient", "professional", "researcher", "organization_admin"]
-    )
 
 
 class ShareInput(serializers.Serializer):

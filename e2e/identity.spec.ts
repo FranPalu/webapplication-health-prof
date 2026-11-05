@@ -49,6 +49,8 @@ test('registration, verified email, login and logout; legacy API unavailable',as
   await page.getByLabel('Password',{exact:true}).fill(password);
   await page.getByRole('button',{name:'Accedi',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Anagrafiche autorizzate'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Il mio percorso di cura'})).toBeVisible();
+  await expect(page.getByRole('combobox',{name:'Profilo',exact:true})).toHaveCount(0);
   const legacy=await page.request.get('/api/studio');expect(legacy.status()).toBe(404);
   await page.getByRole('button',{name:'Esci',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Accedi',exact:true})).toBeVisible();
@@ -250,8 +252,9 @@ for (const {key, heading} of realWorkspaces) {
     await page.getByRole('button',{name:'Accedi',exact:true}).click();
     await page.getByLabel('Codice TOTP o di recupero').fill(totp(account.totp_secret));
     await page.getByRole('button',{name:'Verifica',exact:true}).click();
-    await page.getByLabel('Seleziona organizzazione').selectOption(account.organization);
     await expect(page.getByRole('heading',{name:heading,exact:true})).toBeVisible();
+    await expect(page.getByLabel('Seleziona organizzazione')).toHaveValue(account.organization);
+    await expect(page.getByRole('combobox',{name:'Profilo',exact:true})).toHaveCount(0);
 
     if (key === 'organization' || key === 'pharmacy') {
       const management = page.locator('#workspace-management');

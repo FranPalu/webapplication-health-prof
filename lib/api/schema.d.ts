@@ -196,22 +196,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/auth/profiles/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["auth_profiles_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/auth/register/": {
         parameters: {
             query?: never;
@@ -1745,9 +1729,6 @@ export interface components {
             fee?: number;
             active?: boolean;
         };
-        ProfileInputRequest: {
-            role: components["schemas"]["ProfileRoleEnum"];
-        };
         /**
          * @description * `patient` - patient
          *     * `professional` - professional
@@ -1972,7 +1953,6 @@ export interface components {
             readonly mfa_verified: boolean;
             readonly verification_status: string;
             is_platform_admin: boolean;
-            readonly profiles: string[];
         };
         /**
          * @description * `it` - Italiano
@@ -2328,31 +2308,6 @@ export interface operations {
                 "application/json": components["schemas"]["CodeInputRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["CodeInputRequest"];
                 "multipart/form-data": components["schemas"]["CodeInputRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StatusOutput"];
-                };
-            };
-        };
-    };
-    auth_profiles_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ProfileInputRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ProfileInputRequest"];
-                "multipart/form-data": components["schemas"]["ProfileInputRequest"];
             };
         };
         responses: {
