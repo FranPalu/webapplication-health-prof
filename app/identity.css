@@ -408,3 +408,6 @@
 .demo-catalog { width: 100%; border-collapse: collapse; }
 .demo-catalog caption { text-align: start; color: var(--muted); margin-bottom: 8px; }
 .demo-catalog :is(td, th) { border-bottom: 1px solid var(--border); text-align: start; padding: 8px 4px; }
+
+.demo-worklist li > button { margin-bottom: 12px; }
+.demo-research-action { margin-top: 16px; }

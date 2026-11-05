@@ -1,5 +1,28 @@
 import { expect, test } from '@playwright/test';
 
+test('demo actions persist and research approval passes between role workspaces', async ({page}) => {
+  await page.goto('/demo/portale/patient');
+  await page.getByRole('button', {name:'Conferma appuntamento'}).click();
+  await expect(page.getByRole('status')).toHaveText('Appuntamento confermato');
+  await page.reload();
+  await expect(page.getByRole('button', {name:'Conferma appuntamento'})).toHaveCount(0);
+  await expect(page.getByText('Appuntamento confermato', {exact:true})).toBeVisible();
+
+  await page.goto('/demo/portale/platform');
+  await expect(page.getByRole('button', {name:'Approva accesso dimostrativo'})).toHaveCount(0);
+  await page.goto('/demo/portale/research');
+  await page.getByRole('button', {name:'Richiedi accesso dimostrativo'}).click();
+  await expect(page.getByText(/Richiesta in attesa di approvazione/)).toBeVisible();
+  await page.goto('/demo/portale/platform');
+  await page.getByRole('button', {name:'Approva accesso dimostrativo'}).click();
+  await page.goto('/demo/portale/research');
+  await expect(page.getByText(/Accesso approvato dall’amministrazione/)).toBeVisible();
+  await page.getByRole('button', {name:'Azzera la demo'}).click();
+  await expect(page.getByRole('button', {name:'Richiedi accesso dimostrativo'})).toBeVisible();
+  await page.goto('/demo/portale/patient');
+  await expect(page.getByRole('button', {name:'Conferma appuntamento'})).toBeVisible();
+});
+
 test('opening the demo portal preserves the selected role and its work area', async ({page}) => {
   await page.setViewportSize({width:320,height:800});
   await page.goto('/demo');

@@ -55,7 +55,7 @@ export const profiles = {
     intro: 'Verifiche professionali, richieste di accesso alla ricerca e audit.',
     cards: [
       ['Coda di verifica', '2 richieste in esame', 'Controllo manuale delle dichiarazioni professionali.'],
-      ['Ricerca', '1 domanda in valutazione', 'La struttura di ricerca ha richiesto dati aggregati con finalità documentata.'],
+      ['Ricerca', 'Coda accessi aggregati', 'Le richieste inviate dal portale Ricercatore compaiono nella coda di piattaforma.'],
       ['Audit', 'Ultima verifica alle 11:20', 'Esempio di consultazione del registro degli accessi e delle decisioni.'],
     ],
   },

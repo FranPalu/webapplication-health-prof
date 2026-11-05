@@ -1,5 +1,10 @@
 # Changelog
 
+## Operazioni nel portale dimostrativo
+
+- Le dashboard per ruolo consentono di completare attività fittizie e conservarne lo stato nel browser.
+- La richiesta di ricerca passa dal ricercatore alla coda di piattaforma e torna con l'esito.
+
 ## Dashboard associata all’account
 
 - La sessione apre la dashboard del ruolo assegnato e seleziona l’unica organizzazione quando disponibile.

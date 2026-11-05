@@ -1,5 +1,9 @@
 # Limitazioni note
 
+- Le operazioni nei portali dimostrativi riguardano dati fittizi e salvano
+  lo stato nel browser. Il portale autenticato usa i dati e le autorizzazioni
+  del backend.
+
 Aggiornato con la revisione pre-M3. La suite Django è stata eseguita su
 PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
 
