@@ -458,3 +458,38 @@ class AnalysisPublication(models.Model):
     opinion = models.OneToOneField(AnalysisOpinion, on_delete=models.PROTECT)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PaymentPrice(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    title = models.CharField(max_length=120)
+    amount = models.PositiveIntegerField()
+    fee = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+
+class PaymentOrder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    price = models.ForeignKey(PaymentPrice, on_delete=models.PROTECT)
+    payer = models.ForeignKey(User, on_delete=models.PROTECT)
+    request_id = models.UUIDField()
+    amount = models.PositiveIntegerField()
+    fee = models.PositiveIntegerField()
+    destination = models.CharField(max_length=80)
+    checkout_session = models.CharField(max_length=200, blank=True)
+    paid_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["payer", "request_id"], name="payment_order_idempotency"
+            )
+        ]
+
+
+class PaymentEvent(models.Model):
+    provider_id = models.CharField(max_length=200, unique=True)
+    order = models.ForeignKey(PaymentOrder, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)

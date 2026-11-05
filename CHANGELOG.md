@@ -75,3 +75,7 @@
 - L’accesso di emergenza risolve il paziente entro le organizzazioni ammesse.
 - I trasferimenti S3 falliti rientrano in coda con attesa progressiva. Le nuove versioni restano elaborabili.
 - L’analisi segnala i limiti di estrazione e omette il riepilogo automatico quando le evidenze sono incomplete.
+
+## 2026-11-05 — Avvio M5
+
+- API sandbox per listini EUR, Checkout Stripe Connect e conferma idempotente via webhook firmato.

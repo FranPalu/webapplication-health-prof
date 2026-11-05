@@ -129,3 +129,7 @@ CELERY_BEAT_SCHEDULE["clinical-analysis-reconciliation"] = {
     "task": "identity.tasks.reconcile_analysis_jobs",
     "schedule": 15.0,
 }
+
+STRIPE_TEST_KEY = os.environ.get("STRIPE_TEST_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_TEST_DESTINATIONS = os.environ.get("STRIPE_TEST_DESTINATIONS", "{}")

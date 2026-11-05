@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView
 
-from identity import analysis_views, clinical_views, fhir, views
+from identity import analysis_views, clinical_views, fhir, payment_views, views
 from identity.security import Ready
 
 
@@ -80,4 +80,11 @@ urlpatterns += [
     endpoint("clinical/opinions/<uuid:opinion_id>/publish/", analysis_views.PublishView),
     endpoint("clinical/patients/<uuid:patient_id>/opinions/", analysis_views.PublishedOpinionsView),
     endpoint("organizations/<uuid:org_id>/analysis/metrics/", analysis_views.AnalysisMetricsView),
+]
+
+urlpatterns += [
+    endpoint("organizations/<uuid:org_id>/payment-prices/", payment_views.PriceView),
+    endpoint("payments/checkout/", payment_views.CheckoutView),
+    endpoint("payments/orders/", payment_views.OrdersView),
+    path("api/v1/payments/stripe/webhook/", payment_views.stripe_webhook),
 ]

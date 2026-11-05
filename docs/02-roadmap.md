@@ -97,6 +97,8 @@ rilascio del modello. Un disclaimer non costituisce qualificazione regolatoria.
 
 ## M5 — Pagamenti e documenti contabili
 
+Avviata con listini, Checkout Connect e webhook sandbox. Vedere [prima consegna M5](06-payments-sandbox.md).
+
 Dipende da M3 e dall'avanzamento sequenziale dopo M4. PaymentProvider Stripe e
 Connect, SCA/3DS, listini, commissioni, imposte configurabili, rimborsi, fatture
 e ricevute, webhook firmati e idempotenti. Import fatture preservando snapshot,

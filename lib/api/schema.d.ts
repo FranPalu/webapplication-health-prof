@@ -724,6 +724,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations/{org_id}/payment-prices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_payment_prices_list"];
+        put?: never;
+        post: operations["organizations_payment_prices_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients/": {
         parameters: {
             query?: never;
@@ -766,6 +782,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["patients_link_accept_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/checkout/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["payments_checkout_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payments/orders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payments_orders_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -902,6 +950,18 @@ export interface components {
             /** Format: date-time */
             expires_at: string;
         };
+        CheckoutInputRequest: {
+            /** Format: uuid */
+            price: string;
+            /** Format: uuid */
+            request_id: string;
+        };
+        CheckoutOutput: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uri */
+            url: string;
+        };
         CodeInputRequest: {
             code: string;
         };
@@ -1014,6 +1074,15 @@ export interface components {
             value: string;
             unit: string;
         };
+        OrderOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            amount: number;
+            /** Format: date-time */
+            paid_at?: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         Organization: {
             /** Format: uuid */
             readonly id: string;
@@ -1063,6 +1132,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["JobOutput"][];
         };
+        PaginatedOrderOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["OrderOutput"][];
+        };
         PaginatedOrganizationList: {
             /** @example 123 */
             count: number;
@@ -1092,6 +1176,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Patient"][];
+        };
+        PaginatedPriceOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["PriceOutput"][];
         };
         PaginatedShareOutputList: {
             /** @example 123 */
@@ -1164,6 +1263,20 @@ export interface components {
          * @enum {string}
          */
         PermissionsEnum: "view" | "download" | "comment" | "reshare";
+        PriceOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            title: string;
+            amount: number;
+            fee?: number;
+            active?: boolean;
+        };
+        PriceOutputRequest: {
+            title: string;
+            amount: number;
+            fee?: number;
+            active?: boolean;
+        };
         ProfileInputRequest: {
             role: components["schemas"]["ProfileRoleEnum"];
         };
@@ -2662,6 +2775,57 @@ export interface operations {
             };
         };
     };
+    organizations_payment_prices_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPriceOutputList"];
+                };
+            };
+        };
+    };
+    organizations_payment_prices_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PriceOutputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PriceOutputRequest"];
+                "multipart/form-data": components["schemas"]["PriceOutputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceOutput"];
+                };
+            };
+        };
+    };
     patients_list: {
         parameters: {
             query?: {
@@ -2724,6 +2888,53 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
+    payments_checkout_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CheckoutInputRequest"];
+                "multipart/form-data": components["schemas"]["CheckoutInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutOutput"];
+                };
+            };
+        };
+    };
+    payments_orders_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedOrderOutputList"];
                 };
             };
         };

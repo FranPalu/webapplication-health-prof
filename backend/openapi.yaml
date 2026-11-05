@@ -1342,6 +1342,65 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
           description: ''
+  /api/v1/organizations/{org_id}/payment-prices/:
+    get:
+      operationId: organizations_payment_prices_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPriceOutputList'
+          description: ''
+    post:
+      operationId: organizations_payment_prices_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceOutputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PriceOutputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriceOutputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceOutput'
+          description: ''
   /api/v1/patients/:
     get:
       operationId: patients_list
@@ -1404,6 +1463,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/payments/checkout/:
+    post:
+      operationId: payments_checkout_create
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CheckoutInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CheckoutInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutOutput'
+          description: ''
+  /api/v1/payments/orders/:
+    get:
+      operationId: payments_orders_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - payments
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderOutputList'
           description: ''
   /api/v1/professional/verification/:
     post:
@@ -1674,6 +1780,30 @@ components:
       required:
       - expires_at
       - id
+    CheckoutInputRequest:
+      type: object
+      properties:
+        price:
+          type: string
+          format: uuid
+        request_id:
+          type: string
+          format: uuid
+      required:
+      - price
+      - request_id
+    CheckoutOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+      required:
+      - id
+      - url
     CodeInputRequest:
       type: object
       properties:
@@ -1946,6 +2076,29 @@ components:
       - display
       - unit
       - value
+    OrderOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        amount:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - id
     Organization:
       type: object
       properties:
@@ -2034,6 +2187,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JobOutput'
+    PaginatedOrderOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderOutput'
     PaginatedOrganizationList:
       type: object
       required:
@@ -2080,6 +2256,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Patient'
+    PaginatedPriceOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceOutput'
     PaginatedShareOutputList:
       type: object
       required:
@@ -2219,6 +2418,50 @@ components:
         * `download` - download
         * `comment` - comment
         * `reshare` - reshare
+    PriceOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 120
+        amount:
+          type: integer
+          maximum: 99999999
+          minimum: 50
+        fee:
+          type: integer
+          maximum: 99999999
+          minimum: 0
+        active:
+          type: boolean
+      required:
+      - amount
+      - id
+      - title
+    PriceOutputRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        amount:
+          type: integer
+          maximum: 99999999
+          minimum: 50
+        fee:
+          type: integer
+          maximum: 99999999
+          minimum: 0
+        active:
+          type: boolean
+      required:
+      - amount
+      - title
     ProfileInputRequest:
       type: object
       properties:
