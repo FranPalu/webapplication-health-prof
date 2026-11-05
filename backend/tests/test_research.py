@@ -1,9 +1,14 @@
+import os
+
+import psycopg
 import pytest
 from django.utils import timezone
+from psycopg.conninfo import make_conninfo
 from test_identity import org_for, patient, signed, user
 
 from identity.models import ClinicalObservation, ClinicalReport, ResearchConsentEvent
 from identity.research import MIN_PATIENTS, eligible_cells
+from identity.research_archive import refresh
 
 pytestmark = pytest.mark.django_db
 
@@ -44,5 +49,24 @@ def test_research_counts_distinct_consented_accounts_and_honors_revocation():
     (cell,) = eligible_cells()
     assert cell["patients"] == MIN_PATIENTS
     assert set(cell) == {"year", "code", "patients"}
+    archive = os.environ.get("RESEARCH_INTEGRATION_DB")
+    dsn = None
+    if archive:
+        dsn = make_conninfo(
+            dbname=archive,
+            host=os.environ["POSTGRES_HOST"],
+            user=os.environ["POSTGRES_USER"],
+            password=os.environ["POSTGRES_PASSWORD"],
+            port=os.environ.get("POSTGRES_PORT", "5432"),
+        )
+        assert refresh(dsn) == (1, True)
+        assert refresh(dsn) == (1, False)
+
     assert not browser.post(target, {"version": 1, "granted": False}).data["granted"]
     assert list(eligible_cells()) == []
+    if dsn:
+        assert refresh(dsn) == (0, True)
+        assert refresh(dsn) == (0, False)
+        with psycopg.connect(dsn) as target, target.cursor() as cursor:
+            cursor.execute("SELECT count(*) FROM claria_research_cell")
+            assert cursor.fetchone() == (0,)

@@ -102,3 +102,7 @@
 ## M6 — Collegamento ricette
 
 - La prenotazione in farmacia può riferirsi alla versione PDF di una ricetta del paziente. L'allegato è accessibile solo all'adapter durante la verifica e il riferimento viene rimosso dopo la decisione.
+
+## M7 — Archivio aggregato separato
+
+- Refresh PostgreSQL idempotente con sostituzione atomica delle celle e rimozione dei gruppi scesi sotto soglia dopo una revoca.
