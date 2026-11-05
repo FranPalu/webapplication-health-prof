@@ -152,7 +152,9 @@ responsive e traduzioni verificati; nessuna cache offline di PHI. Verifica WCAG
 
 ## M9 — Hardening e rilascio
 
-Dipende da tutte le precedenti. Checklist ASVS L2, STRIDE, CSRF/XSS/SSRF,
+Avviata con controlli separati di attività del processo e disponibilità del database. Le verifiche manuali ancora aperte in M8 restano criteri di rilascio.
+
+La chiusura dipende da tutte le milestone precedenti. Checklist ASVS L2, STRIDE, CSRF/XSS/SSRF,
 rate limit/header, SAST, scansione dipendenze/segreti, backup e restore,
 health/metriche/tracing/error tracking senza PHI. Portabilità, cancellazione e
 conservazione, template DPIA/registro trattamenti e runbook data breach.
@@ -164,3 +166,13 @@ revisione AI→pagamento→prenotazione, copertura core >=80%, load test riprodu
 con p95 API principali <500 ms su ambiente/carico dichiarati. Rischi e verifiche
 regolatorie aperti devono essere espliciti; il rilascio tecnico non autorizza
 automaticamente l'uso clinico o la messa sul mercato come dispositivo medico.
+
+Dietro il proxy locale, `GET /health/` verifica che Django risponda.
+`GET /health/ready/` verifica anche una query al database principale.
+In caso di errore del database restituisce HTTP 503 con uno stato generico.
+Compose usa questo secondo controllo prima di avviare i servizi dipendenti.
+Storage, coda, worker e archivio di ricerca richiedono verifiche distinte.
+
+Il collaudo browser ha riprodotto HTTP 429 su `/api/v1/auth/session/`
+quando più sessioni passano dallo stesso proxy. La verifica del limite deve
+coprire anche gli utenti che condividono lo stesso indirizzo e i proxy di produzione.

@@ -64,7 +64,7 @@ services:
       antivirus: {condition: service_healthy}
       storage: {condition: service_started}
     healthcheck:
-      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health/")']
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health/ready/", timeout=3)']
       interval: 5s
       retries: 20
   worker:

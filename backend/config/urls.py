@@ -1,8 +1,8 @@
 from django.db import transaction
-from django.http import JsonResponse
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView
 
+from config.health import liveness, readiness
 from identity import (
     analysis_views,
     appointment_views,
@@ -23,7 +23,8 @@ def endpoint(route, view):
 
 
 urlpatterns = [
-    path("health/", lambda request: JsonResponse({"status": "ok"})),
+    path("health/", liveness),
+    path("health/ready/", readiness),
     path("api/v1/schema/", SpectacularAPIView.as_view(permission_classes=[Ready])),
     endpoint("auth/session/", views.SessionView),
     endpoint("auth/register/", views.RegisterView),

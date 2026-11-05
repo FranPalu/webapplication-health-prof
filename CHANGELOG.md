@@ -1,5 +1,10 @@
 # Changelog
 
+## M9 — Controlli di disponibilità
+
+- Endpoint distinti per verificare che Django risponda e che il database sia raggiungibile.
+- Docker Compose usa il controllo del database. La CI verifica entrambi gli endpoint attraverso il proxy.
+
 ## M8 — Flussi per ruolo con Django
 
 - Collaudo browser con account sintetici per struttura, farmacia, ricerca e amministrazione di piattaforma.
