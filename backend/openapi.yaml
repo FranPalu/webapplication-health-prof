@@ -3345,6 +3345,9 @@ components:
           type: integer
           maximum: 10
           minimum: 1
+        prescription_version:
+          type: string
+          format: uuid
         nre:
           type: string
           minLength: 1
@@ -3656,12 +3659,14 @@ components:
     UploadInputKindEnum:
       enum:
       - report
+      - prescription
       - nutrition
       - psychology
       - other
       type: string
       description: |-
         * `report` - Referto
+        * `prescription` - Ricetta
         * `nutrition` - Piano alimentare
         * `psychology` - Nota psicologica
         * `other` - Altro
@@ -3815,6 +3820,9 @@ components:
         media_type:
           type: string
           maxLength: 40
+        kind:
+          type: string
+          readOnly: true
         size:
           type: integer
           maximum: 2147483647
@@ -3849,6 +3857,7 @@ components:
       - document
       - folder
       - id
+      - kind
       - media_type
       - number
       - size

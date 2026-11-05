@@ -10,7 +10,16 @@ from rest_framework.response import Response
 
 from identity import prescriptions
 from identity.analysis import decode, encode
-from identity.models import InAppNotification, Membership, PharmacyItem, PharmacyReservation, User
+from identity.clinical_storage import read_content
+from identity.models import (
+    ClinicalDocument,
+    ClinicalDocumentVersion,
+    InAppNotification,
+    Membership,
+    PharmacyItem,
+    PharmacyReservation,
+    User,
+)
 from identity.security import audit, rate_limit
 from identity.views import InputView
 
@@ -36,6 +45,7 @@ class ItemOutput(serializers.ModelSerializer):
 class ReserveInput(serializers.Serializer):
     request_id = serializers.UUIDField()
     quantity = serializers.IntegerField(min_value=1, max_value=10)
+    prescription_version = serializers.UUIDField(required=False)
     nre = serializers.RegexField(r"^[0-9A-Z]{15}$", required=False)
 
 
@@ -102,10 +112,24 @@ class ReserveView(InputView):
             return Response(ReservationOutput(existing).data)
         item = get_object_or_404(PharmacyItem.objects.select_for_update(), pk=item_id)
         nre = data.pop("nre", None)
-        if item.prescription_required and (not nre or prescriptions.verifier is None):
+        version_id = data.pop("prescription_version", None)
+        if item.prescription_required and (
+            not (nre or version_id) or prescriptions.verifier is None
+        ):
             return Response({"code": "prescription_verification_unavailable"}, status=409)
-        if nre and not item.prescription_required:
+        if (nre or version_id) and not item.prescription_required:
             return Response({"code": "prescription_not_required"}, status=400)
+        version = None
+        if version_id:
+            version = get_object_or_404(
+                ClinicalDocumentVersion.objects.defer("ciphertext", "wrapped_key"),
+                pk=version_id,
+                document__patient__account=request.user,
+                document__kind=ClinicalDocument.Kind.PRESCRIPTION,
+                document__deleted_at__isnull=True,
+                purged_at__isnull=True,
+                media_type="application/pdf",
+            )
         encrypted = None
         if nre:
             sealed = encode({"nre": nre}, item.pharmacy_id)
@@ -118,7 +142,11 @@ class ReserveView(InputView):
         item.stock -= data["quantity"]
         item.save(update_fields=["stock"])
         reservation = PharmacyReservation.objects.create(
-            item=item, requester=request.user, prescription=encrypted, **data
+            item=item,
+            requester=request.user,
+            prescription=encrypted,
+            prescription_version=version,
+            **data,
         )
         audit(request.user, "pharmacy.reserved", reservation.pk, item.pharmacy)
         return Response(ReservationOutput(reservation).data, status=201)
@@ -168,27 +196,55 @@ class PharmacyDecisionView(InputView):
         if reservation.state != "pending":
             return Response({"code": "reservation_already_decided"}, status=409)
         item = PharmacyItem.objects.select_for_update().get(pk=reservation.item_id)
-        if decision == "confirmed" and (item.prescription_required or reservation.prescription):
-            if not reservation.prescription or prescriptions.verifier is None:
+        if decision == "confirmed" and (
+            item.prescription_required
+            or reservation.prescription
+            or reservation.prescription_version_id
+        ):
+            verifier = prescriptions.verifier
+            if verifier is None:
                 return Response({"code": "prescription_verification_unavailable"}, status=409)
-            payload = dict(reservation.prescription)
-            for key in ("ciphertext", "wrapped_key"):
-                payload[key] = base64.b64decode(payload[key])
-            context = SimpleNamespace(patient=SimpleNamespace(organization_id=item.pharmacy_id))
-            nre = decode(SimpleNamespace(**payload), context)["nre"]
-            if not prescriptions.verifier.verified(
+            nre = None
+            if reservation.prescription:
+                payload = dict(reservation.prescription)
+                for key in ("ciphertext", "wrapped_key"):
+                    payload[key] = base64.b64decode(payload[key])
+                context = SimpleNamespace(patient=SimpleNamespace(organization_id=item.pharmacy_id))
+                nre = decode(SimpleNamespace(**payload), context)["nre"]
+            attachment = None
+            if reservation.prescription_version_id:
+                version = (
+                    ClinicalDocumentVersion.objects.select_for_update(
+                        of=("self", "document", "document__patient")
+                    )
+                    .select_related("document__patient")
+                    .filter(
+                        pk=reservation.prescription_version_id,
+                        document__patient__account_id=reservation.requester_id,
+                        document__kind=ClinicalDocument.Kind.PRESCRIPTION,
+                        document__deleted_at__isnull=True,
+                        purged_at__isnull=True,
+                    )
+                    .first()
+                )
+                if version is None:
+                    return Response({"code": "prescription_unavailable"}, status=409)
+                attachment = read_content(version)
+            if not (nre or attachment) or not verifier.verified(
                 reference=nre,
+                attachment=attachment,
                 requester_id=str(reservation.requester_id),
                 pharmacy_id=str(item.pharmacy_id),
                 sku=item.sku,
             ):
                 return Response({"code": "prescription_not_verified"}, status=409)
         reservation.prescription = None
+        reservation.prescription_version = None
         if decision == "rejected":
             item.stock += reservation.quantity
             item.save(update_fields=["stock"])
         reservation.state = decision
-        reservation.save(update_fields=["state", "prescription"])
+        reservation.save(update_fields=["state", "prescription", "prescription_version"])
         InAppNotification.objects.create(
             user=reservation.requester,
             category="pharmacy." + decision,

@@ -613,7 +613,7 @@ class SharesView(InputView):
         folder = None
         if data.get("document"):
             document = get_object_or_404(
-                visible_documents(request.user).exclude(kind="psychology"),
+                visible_documents(request.user).exclude(kind__in=["psychology", "prescription"]),
                 pk=data["document"],
                 patient=patient,
             )

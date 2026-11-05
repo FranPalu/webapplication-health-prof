@@ -26,6 +26,7 @@ class UploadInput(serializers.Serializer):
 
 
 class VersionOutput(serializers.ModelSerializer):
+    kind = serializers.CharField(source="document.kind", read_only=True)
     can_download = serializers.BooleanField(read_only=True)
     can_edit = serializers.BooleanField(read_only=True)
     can_share = serializers.BooleanField(read_only=True)
@@ -40,6 +41,7 @@ class VersionOutput(serializers.ModelSerializer):
             "number",
             "title",
             "media_type",
+            "kind",
             "size",
             "created_at",
             "can_download",
@@ -84,7 +86,9 @@ def with_actions(versions, user):
                 pk=OuterRef("document_id"),
                 patient__in=visible_patients(user),
                 patient__account__isnull=False,
-            ).exclude(kind=ClinicalDocument.Kind.PSYCHOLOGY)
+            ).exclude(
+                kind__in=[ClinicalDocument.Kind.PSYCHOLOGY, ClinicalDocument.Kind.PRESCRIPTION]
+            )
         ),
     )
 

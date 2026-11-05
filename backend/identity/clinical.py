@@ -78,9 +78,14 @@ def visible_documents(user, permission="view"):
             ~Q(kind=ClinicalDocument.Kind.PSYCHOLOGY)
             & (
                 Q(patient__in=direct)
-                | Q(patient_id__in=charts)
-                | Q(pk__in=items)
-                | Q(folder_id__in=descendant_folders(folders))
+                | (
+                    ~Q(kind=ClinicalDocument.Kind.PRESCRIPTION)
+                    & (
+                        Q(patient_id__in=charts)
+                        | Q(pk__in=items)
+                        | Q(folder_id__in=descendant_folders(folders))
+                    )
+                )
             )
         )
     )

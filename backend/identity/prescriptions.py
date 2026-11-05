@@ -3,7 +3,13 @@ from typing import Protocol
 
 class PrescriptionVerifier(Protocol):
     def verified(
-        self, *, reference: str, requester_id: str, pharmacy_id: str, sku: str
+        self,
+        *,
+        reference: str | None,
+        attachment: bytes | None,
+        requester_id: str,
+        pharmacy_id: str,
+        sku: str,
     ) -> bool: ...
 
 

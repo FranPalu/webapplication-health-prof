@@ -330,6 +330,7 @@ class ClinicalFolder(models.Model):
 class ClinicalDocument(models.Model):
     class Kind(models.TextChoices):
         REPORT = "report", "Referto"
+        PRESCRIPTION = "prescription", "Ricetta"
         NUTRITION = "nutrition", "Piano alimentare"
         PSYCHOLOGY = "psychology", "Nota psicologica"
         OTHER = "other", "Altro"
@@ -549,6 +550,9 @@ class PharmacyReservation(models.Model):
     quantity = models.PositiveIntegerField()
     state = models.CharField(max_length=12, default="pending")
     prescription = models.JSONField(null=True)
+    prescription_version = models.ForeignKey(
+        ClinicalDocumentVersion, null=True, blank=True, on_delete=models.PROTECT
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

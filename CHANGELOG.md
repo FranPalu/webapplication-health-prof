@@ -98,3 +98,7 @@
 
 - Consenso alla ricerca separato e revocabile nel portale.
 - Anteprima aggregata di eleggibilità con conteggio di account distinti e soglia minima.
+
+## M6 — Collegamento ricette
+
+- La prenotazione in farmacia può riferirsi alla versione PDF di una ricetta del paziente. L'allegato è accessibile solo all'adapter durante la verifica e il riferimento viene rimosso dopo la decisione.

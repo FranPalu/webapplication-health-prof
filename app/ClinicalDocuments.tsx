@@ -130,6 +130,7 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
         {version.can_download
           ? <a href={'/api/v1/clinical/versions/' + version.id + '/download/'}>{label('Scarica versione', 'Download version')} {version.number}</a>
           : <span>{label('Versione', 'Version')} {version.number}</span>}
+        {version.kind === 'prescription' && <p>{label('ID versione ricetta', 'Prescription version ID')}: <code>{version.id}</code></p>}
         {write && version.can_analyze && <ClinicalAnalysis version={version.id} english={english}/>}
       </li>)}</ul>
       {history?.next && <button disabled={busy} onClick={() => void perform(async () => {
@@ -149,6 +150,7 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
       <label>{label('Titolo del documento', 'Document title')}<input name="title" maxLength={160} required/></label>
       {!selected && <label>{label('Categoria', 'Category')}<select name="kind">
         <option value="other">{label('Altro', 'Other')}</option>
+        <option value="prescription">{label('Ricetta', 'Prescription')}</option>
         <option value="report">{label('Referto', 'Report')}</option>
         <option value="nutrition">{label('Piano alimentare', 'Nutrition plan')}</option>
         <option value="psychology">{label('Nota psicologica riservata', 'Restricted psychology note')}</option>

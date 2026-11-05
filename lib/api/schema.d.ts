@@ -1683,6 +1683,8 @@ export interface components {
             /** Format: uuid */
             request_id: string;
             quantity: number;
+            /** Format: uuid */
+            prescription_version?: string;
             nre?: string;
         };
         ResetInputRequest: {
@@ -1812,12 +1814,13 @@ export interface components {
         };
         /**
          * @description * `report` - Referto
+         *     * `prescription` - Ricetta
          *     * `nutrition` - Piano alimentare
          *     * `psychology` - Nota psicologica
          *     * `other` - Altro
          * @enum {string}
          */
-        UploadInputKindEnum: "report" | "nutrition" | "psychology" | "other";
+        UploadInputKindEnum: "report" | "prescription" | "nutrition" | "psychology" | "other";
         UploadInputRequest: {
             /** Format: binary */
             file: string;
@@ -1884,6 +1887,7 @@ export interface components {
             number: number;
             title: string;
             media_type: string;
+            readonly kind: string;
             size: number;
             /** Format: date-time */
             readonly created_at: string;

@@ -131,11 +131,27 @@ export function BookingPortal({organizations, english}: {organizations: string[]
         </button>}
       </li>)}</ul>
       <ul>{items.map(item => <li key={item.id}>{item.title}
-        {item.prescription_required ? t(' · Richiede verifica della ricetta', ' · Prescription verification required')
-          : item.available && <button type="button" onClick={() => void run(async () => {
-            await api('pharmacy/items/' + item.id + '/reserve/', {request_id: crypto.randomUUID(), quantity: 1});
+        {item.available && <form onSubmit={event => {
+          event.preventDefault();
+          const fields = new FormData(event.currentTarget);
+          const prescription_version = fields.get('prescription_version');
+          const nre = fields.get('nre');
+          void run(async () => {
+            await api('pharmacy/items/' + item.id + '/reserve/', {
+              request_id: crypto.randomUUID(), quantity: 1,
+              ...(prescription_version ? {prescription_version} : {}),
+              ...(nre ? {nre} : {}),
+            });
             await loadReservations();
-          })}>{t('Riserva una unità', 'Reserve one unit')}</button>}
+          });
+        }}>
+          {item.prescription_required && <>
+            <p>{t('La farmacia può confermare solo dopo la verifica della ricetta.', 'The pharmacy can confirm only after prescription verification.')}</p>
+            <label>{t('ID versione PDF della ricetta', 'Prescription PDF version ID')}<input name="prescription_version"/></label>
+            <label>{t('Numero ricetta elettronica', 'Electronic prescription number')}<input name="nre" maxLength={15}/></label>
+          </>}
+          <button>{t('Riserva una unità', 'Reserve one unit')}</button>
+        </form>}
       </li>)}</ul>
       <button type="button" onClick={() => void run(loadReservations)}>{t('Aggiorna richieste farmacia', 'Refresh pharmacy reservations')}</button>
       <ul>{reservations.map(row => <li key={row.id}>{row.id} · {stateLabel(row.state ?? '')}</li>)}</ul>
