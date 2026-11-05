@@ -140,6 +140,8 @@ Consegna `research-anonymization.md`; non dichiarare anonimi i dati pseudonimi.
 
 ## M8 — UX/UI completa
 
+Avviata con riepiloghi per ruolo, accessi rapidi da tastiera e manifest senza cache offline. Vedere il [design system](design-system.md).
+
 Dipende da M1–M7. Dashboard paziente, professionista, amministratore organizzativo,
 farmacia, ricercatore e amministratore piattaforma. Design system documentato,
 token, IT/EN, chiaro/scuro, mobile-first, stati vuoto/errore/caricamento e PWA.

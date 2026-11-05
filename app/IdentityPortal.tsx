@@ -1,7 +1,7 @@
 'use client';
 import {useEffect, useState, type FormEvent, type ReactNode} from 'react';
 import Link from 'next/link';
-import {api} from '../lib/api/client';
+import {api, ApiError} from '../lib/api/client';
 import type {components} from '../lib/api/schema';
 import {AnalysisMetrics, PublishedOpinions} from './ClinicalAnalysis';
 import {ResearchWorkspace} from './ResearchWorkspace';
@@ -116,7 +116,7 @@ export default function IdentityPortal() {
     }
     const url=new URL(window.location.href);setAction(url.searchParams.get('action')||'');setToken(new URLSearchParams(url.hash.slice(1)).get('token')||'');
 
-    }catch(e){setError(String(e));}finally{setLoading(false);}}void init();},[]);
+    }catch{setError('Impossibile caricare il portale. Ricarica la pagina e riprova.');}finally{setLoading(false);}}void init();},[]);
   useEffect(()=>{
     const updateToken=()=>setToken(new URLSearchParams(window.location.hash.slice(1)).get('token')||'');
     window.addEventListener('hashchange',updateToken);
@@ -133,18 +133,33 @@ export default function IdentityPortal() {
     }
     if(current.is_platform_admin){const r=await api<Page<Review>>('admin/verifications/');setReviews(r.results);setReviewNext(r.next);}
   }
-  async function run(job:()=>Promise<void>){setBusy(true);setError('');setMessage('');try{await job();}catch(e){setError(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
+  function errorMessage(error: unknown) {
+    const english = locale === 'en';
+    if (error instanceof ApiError) {
+      if (error.status === 429) return english ? 'Too many requests. Wait and try again.' : 'Troppe richieste. Attendi e riprova.';
+      if (error.status === 401 || error.status === 403) return english ? 'Access denied. Check your credentials or permissions.' : 'Accesso negato. Controlla credenziali o permessi.';
+      if (error.status === 400) return english ? 'Check the fields you entered and try again.' : 'Controlla i dati inseriti e riprova.';
+      if (error.status === 404 || error.status === 409) return english ? 'This action is no longer available. Refresh and try again.' : 'Operazione non più disponibile. Aggiorna e riprova.';
+    }
+    return english ? 'The service could not complete your request. Try again.' : 'Il servizio non ha completato la richiesta. Riprova.';
+  }
+  async function run(job:()=>Promise<void>){
+    setBusy(true);setError('');setMessage('');
+    try{await job();}catch(error){setError(errorMessage(error));}finally{setBusy(false);}
+  }
   function form(handler:(data:Record<string,string>)=>Promise<void>){return(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget).entries()) as Record<string,string>;void run(()=>handler(data));};}
   function card(title:string, children:ReactNode, id?:string){return <section className="identity-card" id={id} tabIndex={id ? -1 : undefined}><h2>{title}</h2>{children}</section>;}
   async function send(path:string,data:unknown){await api(path,data);setMessage(t.done);}
   if(loading)return <main className="identity"><p role="status">{t.loading}</p></main>;
-  return <main className="identity" lang={locale}><a className="workspace-skip" href="#portal-content">{locale==='it'?'Vai al contenuto':'Skip to content'}</a><header className="identity-hero"><div><p className="identity-brand"><span aria-hidden="true">✚</span> Clarìa</p><h1>{t.title}</h1><p>{t.intro}</p></div><div className="identity-controls"><ThemePicker english={locale==='en'}/><label>Lingua / Language<select value={locale} onChange={e=>setLocale(e.target.value as 'it'|'en')}><option value="it">Italiano</option><option value="en">English</option></select></label></div></header>
+  return <main className="identity" lang={locale}><a className="workspace-skip" href="#portal-content" onClick={event=>{
+      const content=document.getElementById('portal-content');
+      if(content){event.preventDefault();content.focus();content.scrollIntoView({block:'start'});}
+    }}>{locale==='it'?'Vai al contenuto':'Skip to content'}</a><header className="identity-hero"><div><p className="identity-brand"><span aria-hidden="true">✚</span> Clarìa</p><h1>{t.title}</h1><p>{t.intro}</p></div><div className="identity-controls"><ThemePicker english={locale==='en'}/><label>Lingua / Language<select value={locale} onChange={e=>setLocale(e.target.value as 'it'|'en')}><option value="it">Italiano</option><option value="en">English</option></select></label></div></header>
     {localMail&&!user&&<aside className="identity-notice">
       <strong>{locale==='it'?'Email di prova':'Development email'}</strong>
       <p>{locale==='it'?'In locale, verifica e recupero password arrivano in Mailpit. Se hai già creato l’account, usa «Reinvia verifica».':'Local verification and password reset messages go to Mailpit. If you already registered, use “Resend verification”.'}</p>
       <a href="http://localhost:8025" target="_blank" rel="noreferrer">{locale==='it'?'Apri Mailpit':'Open Mailpit'} ↗</a>
-    </aside>}{error&&<p role="alert" className="identity-error">{error}</p>}{message&&<p role="status">{message}</p>}
-    {busy&&<p role="status">{t.loading}</p>}
+    </aside>}{error&&<p role="alert" className="identity-error">{error}</p>}{(message||busy)&&<p role="status">{message||t.loading}</p>}
     <fieldset id="portal-content" tabIndex={-1} disabled={busy} aria-busy={busy} className="identity-body">
     {(['verify','reset','link'].includes(action))&&card(
       action==='verify'?(locale==='it'?'Verifica il tuo indirizzo email':'Verify your email address'):t.confirm,
@@ -154,9 +169,10 @@ export default function IdentityPortal() {
           await send(path,{...d,token:token.trim()});
         } catch(error) {
           if(action==='verify'&&error instanceof Error&&error.message.includes('Invalid or expired token')){
-            throw new Error(locale==='it'
+            setError(locale==='it'
               ? 'Questo link è scaduto o è già stato usato. Se non riesci ad accedere, usa «Reinvia verifica» e apri il messaggio più recente.'
               : 'This link has expired or was already used. If you cannot sign in, request another verification email and open the newest message.');
+            return;
           }
           throw error;
         }
@@ -179,15 +195,15 @@ export default function IdentityPortal() {
     {mode==='register'&&<label>{t.role}<select name="role">{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select></label>}
     <button>{mode==='register'?t.register:mode==='login'?t.login:t.forgot}</button></form><nav>{['login','register','reset'].filter(x=>x!==mode).map(x=><button type="button" key={x} onClick={()=>setMode(x)}>{x==='login'?t.login:x==='register'?t.register:t.forgot}</button>)}</nav>
     <details><summary>{t.resend}</summary><form onSubmit={form(async d=>{await api('auth/resend/',d);setMessage(checkEmail);})}><Field label={t.email} name="email" type="email"/><button>{t.resend}</button></form></details></>)}
-    {user&&<><section className="identity-account"><p>{user.email} · {t[user.role]}<br/><small>ID: {user.id}</small></p><button onClick={()=>void run(async()=>{await api('auth/logout/',{});setUser(null);setPatients([]);setOrganizations([]);setReviews([]);setShares([]);setConsentEvents([]);setAccessHistory([]);setNotifications([]);setOrg('');setOrgNext(null);setPatientNext(null);setReviewNext(null);setCodes([]);setUri('');})}>{t.logout}</button><button onClick={()=>void run(refresh)}>{t.refresh}</button></section>
+    {user&&<><section className="identity-account"><p>{user.email} · {t[user.role]}<br/><small>ID: {user.id}</small></p><button onClick={()=>void run(async()=>{await api('auth/logout/',{});setUser(null);setPatients([]);setOrganizations([]);setReviews([]);setShares([]);setConsentEvents([]);setAccessHistory([]);setNotifications([]);setOpenThread('');setMessageThreads({});setOrg('');setOrgNext(null);setPatientNext(null);setReviewNext(null);setCodes([]);setUri('');})}>{t.logout}</button><button onClick={()=>void run(refresh)}>{t.refresh}</button></section>
     {!user.mfa_enabled&&card(t.mfa,<><form onSubmit={form(async d=>{const result=await api<{uri:string}>('auth/mfa/setup/',d);setUri(result.uri);})}><Field label={t.password} name="password" type="password"/><button>{t.setup}</button></form>{uri&&<><p>{t.secret}</p><code className="identity-secret">{new URL(uri).searchParams.get('secret')}</code><form onSubmit={form(async d=>{const result=await api<{recovery_codes:string[]}>('auth/mfa/confirm/',d);setCodes(result.recovery_codes);setUri('');await refresh();})}><Field label={t.code} name="code"/><button>{t.confirm}</button></form></>}</>)}
     {user.mfa_enabled&&!user.mfa_verified&&card(t.mfa,<form onSubmit={form(async d=>{await api('auth/mfa/verify/',d);await refresh();})}><Field label={t.code} name="code"/><button>{t.verify}</button></form>)}
     {!!codes.length&&card(t.recovery,<ul>{codes.map(code=><li key={code}><code>{code}</code></li>)}</ul>)}
     {ready&&<>
       <WorkspaceOverview role={user.role} platform={user.is_platform_admin} selectedKind={organizations.find(item=>item.id===org)?.kind}
         english={locale==='en'} patients={patients.length} organizations={organizations.length}
-        notifications={notifications.filter(item=>!item.read_at).length}/>
-      {card(t.role,<form onSubmit={form(async d=>{await api('auth/profiles/',d);await session();setCodes([]);setMessage(t.back);})}><select name="role" aria-label={t.role}>{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select><button>{t.save}</button></form>)}
+        notifications={notifications.filter(item=>!item.read).length}/>
+      {card(t.role,<form onSubmit={form(async d=>{await api('auth/profiles/',d);setOpenThread('');setMessageThreads({});await session();setCodes([]);setMessage(t.back);})}><select name="role" aria-label={t.role}>{(['patient','professional','researcher','organization_admin'] as const).map(r=><option key={r} value={r}>{t[r]}</option>)}</select><button>{t.save}</button></form>)}
       {user.role==='professional'&&card(t.pending,<><p>{user.verification_status}</p><form onSubmit={form(async d=>{await send('professional/verification/',d);await refresh();})}><Field label={t.registry} name="register"/><Field label={t.license} name="license_number"/><button>{t.submit}</button></form></>)}
       {card(t.organizations,<><ul>{organizations.map(o=><li key={o.id}>{o.name} · {o.kind}<br/><small>{o.id}</small></li>)}</ul>{!organizations.length&&<p>{t.empty}</p>}{orgNext&&<button onClick={()=>void run(async()=>{const p=await api<Page<Org>>(nextPath(orgNext));setOrganizations([...organizations,...p.results]);setOrgNext(p.next);})}>{t.more}</button>}
       {['professional','organization_admin'].includes(user.role)&&<form onSubmit={form(async d=>{await send('organizations/',d);await refresh();})}><Field label={t.name} name="name"/><label>{t.kind}<select name="kind">{['hospital','clinic','practice','pharmacy','research'].map(k=><option key={k}>{k}</option>)}</select></label><button>{t.create}</button></form>}

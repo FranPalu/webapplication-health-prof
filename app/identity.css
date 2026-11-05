@@ -220,3 +220,93 @@
 .studio-theme .birth-details[open] .field { margin-top: 16px; margin-bottom: 0; }
 .studio-theme button:not(:disabled):hover { filter: brightness(.96); }
 .studio-theme .tabs button.selected { font-weight: 650; }
+
+/* Authenticated workspace */
+.identity .workspace-overview {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 16px;
+  padding: clamp(20px, 4vw, 36px);
+  background: linear-gradient(125deg, var(--surface), var(--wash));
+}
+.identity .workspace-kicker {
+  margin-bottom: 4px;
+  color: var(--link);
+  font-size: .78rem;
+  font-weight: 750;
+  letter-spacing: .065em;
+  text-transform: uppercase;
+}
+.identity .workspace-heading h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  line-height: 1.18;
+  letter-spacing: -.03em;
+}
+.identity .workspace-metrics, .identity .workspace-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.identity .workspace-metrics > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 5px 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.identity .workspace-metrics svg { color: var(--link); }
+.identity .workspace-metrics dt { color: var(--muted); font-size: .84rem; }
+.identity .workspace-metrics dd {
+  grid-column: 2;
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  font-weight: 750;
+}
+.identity .workspace-shortcuts a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-weight: 650;
+}
+.identity .workspace-shortcuts a:hover { background: var(--wash); }
+.identity .workspace-section { min-width: 0; }
+.identity [id^="workspace-"] { scroll-margin-top: 1rem; }
+.identity .workspace-skip {
+  position: absolute;
+  z-index: 10;
+  inset-inline-start: 1rem;
+  inset-block-start: 1rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+.identity .workspace-skip:not(:focus) { clip-path: inset(50%); }
+.identity textarea {
+  width: 100%;
+  min-height: 88px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+}
+.identity fieldset { min-inline-size: 0; }
+.identity .workspace-section :is(li, p, code) { overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .identity .workspace-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -188,3 +188,43 @@ test('patient grants and withdraws research consent from the portal', async ({pa
   await page.getByRole('button', {name:'Revoca consenso ricerca'}).click();
   await expect(page.getByText('Consenso assente', {exact:true})).toBeVisible();
 });
+
+test('workspace shortcuts support keyboard navigation and mobile layout in both themes', async ({page}) => {
+  const fixture = process.env.E2E_CLINICAL_FIXTURE;
+  test.skip(!fixture, 'Requires a linked synthetic patient.');
+  const account = JSON.parse(readFileSync(fixture!, 'utf8')) as {patient_email:string; patient_password:string};
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/');
+  await expect(page.getByRole('heading',{name:'Accedi',exact:true})).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('link',{name:'Vai al contenuto'})).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#portal-content')).toBeFocused();
+  await page.getByLabel('Email',{exact:true}).first().fill(account.patient_email);
+  await page.getByLabel('Password',{exact:true}).fill(account.patient_password);
+  await page.getByRole('button',{name:'Accedi',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Il mio percorso di cura'})).toBeVisible();
+  const shortcuts = page.getByRole('navigation',{name:'Accesso rapido'});
+  const appointments = shortcuts.getByRole('link',{name:'Prenotazioni e farmacia'});
+  for (const theme of ['light', 'dark']) {
+    await page.getByLabel('Aspetto').selectOption(theme);
+    await appointments.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#workspace-bookings')).toBeFocused();
+    await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);
+  }
+  await page.getByLabel('Lingua / Language').selectOption('en');
+  await expect(page.getByRole('heading',{name:'My care journey'})).toBeVisible();
+  await expect(page.getByRole('navigation',{name:'Quick navigation'})).toBeVisible();
+});
+
+test('app manifest points to public icons and does not register a worker', async ({page}) => {
+  await page.goto('/');
+  const manifestPath = await page.locator('link[rel="manifest"]').getAttribute('href');
+  expect(manifestPath).toBeTruthy();
+  const manifest = await (await page.request.get(manifestPath!)).json() as {display:string; start_url:string; icons:{src:string}[]};
+  expect(manifest.display).toBe('standalone');
+  expect(manifest.start_url).toBe('/');
+  for (const icon of manifest.icons) expect((await page.request.get(icon.src)).ok()).toBe(true);
+  expect(await page.evaluate(async () => (await navigator.serviceWorker?.getRegistrations())?.length ?? 0)).toBe(0);
+});

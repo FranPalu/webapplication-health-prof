@@ -83,13 +83,13 @@ jobs:
           curl -fsS http://localhost:8080/health/
           curl -fsS http://localhost:8080/api/v1/auth/session/
           docker compose --env-file .env.dev run --rm -e CLINICAL_INTEGRATION_TEST=1 backend pytest -p no:cacheprovider
-      - name: Clinical browser smoke test
+      - name: Browser smoke test with synthetic clinical fixture
         run: |
           fixture="$(mktemp)"
           trap 'rm -f "$fixture"' EXIT
           docker compose --env-file .env.dev exec -T backend python manage.py shell -v 0 \
             < backend/tests/clinical_browser_fixture.py > "$fixture"
           E2E_CLINICAL_FIXTURE="$fixture" E2E_BASE_URL=http://localhost:8080 \
-            pnpm exec playwright test -g 'professional uploads'
+            pnpm exec playwright test -g 'professional uploads|patient grants|workspace shortcuts'
       - if: always()
         run: docker compose --env-file .env.dev down

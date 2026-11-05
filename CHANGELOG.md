@@ -111,3 +111,8 @@
 
 - ETL schedulato, terminologie con provenienza e soglia minima su account distinti.
 - Approvazioni e revoche per organizzazioni di ricerca, dashboard ed export CSV, Parquet e FHIR vincolati a uno snapshot.
+
+## M8 — Avvio del portale per ruolo
+
+- Riepiloghi e accessi rapidi per i sei profili, navigazione da tastiera e manifest senza cache offline.
+- Messaggi di errore leggibili e azzeramento dei thread al cambio di profilo o all'uscita.
