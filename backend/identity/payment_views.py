@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 
-from identity.models import Membership, Patient, PaymentOrder, PaymentPrice
+from identity.models import AppointmentBooking, Membership, Patient, PaymentOrder, PaymentPrice
 from identity.security import audit, rate_limit
 from identity.views import InputView
 
@@ -117,6 +117,8 @@ class RefundView(InputView):
             ),
             pk=order_id,
         )
+        if AppointmentBooking.objects.filter(payment=order, cancelled_at__isnull=True).exists():
+            return Response({"code": "cancel_booking_first"}, status=409)
         if order.simulation_status == "paid":
             order.simulation_status = "refunded"
             order.save(update_fields=["simulation_status"])

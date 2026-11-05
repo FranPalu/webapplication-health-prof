@@ -83,3 +83,8 @@
 ## 2026-11-05 — Pagamenti simulati internamente
 
 - Sostituito Checkout Connect con ordini, esiti e rimborsi simulati in Clarìa.
+
+## 2026-11-05 — Avvio M6
+
+- API per disponibilità, prenotazioni e cancellazioni con pagamento e rimborso simulati.
+- Catalogo farmacia, riserva delle scorte, conferma o rifiuto con notifica.

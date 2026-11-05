@@ -3,7 +3,15 @@ from django.http import JsonResponse
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView
 
-from identity import analysis_views, clinical_views, fhir, payment_views, views
+from identity import (
+    analysis_views,
+    appointment_views,
+    clinical_views,
+    fhir,
+    payment_views,
+    pharmacy_views,
+    views,
+)
 from identity.security import Ready
 
 
@@ -87,4 +95,25 @@ urlpatterns += [
     endpoint("payments/checkout/", payment_views.CheckoutView),
     endpoint("payments/orders/", payment_views.OrdersView),
     endpoint("payments/orders/<uuid:order_id>/refund/", payment_views.RefundView),
+]
+
+urlpatterns += [
+    endpoint("organizations/<uuid:org_id>/appointment-slots/", appointment_views.SlotsView),
+    endpoint("appointments/slots/<uuid:slot_id>/book/", appointment_views.BookSlotView),
+    endpoint("appointments/bookings/", appointment_views.MyBookingsView),
+    endpoint(
+        "appointments/bookings/<uuid:booking_id>/cancel/", appointment_views.CancelBookingView
+    ),
+]
+
+urlpatterns += [
+    endpoint("organizations/<uuid:org_id>/pharmacy/catalog/", pharmacy_views.CatalogView),
+    endpoint(
+        "organizations/<uuid:org_id>/pharmacy/reservations/", pharmacy_views.PharmacyQueueView
+    ),
+    endpoint("pharmacy/items/<uuid:item_id>/reserve/", pharmacy_views.ReserveView),
+    endpoint("pharmacy/reservations/", pharmacy_views.ReservationListView),
+    endpoint(
+        "pharmacy/reservations/<uuid:reservation_id>/decision/", pharmacy_views.PharmacyDecisionView
+    ),
 ]

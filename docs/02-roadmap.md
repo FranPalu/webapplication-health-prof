@@ -110,6 +110,8 @@ valori ENPAB legacy non si applicano a professioni/regimi diversi per default.
 
 ## M6 — Prenotazioni e farmacia
 
+Avviata con API di disponibilità, prenotazione e catalogo farmacia. Vedere [prima consegna M6](07-bookings-pharmacy.md).
+
 Dipende da M5. Disponibilità per professionista/struttura, visite/esami,
 pagamento anticipato o in loco, cancellazioni, riprogrammazione, email/SMS.
 Migrazione agenda/reminder. Farmacie come organizzazioni, cataloghi CSV/API,

@@ -494,3 +494,62 @@ class PaymentEvent(models.Model):
     provider_id = models.CharField(max_length=200, unique=True)
     order = models.ForeignKey(PaymentOrder, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AppointmentSlot(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    professional = models.ForeignKey(User, on_delete=models.PROTECT)
+    title = models.CharField(max_length=120)
+    starts_at = models.DateTimeField()
+    ends_at = models.DateTimeField()
+    price = models.ForeignKey(PaymentPrice, null=True, blank=True, on_delete=models.PROTECT)
+
+
+class AppointmentBooking(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    slot = models.ForeignKey(AppointmentSlot, on_delete=models.PROTECT, related_name="bookings")
+    payer = models.ForeignKey(User, on_delete=models.PROTECT)
+    payment = models.OneToOneField(PaymentOrder, null=True, blank=True, on_delete=models.PROTECT)
+    cancelled_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["slot"],
+                condition=models.Q(cancelled_at__isnull=True),
+                name="appointment_one_active_booking",
+            )
+        ]
+
+
+class PharmacyItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    pharmacy = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    sku = models.CharField(max_length=64)
+    title = models.CharField(max_length=120)
+    stock = models.PositiveIntegerField()
+    prescription_required = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["pharmacy", "sku"], name="pharmacy_unique_sku")
+        ]
+
+
+class PharmacyReservation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    item = models.ForeignKey(PharmacyItem, on_delete=models.PROTECT)
+    requester = models.ForeignKey(User, on_delete=models.PROTECT)
+    request_id = models.UUIDField()
+    quantity = models.PositiveIntegerField()
+    state = models.CharField(max_length=12, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["requester", "request_id"], name="pharmacy_reservation_idempotency"
+            )
+        ]

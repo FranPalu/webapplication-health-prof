@@ -57,6 +57,86 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
           description: ''
+  /api/v1/appointments/bookings/:
+    get:
+      operationId: appointments_bookings_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - appointments
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBookingOutputList'
+          description: ''
+  /api/v1/appointments/bookings/{booking_id}/cancel/:
+    post:
+      operationId: appointments_bookings_cancel_create
+      parameters:
+      - in: path
+        name: booking_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - appointments
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingOutput'
+          description: ''
+  /api/v1/appointments/slots/{slot_id}/book/:
+    post:
+      operationId: appointments_slots_book_create
+      parameters:
+      - in: path
+        name: slot_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - appointments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookingInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookingInputRequest'
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingOutput'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingOutput'
+          description: ''
   /api/v1/auth/login/:
     post:
       operationId: auth_login_create
@@ -1145,6 +1225,65 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/organizations/{org_id}/appointment-slots/:
+    get:
+      operationId: organizations_appointment_slots_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSlotOutputList'
+          description: ''
+    post:
+      operationId: organizations_appointment_slots_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlotInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SlotInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SlotInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotOutput'
+          description: ''
   /api/v1/organizations/{org_id}/memberships/:
     post:
       operationId: organizations_memberships_create
@@ -1401,6 +1540,92 @@ paths:
               schema:
                 $ref: '#/components/schemas/PriceOutput'
           description: ''
+  /api/v1/organizations/{org_id}/pharmacy/catalog/:
+    get:
+      operationId: organizations_pharmacy_catalog_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedItemOutputList'
+          description: ''
+    post:
+      operationId: organizations_pharmacy_catalog_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ItemInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ItemInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemOutput'
+          description: ''
+  /api/v1/organizations/{org_id}/pharmacy/reservations/:
+    get:
+      operationId: organizations_pharmacy_reservations_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationOutputList'
+          description: ''
   /api/v1/patients/:
     get:
       operationId: patients_list
@@ -1537,6 +1762,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderOutput'
+          description: ''
+  /api/v1/pharmacy/items/{item_id}/reserve/:
+    post:
+      operationId: pharmacy_items_reserve_create
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - pharmacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReserveInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReserveInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationOutput'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationOutput'
+          description: ''
+  /api/v1/pharmacy/reservations/:
+    get:
+      operationId: pharmacy_reservations_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - pharmacy
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationOutputList'
+          description: ''
+  /api/v1/pharmacy/reservations/{reservation_id}/decision/:
+    post:
+      operationId: pharmacy_reservations_decision_create
+      parameters:
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - pharmacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PharmacyDecisionInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PharmacyDecisionInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PharmacyDecisionInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationOutput'
           description: ''
   /api/v1/professional/verification/:
     post:
@@ -1783,6 +2101,38 @@ components:
       required:
       - decision
       - text
+    BookingInputRequest:
+      type: object
+      properties:
+        payment:
+          type: string
+          format: uuid
+    BookingOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slot:
+          type: string
+          format: uuid
+        payment:
+          type: string
+          format: uuid
+          nullable: true
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - slot
     BreakGlassInputRequest:
       type: object
       properties:
@@ -1958,6 +2308,51 @@ components:
           nullable: true
       required:
       - id
+      - title
+    ItemInputRequest:
+      type: object
+      properties:
+        sku:
+          type: string
+          minLength: 1
+          maxLength: 64
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        stock:
+          type: integer
+          maximum: 100000
+          minimum: 0
+        prescription_required:
+          type: boolean
+          default: true
+      required:
+      - sku
+      - stock
+      - title
+    ItemOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        sku:
+          type: string
+          maxLength: 64
+        title:
+          type: string
+          maxLength: 120
+        available:
+          type: boolean
+          readOnly: true
+        prescription_required:
+          type: boolean
+      required:
+      - available
+      - id
+      - sku
       - title
     JobOutput:
       type: object
@@ -2172,6 +2567,29 @@ components:
         * `paid` - paid
         * `declined` - declined
         * `cancelled` - cancelled
+    PaginatedBookingOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingOutput'
     PaginatedFolderOutputList:
       type: object
       required:
@@ -2195,6 +2613,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FolderOutput'
+    PaginatedItemOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemOutput'
     PaginatedJobOutputList:
       type: object
       required:
@@ -2310,6 +2751,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PriceOutput'
+    PaginatedReservationOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReservationOutput'
     PaginatedShareOutputList:
       type: object
       required:
@@ -2333,6 +2797,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ShareOutput'
+    PaginatedSlotOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SlotOutput'
     PaginatedVerificationOutputList:
       type: object
       required:
@@ -2449,6 +2936,21 @@ components:
         * `download` - download
         * `comment` - comment
         * `reshare` - reshare
+    PharmacyDecisionEnum:
+      enum:
+      - confirmed
+      - rejected
+      type: string
+      description: |-
+        * `confirmed` - confirmed
+        * `rejected` - rejected
+    PharmacyDecisionInputRequest:
+      type: object
+      properties:
+        decision:
+          $ref: '#/components/schemas/PharmacyDecisionEnum'
+      required:
+      - decision
     PriceOutput:
       type: object
       properties:
@@ -2578,6 +3080,45 @@ components:
       - effective_at
       - observations
       - title
+    ReservationOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        item:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        state:
+          type: string
+          maxLength: 12
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - item
+      - quantity
+    ReserveInputRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          maximum: 10
+          minimum: 1
+      required:
+      - quantity
+      - request_id
     ResetInputRequest:
       type: object
       properties:
@@ -2801,6 +3342,59 @@ components:
         * `item` - Item
         * `folder` - Folder
         * `chart` - Chart
+    SlotInputRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        professional:
+          type: string
+          format: uuid
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        price:
+          type: string
+          format: uuid
+      required:
+      - ends_at
+      - professional
+      - starts_at
+      - title
+    SlotOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 120
+        professional:
+          type: string
+          format: uuid
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        price:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - ends_at
+      - id
+      - professional
+      - starts_at
+      - title
     StatusOutput:
       type: object
       properties:

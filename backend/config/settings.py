@@ -102,6 +102,7 @@ SPECTACULAR_SETTINGS = {
         "LocaleEnum": ["it", "en"],
         "DecisionEnum": ["granted", "revoked"],
         "AnalysisDecisionEnum": ["accept", "modify", "reject"],
+        "PharmacyDecisionEnum": ["confirmed", "rejected"],
     },
 }
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")

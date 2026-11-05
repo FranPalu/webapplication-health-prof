@@ -34,8 +34,9 @@ PostgreSQL temporaneo. La verifica della CI GitHub resta separata.
 - **L08 / M5 in corso:** simulazione interna via API, inclusi rimborsi integrali.
   Restano portale, documenti contabili e integrazione reale.
   Vedere [simulazione M5](06-payments-sandbox.md).
-- **L09 / M6:** portale paziente è un'anteprima interna; mancano prenotazione
-  autonoma, farmacia, validazione ricette ufficiale e ricerca geografica.
+- **L09 / M6 in corso:** prenotazioni e farmacia disponibili via API. Restano
+  portale, riprogrammazione, reminder, import legacy/CSV, riferimenti ricetta e
+  ricerca geografica. Vedere [prima consegna M6](07-bookings-pharmacy.md).
 - **L10 / M7:** nessun archivio ricerca, anonimizzazione validata o catalogo.
   Pseudonimi non equivalgono ad anonimato; export già scaricati non sono recuperabili
   tecnicamente tramite una semplice revoca.

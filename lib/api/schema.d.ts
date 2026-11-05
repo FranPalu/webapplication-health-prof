@@ -36,6 +36,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/appointments/bookings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["appointments_bookings_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/appointments/bookings/{booking_id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["appointments_bookings_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/appointments/slots/{slot_id}/book/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["appointments_slots_book_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login/": {
         parameters: {
             query?: never;
@@ -644,6 +692,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations/{org_id}/appointment-slots/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_appointment_slots_list"];
+        put?: never;
+        post: operations["organizations_appointment_slots_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations/{org_id}/memberships/": {
         parameters: {
             query?: never;
@@ -740,6 +804,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations/{org_id}/pharmacy/catalog/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_pharmacy_catalog_list"];
+        put?: never;
+        post: operations["organizations_pharmacy_catalog_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{org_id}/pharmacy/reservations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_pharmacy_reservations_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patients/": {
         parameters: {
             query?: never;
@@ -830,6 +926,54 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["payments_orders_refund_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pharmacy/items/{item_id}/reserve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pharmacy_items_reserve_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pharmacy/reservations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["pharmacy_reservations_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pharmacy/reservations/{reservation_id}/decision/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pharmacy_reservations_decision_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -956,6 +1100,22 @@ export interface components {
             /** @default false */
             confirmed: boolean;
         };
+        BookingInputRequest: {
+            /** Format: uuid */
+            payment?: string;
+        };
+        BookingOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            slot: string;
+            /** Format: uuid */
+            payment?: string | null;
+            /** Format: date-time */
+            cancelled_at?: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         BreakGlassInputRequest: {
             /** Format: uuid */
             patient: string;
@@ -1027,6 +1187,21 @@ export interface components {
             title: string;
             /** Format: uuid */
             parent?: string | null;
+        };
+        ItemInputRequest: {
+            sku: string;
+            title: string;
+            stock: number;
+            /** @default true */
+            prescription_required: boolean;
+        };
+        ItemOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            sku: string;
+            title: string;
+            readonly available: boolean;
+            prescription_required?: boolean;
         };
         JobOutput: {
             /** Format: uuid */
@@ -1121,6 +1296,21 @@ export interface components {
          * @enum {string}
          */
         OutcomeEnum: "paid" | "declined" | "cancelled";
+        PaginatedBookingOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["BookingOutput"][];
+        };
         PaginatedFolderOutputList: {
             /** @example 123 */
             count: number;
@@ -1135,6 +1325,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["FolderOutput"][];
+        };
+        PaginatedItemOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ItemOutput"][];
         };
         PaginatedJobOutputList: {
             /** @example 123 */
@@ -1211,6 +1416,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["PriceOutput"][];
         };
+        PaginatedReservationOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ReservationOutput"][];
+        };
         PaginatedShareOutputList: {
             /** @example 123 */
             count: number;
@@ -1225,6 +1445,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["ShareOutput"][];
+        };
+        PaginatedSlotOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["SlotOutput"][];
         };
         PaginatedVerificationOutputList: {
             /** @example 123 */
@@ -1282,6 +1517,15 @@ export interface components {
          * @enum {string}
          */
         PermissionsEnum: "view" | "download" | "comment" | "reshare";
+        /**
+         * @description * `confirmed` - confirmed
+         *     * `rejected` - rejected
+         * @enum {string}
+         */
+        PharmacyDecisionEnum: "confirmed" | "rejected";
+        PharmacyDecisionInputRequest: {
+            decision: components["schemas"]["PharmacyDecisionEnum"];
+        };
         PriceOutput: {
             /** Format: uuid */
             readonly id: string;
@@ -1330,6 +1574,21 @@ export interface components {
             /** Format: date-time */
             effective_at: string;
             observations: components["schemas"]["ObservationInputRequest"][];
+        };
+        ReservationOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            item: string;
+            quantity: number;
+            state?: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ReserveInputRequest: {
+            /** Format: uuid */
+            request_id: string;
+            quantity: number;
         };
         ResetInputRequest: {
             token: string;
@@ -1423,6 +1682,30 @@ export interface components {
          * @enum {string}
          */
         ShareOutputScopeEnum: "item" | "folder" | "chart";
+        SlotInputRequest: {
+            title: string;
+            /** Format: uuid */
+            professional: string;
+            /** Format: date-time */
+            starts_at: string;
+            /** Format: date-time */
+            ends_at: string;
+            /** Format: uuid */
+            price?: string;
+        };
+        SlotOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            title: string;
+            /** Format: uuid */
+            professional: string;
+            /** Format: date-time */
+            starts_at: string;
+            /** Format: date-time */
+            ends_at: string;
+            /** Format: uuid */
+            price?: string | null;
+        };
         StatusOutput: {
             status: string;
         };
@@ -1570,6 +1853,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
+    appointments_bookings_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBookingOutputList"];
+                };
+            };
+        };
+    };
+    appointments_bookings_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOutput"];
+                };
+            };
+        };
+    };
+    appointments_slots_book_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["BookingInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BookingInputRequest"];
+                "multipart/form-data": components["schemas"]["BookingInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOutput"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOutput"];
                 };
             };
         };
@@ -2638,6 +2999,57 @@ export interface operations {
             };
         };
     };
+    organizations_appointment_slots_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSlotOutputList"];
+                };
+            };
+        };
+    };
+    organizations_appointment_slots_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SlotInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SlotInputRequest"];
+                "multipart/form-data": components["schemas"]["SlotInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlotOutput"];
+                };
+            };
+        };
+    };
     organizations_memberships_create: {
         parameters: {
             query?: never;
@@ -2845,6 +3257,81 @@ export interface operations {
             };
         };
     };
+    organizations_pharmacy_catalog_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedItemOutputList"];
+                };
+            };
+        };
+    };
+    organizations_pharmacy_catalog_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ItemInputRequest"];
+                "multipart/form-data": components["schemas"]["ItemInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemOutput"];
+                };
+            };
+        };
+    };
+    organizations_pharmacy_reservations_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedReservationOutputList"];
+                };
+            };
+        };
+    };
     patients_list: {
         parameters: {
             query?: {
@@ -2983,6 +3470,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderOutput"];
+                };
+            };
+        };
+    };
+    pharmacy_items_reserve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReserveInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReserveInputRequest"];
+                "multipart/form-data": components["schemas"]["ReserveInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationOutput"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationOutput"];
+                };
+            };
+        };
+    };
+    pharmacy_reservations_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedReservationOutputList"];
+                };
+            };
+        };
+    };
+    pharmacy_reservations_decision_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reservation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PharmacyDecisionInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PharmacyDecisionInputRequest"];
+                "multipart/form-data": components["schemas"]["PharmacyDecisionInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationOutput"];
                 };
             };
         };
