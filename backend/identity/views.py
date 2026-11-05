@@ -958,14 +958,15 @@ class BreakGlassView(InputView):
         data = self.data(request)
         if not verified_professional(request.user) or len(data["reason"].strip()) < 15:
             raise PermissionDenied("Verified professional and a specific emergency reason required")
-        patient = get_object_or_404(Patient, pk=data["patient"])
-        membership = org_member(request.user, patient.organization)
-        if (
-            not membership
-            or membership.role not in ("professional", "admin")
-            or not membership.organization.break_glass_enabled
-        ):
-            raise PermissionDenied()
+        organizations = Membership.objects.filter(
+            user=request.user,
+            active=True,
+            role__in=["professional", "admin"],
+            organization__break_glass_enabled=True,
+        ).values("organization_id")
+        patient = get_object_or_404(
+            Patient.objects.filter(organization_id__in=organizations), pk=data["patient"]
+        )
         now = timezone.now()
         entry = BreakGlassAccess.objects.create(
             patient=patient,

@@ -357,6 +357,8 @@ class ClinicalDocumentVersion(models.Model):
     key_id = models.CharField(max_length=255, blank=True)
     purged_at = models.DateTimeField(null=True)
     search_tokens = models.JSONField(default=list)
+    offload_after = models.DateTimeField(default=timezone.now)
+    offload_failures = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

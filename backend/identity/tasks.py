@@ -6,22 +6,48 @@ from identity.clinical_storage import offload
 from identity.models import ClinicalDocumentVersion
 
 
-@shared_task(
-    ignore_result=True,
-    autoretry_for=(BotoCoreError, ClientError, DocumentUnavailable),
-    retry_backoff=True,
-    max_retries=5,
-)
+@shared_task(ignore_result=True)
 def offload_clinical_version(version_id):
-    offload(version_id)
+    from datetime import timedelta
+
+    from django.db.models import F
+    from django.utils import timezone
+
+    try:
+        offload(version_id)
+    except (BotoCoreError, ClientError, DocumentUnavailable):
+        staged = ClinicalDocumentVersion.objects.filter(
+            pk=version_id, object_key="", purged_at__isnull=True
+        )
+        failures = staged.values_list("offload_failures", flat=True).first()
+        if failures is not None:
+            staged.update(
+                offload_after=timezone.now() + timedelta(minutes=2 ** min(failures + 1, 8)),
+                offload_failures=F("offload_failures") + 1,
+            )
 
 
 @shared_task(ignore_result=True)
 def reconcile_clinical_storage():
-    staged = ClinicalDocumentVersion.objects.filter(object_key="", purged_at__isnull=True).order_by(
-        "created_at"
-    )
-    for version_id in staged.values_list("pk", flat=True)[:100]:
+    from datetime import timedelta
+
+    from django.db import transaction
+    from django.utils import timezone
+
+    with transaction.atomic():
+        now = timezone.now()
+        staged = (
+            ClinicalDocumentVersion.objects.filter(
+                object_key="", purged_at__isnull=True, offload_after__lte=now
+            )
+            .select_for_update(skip_locked=True)
+            .order_by("offload_after", "pk")
+        )
+        ids = list(staged.values_list("pk", flat=True)[:100])
+        ClinicalDocumentVersion.objects.filter(pk__in=ids).update(
+            offload_after=now + timedelta(minutes=5)
+        )
+    for version_id in ids:
         offload_clinical_version.delay(str(version_id))
 
 
@@ -79,7 +105,8 @@ def run_clinical_analysis(job_id):
         if hashlib.sha256(content).hexdigest() != job.input_hash:
             raise ValueError("Input mismatch")
         pages = pages_from(content, job.version.media_type)
-        rows = extract(pages)
+        notices: set[str] = set()
+        rows = extract(pages, notices=notices)
         ocr_used = any(page[1] == "ocr" for page in pages)
         confidence = [
             {"page": number, "value": page[2], "source": "tesseract_mean_word_confidence"}
@@ -90,7 +117,8 @@ def run_clinical_analysis(job_id):
             "label": DISCLAIMER,
             "rows": rows,
             "ocr": OCR_WEIGHTS if ocr_used else {},
-            "summary": summary(rows),
+            "summary": summary(rows) if not notices else None,
+            "notices": sorted(notices),
             "confidence": {"value": None, "source": "not_calibrated", "ocr_pages": confidence},
         }
         sealed = encode(result, organization.pk)

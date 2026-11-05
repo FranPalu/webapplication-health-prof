@@ -179,3 +179,69 @@ def test_concurrent_rejections_can_only_record_one_review(scenario):
     assert AnalysisReview.objects.get(job_id=job_id).decision == "reject"
     assert not AnalysisOpinion.objects.filter(review__job_id=job_id).exists()
     assert patient_browser.get(f"clinical/patients/{record.pk}/opinions/").data["count"] == 0
+
+
+def test_extraction_reports_limits():
+    notices: set[str] = set()
+    rows = extract([("123\n" * 1001, "embedded")], notices=notices)
+    assert len(rows) == 100
+    assert notices == {"page_line_limit", "evidence_limit"}
+
+
+def test_source_purge_erases_analysis_payloads(scenario):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from identity.clinical_storage import maintain_version
+    from identity.models import AnalysisReview
+
+    author, _, _, version = scenario
+    reviewer = signed(author)
+    job_id = reviewer.post(f"clinical/versions/{version.pk}/analysis/", {}).data["id"]
+    run_clinical_analysis(job_id)
+    response = reviewer.post(
+        f"clinical/analysis/{job_id}/review/",
+        {
+            "decision": "modify",
+            "text": "Synthetic opinion",
+            "confirmed": True,
+        },
+    )
+    assert response.status_code == 201
+    opinion = AnalysisOpinion.objects.get()
+    attestation = opinion.attestation_hash
+    document = version.document
+    document.deleted_at = timezone.now() - timedelta(days=2)
+    document.save(update_fields=["deleted_at"])
+    with patch("identity.clinical_storage.delete_object"):
+        maintain_version(version.pk, cutoff=timezone.now() - timedelta(days=1))
+    for row in (
+        AnalysisDraft.objects.get(),
+        AnalysisReview.objects.get(),
+        AnalysisOpinion.objects.get(),
+    ):
+        assert not bytes(row.ciphertext) and not bytes(row.wrapped_key)
+    assert AnalysisOpinion.objects.get().attestation_hash == attestation
+
+
+def test_failed_offload_leaves_next_document_eligible(scenario):
+    from identity.clinical import DocumentUnavailable
+    from identity.tasks import offload_clinical_version, reconcile_clinical_storage
+
+    _, _, _, version = scenario
+    next_version = ClinicalDocumentVersion.objects.create(
+        document=version.document,
+        number=2,
+        title="Next",
+        media_type=version.media_type,
+        size=0,
+        sha256="",
+        ciphertext=b"",
+        wrapped_key=b"",
+    )
+    with patch("identity.tasks.offload", side_effect=DocumentUnavailable):
+        offload_clinical_version(str(version.pk))
+    with patch("identity.tasks.offload_clinical_version.delay") as dispatch:
+        reconcile_clinical_storage()
+        dispatch.assert_called_once_with(str(next_version.pk))

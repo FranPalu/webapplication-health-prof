@@ -50,11 +50,18 @@ def classify(value, lower, upper, operator):
     return "within"
 
 
-def extract(pages):
+def extract(pages, *, notices=None):
     rows: list[dict] = []
     for page, item in enumerate(pages, 1):
         text, source = item[:2]
-        for number, line in enumerate(text.splitlines()[:1000], 1):
+        lines = text.splitlines()
+        if notices is not None and len(lines) > 1000:
+            notices.add("page_line_limit")
+        for number, line in enumerate(lines[:1000], 1):
+            if len(rows) >= 100:
+                if notices is not None:
+                    notices.add("evidence_limit")
+                return rows
             clean = line.strip().casefold()
             analyte = next((name for name in UNITS if clean.startswith(name + " ")), None)
             if not analyte:
@@ -95,8 +102,6 @@ def extract(pages):
                             flag=classify(value, lower, upper, match["operator"]),
                         )
             rows.append(row)
-            if len(rows) >= 100:
-                return rows
     return rows
 
 

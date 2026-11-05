@@ -466,9 +466,13 @@ def test_break_glass_is_mfa_gated_reasoned_and_audited():
     org = org_for(professional)
     p = patient(org)
     reason = "Urgent emergency assessment while normal access is unavailable"
-    assert b.post("break-glass/", {"patient": str(p.id), "reason": reason}).status_code == 403
+    assert b.post("break-glass/", {"patient": str(p.id), "reason": reason}).status_code == 404
     org.break_glass_enabled = True
     org.save(update_fields=["break_glass_enabled"])
+    outsider = patient(org_for(user("another-tenant@patients.example"), "Other tenant"))
+    assert (
+        b.post("break-glass/", {"patient": str(outsider.pk), "reason": reason}).status_code == 404
+    )
     rejected = b.post("break-glass/", {"patient": str(p.id), "reason": "emergency"})
     assert rejected.status_code == 403
     granted = b.post(

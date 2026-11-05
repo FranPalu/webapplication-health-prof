@@ -68,3 +68,10 @@
   passati con suite reminder bloccata dal runtime e controlli SQLite superati.
 - Nessuna modifica applicativa, migrazione o integrazione attivata.
 - M1 resta subordinata a «GO M1».
+
+## 2026-11-05 — Correzioni della revisione M1–M4
+
+- Il purge elimina anche chiavi e contenuti derivati dell’analisi, conservando la prova dell’attestazione.
+- L’accesso di emergenza risolve il paziente entro le organizzazioni ammesse.
+- I trasferimenti S3 falliti rientrano in coda con attesa progressiva. Le nuove versioni restano elaborabili.
+- L’analisi segnala i limiti di estrazione e omette il riepilogo automatico quando le evidenze sono incomplete.

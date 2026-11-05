@@ -10,7 +10,7 @@ type Evidence = {
   analyte?: string; value?: string; operator?: string; unit?: string; low?: string; high?: string;
 };
 type JobDetail = Job & {
-  draft?: {rows: Evidence[]};
+  draft?: {rows: Evidence[]; notices?: string[]};
   suggestion?: string;
   disclaimer?: string;
   decision?: string;
@@ -88,6 +88,10 @@ export function ClinicalAnalysis({version, english}: {version: string; english: 
     {job && <p role="status">{states[job.state ?? ''] ?? job.state}</p>}
     {job?.draft && <>
       <p><strong>{job.disclaimer}</strong></p>
+      {!!job.draft.notices?.length && <p role="alert">{t(
+        'Estrazione incompleta: sono stati raggiunti i limiti di lettura. Verifica tutte le righe nel referto originale prima di attestare il parere.',
+        'Incomplete extraction: reading limits were reached. Check all rows in the original report before attesting the opinion.',
+      )}</p>}
       {job.draft.rows.length === 0 && <p>{t('Nessuna riga riconosciuta. Verifica il documento originale.', 'No rows recognized. Check the original document.')}</p>}
       <ul>{job.draft.rows.map(row => <li key={row.id}>
         {t('Pagina', 'Page')} {row.page}, {t('riga', 'line')} {row.line} · {row.source === 'ocr' ? 'OCR' : t('Testo PDF', 'PDF text')} · {row.analyte}
