@@ -1,5 +1,30 @@
 import { expect, test } from '@playwright/test';
 
+test('clinical demo shows synthetic imaging and keeps drafts in the physician view', async ({page}) => {
+  await page.setViewportSize({width:320, height:800});
+  await page.goto('/demo');
+  const profile = page.getByLabel('Profilo dimostrativo');
+  await profile.selectOption('physician');
+  await expect(page.getByRole('heading', {name:'Analisi automatica preliminare – non è una diagnosi'})).toBeVisible();
+  await expect(page.getByRole('img', {name:'Schema di una sezione assiale del torace'})).toBeVisible();
+  await page.getByLabel('Sezione o fotogramma').selectOption('0');
+  await expect(page.getByText('TC torace · Apice', {exact:true})).toBeVisible();
+  await page.getByLabel('Esame illustrativo').selectOption('eco');
+  await expect(page.getByRole('img', {name:'Schema di un fotogramma ecocardiografico'})).toBeVisible();
+  await page.getByLabel('Mostra il marcatore illustrativo').uncheck();
+  await expect(page.getByText('Ecocardiogramma · Fotogramma 2', {exact:true})).toBeVisible();
+  await expect(page.getByText(/la misura non viene pubblicata/)).toBeVisible();
+  await expect(page.locator('body')).toHaveJSProperty('scrollWidth', 320);
+  await profile.selectOption('nurse');
+  await expect(page.getByRole('heading', {name:'Consegne infermieristiche'})).toBeVisible();
+  await profile.selectOption('research');
+  await expect(page.getByText('28 account distinti')).toBeVisible();
+  await expect(page.getByText(/DEMO-042 presa in carico/)).toHaveCount(0);
+  await expect(page.getByRole('heading', {name:'Analisi automatica preliminare – non è una diagnosi'})).toHaveCount(0);
+  await profile.selectOption('pharmacy');
+  await expect(page.getByRole('heading', {name:'Banco e prenotazioni'})).toBeVisible();
+});
+
 test('demo switches profiles and remembers the selected theme', async ({ page }) => {
   await page.goto('/demo');
   const profile = page.getByLabel('Profilo dimostrativo');

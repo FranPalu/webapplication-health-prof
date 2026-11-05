@@ -3,26 +3,47 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { ThemePicker } from '../PortalTheme';
+import { ImagingDemo } from './ImagingDemo';
 
 const profiles = {
   patient: {
     label: 'Paziente',
     title: 'Il mio percorso di cura',
-    intro: 'Un posto per ritrovare chi ti segue e gestire i tuoi consensi.',
+    intro: 'Marta Riva · 58 anni · Caso sintetico DEMO-042',
     cards: [
-      ['Équipe di cura', 'Centro Clarìa', 'Struttura dimostrativa collegata al tuo profilo.'],
-      ['Condivisioni', '1 richiesta in attesa', 'Una richiesta può essere autorizzata o revocata dal paziente.'],
-      ['Storico accessi', 'Ultimo accesso ieri', 'Consulta gli accessi registrati alla tua anagrafica.'],
+      ['La tua équipe', 'Medicina e infermieristica', 'Elena Ferri, medico referente · Luca Serra, infermiere di percorso.'],
+      ['Esami pubblicati', 'TC ed ecocardiogramma', 'La sintesi della TC è stata rivista dal radiologo. La cardiologa ha pubblicato una nota sulla qualità delle immagini eco.'],
+      ['Le tue autorizzazioni', '1 richiesta in attesa', 'La condivisione con una seconda struttura attende una decisione.'],
     ],
   },
   professional: {
     label: 'Professionista',
     title: 'La mia attività clinica',
-    intro: 'Anagrafiche autorizzate, richieste di condivisione e comunicazioni.',
+    intro: 'Équipe clinica · Documenti, condivisioni e consegne del turno.',
     cards: [
       ['Anagrafiche', '3 pazienti sintetici', 'L’accesso dipende dal rapporto di cura e dai permessi.'],
       ['Condivisioni', '2 attive', 'Le richieste nuove restano in attesa del consenso.'],
       ['Identità professionale', 'Verifica completata', 'Il profilo ha completato la verifica e usa il TOTP.'],
+    ],
+  },
+  physician: {
+    label: 'Medico',
+    title: 'Cartella clinica e revisione esami',
+    intro: 'Dott.ssa Elena Ferri · Medicina interna · Caso sintetico DEMO-042',
+    cards: [
+      ['Motivo del percorso', 'Dispnea da sforzo', 'Paziente sintetica di 58 anni. La cartella riunisce visita, TC torace ed ecocardiogramma.'],
+      ['Radiologia', 'TC torace · Revisione completata', 'Il radiologo ha confrontato tre sezioni e aggiornato la sintesi.'],
+      ['Cardiologia', 'Eco · Limite di qualità', 'La cardiologa ha documentato una vista parziale e lasciato la misura in sospeso.'],
+    ],
+  },
+  nurse: {
+    label: 'Infermiere',
+    title: 'Consegne infermieristiche',
+    intro: 'Luca Serra · Ambulatorio multidisciplinare · Turno del mattino',
+    cards: [
+      ['08:40 · Accoglienza', 'DEMO-042 presa in carico', 'Identità verificata. La paziente ha portato l’elenco dei farmaci in uso.'],
+      ['10:15 · Consegna al medico', 'TC ed eco disponibili', 'Gli esami sono nel fascicolo. Da confermare con il medico la comunicazione alla paziente.'],
+      ['12:00 · Passaggio di turno', 'Contatto in agenda', 'La collega del pomeriggio riceve la consegna e verifica la disponibilità per il controllo.'],
     ],
   },
   organization: {
@@ -30,27 +51,39 @@ const profiles = {
     title: 'La mia organizzazione',
     intro: 'Gestisci i ruoli e le appartenenze della struttura.',
     cards: [
-      ['Organizzazione', 'Centro Clarìa', 'Esempio di organizzazione sanitaria.'],
-      ['Team', '8 membri', 'Amministratori e professionisti con ruoli distinti.'],
-      ['Accesso di emergenza', 'Disattivato', 'La struttura parte con il break-glass disabilitato.'],
+      ['Organizzazione', 'Centro Clarìa · 3 unità', 'Medicina interna, diagnostica per immagini e ambulatorio infermieristico.'],
+      ['Team', '12 operatori', '5 medici, 5 infermieri e 2 amministrativi.'],
+      ['Agenda e accettazione', '14 accessi programmati', '9 visite e 5 esami. Due appuntamenti attendono conferma.'],
     ],
   },
   platform: {
     label: 'Amministrazione piattaforma',
     title: 'Verifiche della piattaforma',
-    intro: 'Esamina le richieste dei professionisti.',
+    intro: 'Verifiche professionali, richieste di accesso alla ricerca e audit.',
     cards: [
       ['Coda di verifica', '2 richieste in esame', 'Controllo manuale delle dichiarazioni professionali.'],
-      ['Esiti', '3 approvazioni di esempio', 'Gli esiti sono registrati nella cronologia di audit.'],
+      ['Ricerca', '1 domanda in valutazione', 'La struttura di ricerca ha richiesto dati aggregati con finalità documentata.'],
+      ['Audit', 'Ultima verifica alle 11:20', 'Esempio di consultazione del registro degli accessi e delle decisioni.'],
     ],
   },
   research: {
     label: 'Ricercatore',
     title: 'Spazio ricerca',
-    intro: 'Anteprima del profilo di ricerca.',
+    intro: 'Giulia Neri · Unità di epidemiologia · Solo dati aggregati sintetici',
     cards: [
-      ['Profilo', 'Ricercatore dimostrativo', 'Esempio di account con ruolo ricerca.'],
-      ['Dataset', 'Archivio previsto in M7', 'I dataset e le esportazioni saranno disponibili nella fase ricerca.'],
+      ['Dataset', 'Osservazioni di laboratorio · 2025', 'Esempio di catalogo con anno, codice LOINC e conteggio di account distinti.'],
+      ['Cella disponibile', '28 account distinti', 'Esempio di conteggio per emoglobina (LOINC 718-7).'],
+      ['Cella soppressa', 'Sotto la soglia di 10', 'Le celle piccole vengono soppresse. Il profilo di ricerca mostra soltanto aggregati.'],
+    ],
+  },
+  pharmacy: {
+    label: 'Farmacia',
+    title: 'Banco e prenotazioni',
+    intro: 'Farmacia Clarìa Nord · Coda sintetica',
+    cards: [
+      ['Catalogo', '32 articoli disponibili', 'Aggiornamento delle disponibilità della mattina.'],
+      ['Prenotazioni', '3 richieste da verificare', 'Una richiesta richiede il controllo della prescrizione collegata.'],
+      ['Ritiro', '2 ordini pronti', 'Le notifiche di ritiro vengono inviate dopo la conferma.'],
     ],
   },
 } as const;
@@ -67,19 +100,19 @@ export default function DemoProfiles() {
         <div>
           <p className="identity-brand"><span aria-hidden="true">✚</span> Clarìa</p>
           <h1>Esplora il portale</h1>
-          <p>Scegli una prospettiva e scopri come cambia lo spazio di lavoro.</p>
+          <p>Segui il caso DEMO-042 attraverso i ruoli del centro e scopri come cambia lo spazio di lavoro.</p>
         </div>
         <div className="identity-controls"><ThemePicker /></div>
       </header>
-      <p className="identity-notice">Anteprima illustrativa con dati fittizi. Per provare le operazioni usa il portale con un account di test.</p>
+      <p className="identity-notice">Persone, eventi ed esami sono fittizi. Scegli «Medico» per confrontare le bozze simulate di TC ed eco con la revisione clinica.</p>
       <label className="demo-picker">
         Profilo dimostrativo
         <select value={role} onChange={event => setRole(event.target.value as Profile)}>
           {Object.entries(profiles).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}
         </select>
       </label>
-      <section aria-live="polite" className="demo-profile">
-        <h2>{profile.title}</h2>
+      <section className="demo-profile">
+        <h2 aria-live="polite">{profile.title}</h2>
         <p>{profile.intro}</p>
         <div className="identity-body">
           {profile.cards.map(([label, value, detail]) => (
@@ -90,6 +123,7 @@ export default function DemoProfiles() {
             </article>
           ))}
         </div>
+        {role === 'physician' && <ImagingDemo />}
       </section>
       <footer className="demo-links">
         <Link href="/">Vai al portale</Link>

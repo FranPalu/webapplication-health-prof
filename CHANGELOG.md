@@ -1,5 +1,10 @@
 # Changelog
 
+## Demo multidisciplinare
+
+- Caso sintetico con viste per paziente, medico, infermiere, amministrazione, ricerca e farmacia.
+- Visore illustrativo TC ed eco con sezioni selezionabili, bozze simulate e revisione clinica di esempio.
+
 ## M9 — Benchmark e ripristino locale
 
 - Benchmark riproducibile di otto rotte e riuso delle connessioni PostgreSQL.
