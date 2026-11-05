@@ -350,3 +350,87 @@
 .demo-review h4 {
   margin: 0 0 4px;
 }
+
+.identity .demo-open-workspace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 650;
+}
+.identity.demo-workspace {
+  padding-inline: max(16px, calc((100% - 1320px) / 2));
+}
+.demo-workspace-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.demo-workspace-bar p { flex: 1; margin: 0; }
+.demo-workspace-layout {
+  display: grid;
+  grid-template-columns: minmax(165px, 220px) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 20px;
+}
+.identity .demo-workspace-nav {
+  display: grid;
+  align-content: start;
+  margin: 0;
+  gap: 4px;
+}
+.demo-workspace-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+.demo-workspace-nav a[aria-current="page"] {
+  background: var(--wash);
+  font-weight: 750;
+}
+.demo-workspace-content .identity-hero {
+  margin-bottom: 16px;
+  padding: clamp(18px, 4vw, 40px);
+}
+.demo-workspace-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.demo-workspace-summary > div {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.demo-workspace-summary p { margin: 0 0 4px; }
+.demo-worklist { list-style: none; margin: 0; padding: 0; }
+.demo-worklist li { border-top: 1px solid var(--border); }
+.identity .demo-worklist details { margin: 0; padding: 12px 0; }
+.identity .demo-worklist summary { margin: 0; min-height: 28px; }
+.demo-worklist details p { margin-top: 8px; }
+.demo-work-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--wash);
+  color: var(--link);
+  font-size: .85rem;
+}
+.demo-catalog { width: 100%; border-collapse: collapse; }
+.demo-catalog caption { text-align: start; color: var(--muted); margin-bottom: 8px; }
+.demo-catalog :is(td, th) { border-bottom: 1px solid var(--border); text-align: start; padding: 8px 4px; }
+@media (max-width: 680px) {
+  .demo-workspace-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .identity .demo-workspace-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

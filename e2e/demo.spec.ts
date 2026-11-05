@@ -1,5 +1,38 @@
 import { expect, test } from '@playwright/test';
 
+test('opening the demo portal preserves the selected role and its work area', async ({page}) => {
+  await page.setViewportSize({width:320,height:800});
+  await page.goto('/demo');
+  await page.getByLabel('Profilo dimostrativo').selectOption('physician');
+  await page.getByRole('link', {name:'Apri il portale · Medico'}).click();
+  await expect(page).toHaveURL(/\/demo\/portale\/physician$/);
+  await expect(page.getByRole('heading', {name:'Fascicolo clinico DEMO-042'})).toBeVisible();
+  await expect(page.getByRole('img', {name:'Schema di una sezione assiale del torace'})).toBeVisible();
+
+  const roles = page.getByRole('navigation', {name:'Spazi per ruolo'});
+  await roles.getByRole('link', {name:'Infermiere'}).click();
+  await expect(page).toHaveURL(/\/demo\/portale\/nurse$/);
+  await expect(roles.getByRole('link', {name:'Infermiere'})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('heading', {name:'Piano del turno e consegne'})).toBeVisible();
+  await expect(page.getByRole('img')).toHaveCount(0);
+  await page.getByLabel('Solo da seguire').check();
+  await expect(page.getByText(/Accoglienza DEMO-042/)).toHaveCount(0);
+  await page.getByText(/Consegna al turno del pomeriggio/).click();
+  await expect(page.getByText(/Verificare il contatto in agenda/)).toBeVisible();
+
+  await roles.getByRole('link', {name:'Ricercatore'}).click();
+  await expect(page).toHaveURL(/\/demo\/portale\/research$/);
+  await page.reload();
+  await expect(page.getByRole('table', {name:'Osservazioni sintetiche per anno e codice'})).toBeVisible();
+  await expect(page.getByText(/DEMO-042/)).toHaveCount(0);
+  await expect(page.locator('body')).toHaveJSProperty('scrollWidth',320);
+  await roles.getByRole('link', {name:'Amministrazione struttura'}).click();
+  await expect(page.getByRole('heading', {name:'Accettazione e capacità'})).toBeVisible();
+  await roles.getByRole('link', {name:'Farmacia',exact:true}).click();
+  await expect(page.getByRole('heading', {name:'Richieste e ritiri'})).toBeVisible();
+  await expect(page.getByRole('link', {name:'Accedi con un account'})).toHaveAttribute('href','/');
+});
+
 test('clinical demo shows synthetic imaging and keeps drafts in the physician view', async ({page}) => {
   await page.setViewportSize({width:320, height:800});
   await page.goto('/demo');

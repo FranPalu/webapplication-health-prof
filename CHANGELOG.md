@@ -1,5 +1,10 @@
 # Changelog
 
+## Portale dimostrativo per ruolo
+
+- Il collegamento dalla demo apre lo spazio del profilo selezionato e conserva il ruolo nell’indirizzo.
+- Ogni profilo ha un’area dedicata, con liste filtrabili, visore medico o catalogo aggregato secondo il ruolo.
+
 ## Demo multidisciplinare
 
 - Caso sintetico con viste per paziente, medico, infermiere, amministrazione, ricerca e farmacia.
