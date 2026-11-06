@@ -52,6 +52,7 @@ jobs:
       - run: python scripts/backend.py ../.venv/bin/mypy config identity
       - run: python scripts/backend.py ../.venv/bin/python manage.py makemigrations --check --dry-run
       - run: python scripts/backend.py ../.venv/bin/pytest --no-cov
+      - run: python scripts/backend.py ../.venv/bin/pytest -o addopts= tests/test_clinical_calculators.py --cov=identity.clinical_calculators --cov-branch --cov-fail-under=100
       - run: python scripts/check_qms.py && python -m unittest discover -s tests -p qms_test.py
       - run: python scripts/backend.py ../.venv/bin/python manage.py migrate identity 0001 --noinput
       - run: python scripts/backend.py ../.venv/bin/python manage.py migrate --noinput
