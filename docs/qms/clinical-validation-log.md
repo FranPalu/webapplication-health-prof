@@ -13,3 +13,16 @@
 | CV-P1-07 | Audit, note riservate e ricerca · Psicologo clinico, DPO | Un audit non attribuibile o un aggregato troppo fine può esporre pazienti e danneggiare la fiducia | Scenari di revoca, audit privilegiato e rischio di re-identificazione |
 | CV-P1-08 | Modelli e SOUP controllati · Radiologo, sicurezza clinica | Aggiornamento di parser o dipendenza può alterare fonti, tempi o riproducibilità senza modificare l'interfaccia | Riesame per digest/versione, confronto golden e valutazione licenze/pesi |
 | CV-P1-09 | Conferme UI e continuità · Nutrizionista, MMG, infermiere | Se l'interfaccia perde il contesto o il servizio si interrompe, l'operatore può applicare un piano al paziente sbagliato | Usabilità rappresentativa e prova di downtime con responsabilità esplicita |
+
+## Revisione simulata P2
+
+**DA VALIDARE da professionista abilitato** per ogni voce. Nessuna delle seguenti prove tecniche costituisce validazione clinica.
+
+| ID | Decisione e ruolo simulato | Caso limite e verifica attesa |
+| --- | --- | --- |
+| CV-P2-01 | Data di nascita e identificativo registrato · Internista, infermiere | Due omonimi possono condividere la data di nascita. Provare doppia fonte, dati del referto incoerenti e tentativo di riuso nel tenant |
+| CV-P2-02 | Nessuna fusione automatica · DPO, risk manager | Una fusione può propagare autorizzazioni o associare una nota al paziente sbagliato. Definire dual review, rollback e informazione ai curanti |
+| CV-P2-03 | Referti preliminari, storia e provenienza · Patologo clinico | Una bozza o un dato storico senza firma possono essere scambiati per referto definitivo. Verificare accesso diretto, storico, rettifica e flusso firma |
+| CV-P2-04 | Coppie LOINC/UCUM e range della fonte · Patologo clinico | Confondere mg/dL con mmol/L può cambiare l'interpretazione. Provare rifiuto della coppia e verificare eventuali conversioni in un protocollo separato |
+| CV-P2-05 | Episodio ambulatoriale e collegamenti · Medico di medicina generale | Un paziente può avere episodi contemporanei. Verificare corrispondenza paziente/struttura e flusso di rettifica prima dell'uso reale |
+| CV-P2-06 | Calcolo isolato · Nefrologo simulato, nutrizionista, psicologo | Un eGFR può essere usato impropriamente per dosi, e il totale PHQ-9 può nascondere un item critico. Validare popolazione, input e comportamento clinico prima di esporre i calcoli |

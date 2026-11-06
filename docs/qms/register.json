@@ -338,7 +338,10 @@
       ],
       "p0_trace": "TR-13",
       "phase": "P2",
-      "evidence": [],
+      "evidence": [
+        "backend/tests/test_clinical.py::test_report_identity_scope_preliminary_visibility_and_append_only_history",
+        "backend/tests/test_clinical.py::test_report_upload_requires_confirmation_before_scanning"
+      ],
       "planned_test": "Rifiuto di omonimo, mismatch, identificatore mancante e import duplicato."
     },
     {
@@ -349,7 +352,10 @@
       ],
       "p0_trace": "TR-05",
       "phase": "P2",
-      "evidence": [],
+      "evidence": [
+        "backend/tests/test_clinical.py::test_report_identity_scope_preliminary_visibility_and_append_only_history",
+        "backend/tests/test_clinical.py::test_legacy_report_has_no_invented_timestamp_signature_or_ucum"
+      ],
       "planned_test": "Correzione e merge/unmerge concorrenti preservano provenienza e storico."
     },
     {
@@ -503,7 +509,8 @@
       "p0_trace": "TR-13",
       "phase": "P2",
       "evidence": [
-        "backend/tests/test_analysis.py::test_golden_report_rows"
+        "backend/tests/test_analysis.py::test_golden_report_rows",
+        "backend/tests/test_clinical.py::test_report_identity_scope_preliminary_visibility_and_append_only_history"
       ],
       "planned_test": "Vettori esatti con unità discordanti, decimali e valori fuori dominio."
     },
@@ -528,6 +535,23 @@
       "phase": "P3",
       "evidence": [],
       "planned_test": "Casi farmaco-allergia, unità, insufficienza renale e override motivato."
+    },
+    {
+      "id": "SRS-21",
+      "text": "Calcolare valori e punteggi versionati con input espliciti, senza decisione clinica autonoma.",
+      "hazards": [
+        "H-16",
+        "H-18"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P2",
+      "evidence": [
+        "backend/tests/test_clinical_calculators.py::test_metric_bmi",
+        "backend/tests/test_clinical_calculators.py::test_ckd_epi_2021_examples_at_and_below_kappa",
+        "backend/tests/test_clinical_calculators.py::test_macronutrient_energy_preserves_decimal_grams",
+        "backend/tests/test_clinical_calculators.py::test_full_questionnaire_scores_without_interpretation"
+      ],
+      "planned_test": "Validazione clinica del contesto, qualità e unità degli input e prevenzione dell’uso improprio prima di esporre i calcolatori."
     }
   ]
 }

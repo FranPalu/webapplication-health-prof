@@ -1,5 +1,12 @@
 # Changelog
 
+## P2 · Identificazione e storico clinico
+
+- Aggiunti identificativi per tenant e doppio controllo all’associazione dei referti.
+- Registrati episodi ambulatoriali, referti append-only, correzioni, lettura FHIR storica e provenienza.
+- Aggiunti profilo LOINC/UCUM di collaudo e calcolatori puri con prove automatiche.
+- Documentati perimetro e requisiti P2 aperti. [Cartella clinica](docs/10-clinical-record-p2.md)
+
 ## P1 · Qualità e gestione del rischio
 
 - Aggiunti QMS, destinazione d’uso, SAD, SRS, FMECA/HAZOP, procedure, inventario SOUP e valutazioni preliminari MDR/IVDR e AI Act.
