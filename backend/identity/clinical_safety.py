@@ -345,7 +345,9 @@ class LabReviewView(InputView):
             raise PermissionDenied()
         patient = get_object_or_404(clinical_patients(request.user), pk=patient_id)
         rows = (
-            LabResultReview.objects.filter(report__patient=patient, acknowledged_at__isnull=True)
+            LabResultReview.objects.filter(
+                report__patient=patient, labresultcompletion__isnull=True
+            )
             .select_related("report")
             .order_by("due_at", "created_at", "pk")
         )

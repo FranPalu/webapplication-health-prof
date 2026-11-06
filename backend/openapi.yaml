@@ -649,6 +649,39 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/clinical/medication-checks/{check_id}/override/:
+    post:
+      operationId: clinical_medication_checks_override_create
+      parameters:
+      - in: path
+        name: check_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverrideInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OverrideInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OverrideInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
   /api/v1/clinical/opinions/{opinion_id}/publish/:
     post:
       operationId: clinical_opinions_publish_create
@@ -843,6 +876,98 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusOutput'
+          description: ''
+  /api/v1/clinical/patients/{patient_id}/lab-orders/:
+    get:
+      operationId: clinical_patients_lab_orders_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLabOrderOutputList'
+          description: ''
+    post:
+      operationId: clinical_patients_lab_orders_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabOrderInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabOrderInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabOrderInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabOrderOutput'
+          description: ''
+  /api/v1/clinical/patients/{patient_id}/medication-checks/:
+    post:
+      operationId: clinical_patients_medication_checks_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationSafetyInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MedicationSafetyInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MedicationSafetyInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicationSafetyOutput'
           description: ''
   /api/v1/clinical/patients/{patient_id}/opinions/:
     get:
@@ -1083,6 +1208,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LabReviewOutput'
+          description: ''
+  /api/v1/clinical/result-reviews/{review_id}/complete/:
+    post:
+      operationId: clinical_result_reviews_complete_create
+      parameters:
+      - in: path
+        name: review_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabCompletionInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabCompletionInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabCompletionInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
           description: ''
   /api/v1/clinical/versions/{version_id}/analysis/:
     get:
@@ -1475,6 +1633,28 @@ paths:
         name: version
         schema:
           type: integer
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/ServiceRequest/{resource_id}:
+    get:
+      operationId: fhir_ServiceRequest_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
         required: true
       tags:
       - fhir
@@ -3283,6 +3463,72 @@ components:
           format: uuid
       required:
       - patient
+    LabCompletionInputRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        note:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - note
+      - patient
+    LabOrderInputRequest:
+      type: object
+      properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+        code:
+          $ref: '#/components/schemas/ClinicalObservationCodeEnum'
+        due_at:
+          type: string
+          format: date-time
+      required:
+      - code
+      - due_at
+      - identifier_kind
+      - identifier_value
+      - source_birth_date
+    LabOrderOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          maxLength: 32
+        status:
+          type: string
+          readOnly: true
+        overdue:
+          type: boolean
+          readOnly: true
+        due_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - due_at
+      - id
+      - overdue
+      - status
     LabReviewOutput:
       type: object
       properties:
@@ -3491,6 +3737,143 @@ components:
           type: string
       required:
       - uri
+    MedicationEvidenceOutput:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        license:
+          type: string
+        reference:
+          type: string
+        evidence_level:
+          type: string
+      required:
+      - evidence_level
+      - license
+      - name
+      - reference
+      - version
+    MedicationFindingOutput:
+      type: object
+      properties:
+        kind:
+          type: string
+        medications:
+          type: array
+          items:
+            type: string
+        reference:
+          type: string
+        evidence_level:
+          type: string
+      required:
+      - evidence_level
+      - kind
+      - medications
+      - reference
+    MedicationItemInputRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+        route:
+          type: string
+          minLength: 1
+          maxLength: 32
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 32
+        daily_dose:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+      required:
+      - code
+      - daily_dose
+      - route
+      - unit
+    MedicationResultOutput:
+      type: object
+      properties:
+        status:
+          type: string
+        source:
+          allOf:
+          - $ref: '#/components/schemas/MedicationEvidenceOutput'
+          nullable: true
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationFindingOutput'
+      required:
+      - findings
+      - source
+      - status
+    MedicationSafetyInputRequest:
+      type: object
+      properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+        context_confirmed:
+          type: boolean
+          default: false
+        medications:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationItemInputRequest'
+        allergies:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+          maxItems: 50
+        conditions:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+          maxItems: 50
+      required:
+      - allergies
+      - conditions
+      - identifier_kind
+      - identifier_value
+      - medications
+      - source_birth_date
+    MedicationSafetyOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        result:
+          allOf:
+          - $ref: '#/components/schemas/MedicationResultOutput'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - result
     MembershipInputRequest:
       type: object
       properties:
@@ -3648,6 +4031,19 @@ components:
         * `paid` - paid
         * `declined` - declined
         * `cancelled` - cancelled
+    OverrideInputRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - patient
+      - reason
     PaginatedAccessOutputList:
       type: object
       required:
@@ -3763,6 +4159,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JobOutput'
+    PaginatedLabOrderOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabOrderOutput'
     PaginatedLabReviewOutputList:
       type: object
       required:
@@ -4339,6 +4758,9 @@ components:
         encounter_id:
           type: string
           format: uuid
+        order_id:
+          type: string
+          format: uuid
         evaluation_sex:
           $ref: '#/components/schemas/ClinicalSexEnum'
         observations:
@@ -4384,6 +4806,9 @@ components:
           type: string
           format: date-time
         encounter_id:
+          type: string
+          format: uuid
+        order_id:
           type: string
           format: uuid
         evaluation_sex:

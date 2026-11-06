@@ -763,3 +763,40 @@ class LabResultReview(models.Model):
     escalated_at = models.DateTimeField(null=True)
     escalation_assigned = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class LabOrder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    code = models.CharField(max_length=32)
+    due_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class LabOrderResult(models.Model):
+    order = models.OneToOneField(LabOrder, on_delete=models.PROTECT)
+    report = models.OneToOneField(ClinicalReport, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class LabResultCompletion(models.Model):
+    review = models.OneToOneField(LabResultReview, on_delete=models.PROTECT)
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT)
+    note = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MedicationSafetyCheck(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    result = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MedicationSafetyOverride(models.Model):
+    screening = models.OneToOneField(MedicationSafetyCheck, on_delete=models.PROTECT)
+    actor = models.ForeignKey(User, on_delete=models.PROTECT)
+    reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -411,3 +411,12 @@
 
 .demo-worklist li > button { margin-bottom: 12px; }
 .demo-research-action { margin-top: 16px; }
+
+.identity .clinical-patient-context {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: .5rem;
+  background: var(--wash);
+  color: var(--ink);
+}

@@ -10,6 +10,8 @@ from identity import (
     clinical_views,
     directory_views,
     fhir,
+    lab_orders,
+    medication_safety,
     patient_identification,
     payment_views,
     pharmacy_views,
@@ -102,6 +104,16 @@ urlpatterns += [
         "clinical/result-reviews/<uuid:review_id>/acknowledge/",
         clinical_safety.LabReviewAcknowledgmentView,
     ),
+    endpoint("clinical/patients/<uuid:patient_id>/lab-orders/", lab_orders.LabOrderView),
+    endpoint("clinical/result-reviews/<uuid:review_id>/complete/", lab_orders.LabCompletionView),
+    endpoint(
+        "clinical/patients/<uuid:patient_id>/medication-checks/",
+        medication_safety.MedicationSafetyView,
+    ),
+    endpoint(
+        "clinical/medication-checks/<uuid:check_id>/override/",
+        medication_safety.MedicationOverrideView,
+    ),
     endpoint("clinical/patients/<uuid:patient_id>/reports/", fhir.ReportCreateView),
     endpoint("clinical/reports/<uuid:report_id>/corrections/", fhir.ReportCorrectionView),
     endpoint("fhir/Encounter/<uuid:resource_id>", fhir.FhirEncounterView),
@@ -113,6 +125,7 @@ urlpatterns += [
         "fhir/DiagnosticReport/<uuid:resource_id>/_history/<int:version>", fhir.FhirReportView
     ),
     endpoint("fhir/Provenance/<uuid:resource_id>-v<int:version>", fhir.FhirReportProvenanceView),
+    endpoint("fhir/ServiceRequest/<uuid:resource_id>", lab_orders.FhirLabOrderView),
     endpoint("fhir/Observation/<uuid:resource_id>", fhir.FhirObservationView),
 ]
 

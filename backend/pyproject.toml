@@ -2,7 +2,7 @@
 DJANGO_SETTINGS_MODULE = "config.settings"
 pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "--cov=identity --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=identity --cov-report=term-missing --cov-fail-under=85"
 [tool.coverage.run]
 omit = ["*/migrations/*", "*/tests/*"]
 [tool.ruff]

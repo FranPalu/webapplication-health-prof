@@ -10,7 +10,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 
 from identity.clinical import clinical_patients, shared_scopes
-from identity.clinical_safety import create_review
+from identity.clinical_safety import create_review, require_enabled
 from identity.clinical_terminology import (
     LOINC_SYSTEM,
     OBSERVATION_UNITS,
@@ -19,11 +19,13 @@ from identity.clinical_terminology import (
     UCUM_SYSTEM,
 )
 from identity.clinical_views import FhirJSONRenderer
+from identity.lab_orders import lock_order_for_report, validate_order_observations
 from identity.models import (
     CareRelationship,
     ClinicalEncounter,
     ClinicalObservation,
     ClinicalReport,
+    LabOrderResult,
     Membership,
     Organization,
     Patient,
@@ -77,6 +79,7 @@ class ReportInput(IdentifierInput):
     title = serializers.CharField(max_length=160)
     effective_at = serializers.DateTimeField()
     encounter_id = serializers.UUIDField(required=False)
+    order_id = serializers.UUIDField(required=False)
     evaluation_sex = serializers.ChoiceField(choices=["female", "male"], required=False)
     observations = ObservationInput(many=True, allow_empty=False)
 
@@ -103,6 +106,16 @@ class ReportOutput(serializers.Serializer):
 
 def store_report(request, patient, data, *, root=None, previous=None):
     confirm_report_patient(patient, data)
+    if root is not None and data.get("order_id") is not None:
+        raise ValidationError({"order_id": "A correction retains the original request link."})
+    order = lock_order_for_report(patient, data)
+    if root is not None:
+        link = LabOrderResult.objects.select_related("order").filter(report=root).first()
+        if link is not None:
+            require_enabled()
+            validate_order_observations(link.order, data)
+            if data["effective_at"] < link.order.created_at:
+                raise ValidationError("The result predates the request.")
     encounter_id = data.get("encounter_id")
     if (
         encounter_id is not None
@@ -133,6 +146,8 @@ def store_report(request, patient, data, *, root=None, previous=None):
         report.pk,
         patient.organization,
     )
+    if order is not None:
+        LabOrderResult.objects.create(order=order, report=report)
     create_review(report)
     return Response({"id": root.pk if root else report.pk, "version": report.version}, status=201)
 
@@ -356,6 +371,13 @@ def report_payload(user, report):
         if report.encounter_id
         else {}
     )
+    order = (
+        LabOrderResult.objects.filter(report_id=report.root_id or report.pk)
+        .values_list("order_id", flat=True)
+        .first()
+        if report.recorded_at
+        else None
+    )
     return {
         "resourceType": "DiagnosticReport",
         "id": str(report.root_id or report.pk),
@@ -364,6 +386,7 @@ def report_payload(user, report):
         "code": concept(report.code, report.title),
         **subject(user, report.patient_id),
         **encounter,
+        **({"basedOn": [{"reference": f"ServiceRequest/{order}"}]} if order else {}),
         "effectiveDateTime": report.effective_at.isoformat(),
         "result": [
             {"reference": f"Observation/{observation_id}"}

@@ -141,6 +141,12 @@ def test_rule_approval_result_queue_escalation_and_acknowledgment(
     confirmation = {"patient": str(record.pk)}
     assert reviewing.post(ack, confirmation).data["escalation_assigned"] is True
     assert reviewing.post(ack, confirmation).status_code == 200
+    assert proposing.get(queue).data["count"] == 2
+    complete = f"clinical/result-reviews/{result.pk}/complete/"
+    assert (
+        reviewing.post(complete, {**confirmation, "note": "Synthetic source checked"}).status_code
+        == 200
+    )
     assert proposing.get(queue).data["count"] == 1
     assert AuditEvent.objects.filter(action="clinical.result_acknowledged").count() == 1
 

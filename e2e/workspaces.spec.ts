@@ -53,6 +53,8 @@ for (const profile of profiles) {
 
 test('synthetic lab queue confirms patient before recording acknowledgment', async ({page}) => {
   let acknowledgments = 0;
+  let completions = 0;
+  let overrides = 0;
   await page.route('**/api/v1/**', async route => {
     const path = new URL(route.request().url()).pathname.replace('/api/v1/', '');
     const empty = {results:[], next:null};
@@ -60,6 +62,26 @@ test('synthetic lab queue confirms patient before recording acknowledgment', asy
       expect(route.request().postDataJSON()).toEqual({patient:'synthetic-patient'});
       acknowledgments++;
       return route.fulfill({json:{id:'synthetic-review'}});
+    }
+    if (path === 'clinical/patients/synthetic-patient/medication-checks/') {
+      expect(route.request().postDataJSON()).toMatchObject({context_confirmed:true, medications:[
+        {code:'SYN-A', route:'SYN-ROUTE', unit:'mg', daily_dose:'2'},
+      ]});
+      return route.fulfill({json:{id:'synthetic-check', result:{
+        status:'findings',
+        source:{name:'Catalogo fittizio', version:'test-1', license:'fixture', reference:'fonte sintetica', evidence_level:'synthetic'},
+        findings:[{kind:'allergy', medications:['SYN-A'], reference:'riferimento test', evidence_level:'synthetic'}],
+      }}});
+    }
+    if (path === 'clinical/medication-checks/synthetic-check/override/') {
+      expect(route.request().postDataJSON()).toEqual({patient:'synthetic-patient', reason:'Prova sintetica'});
+      overrides++;
+      return route.fulfill({json:{status:'recorded'}});
+    }
+    if (path === 'clinical/result-reviews/synthetic-review/complete/') {
+      expect(route.request().postDataJSON()).toEqual({patient:'synthetic-patient', note:'Fonte sintetica verificata'});
+      completions++;
+      return route.fulfill({json:{status:'reviewed'}});
     }
     const responses: Record<string, unknown> = {
       'auth/session/': {
@@ -70,8 +92,9 @@ test('synthetic lab queue confirms patient before recording acknowledgment', asy
       'organizations/': {results:[{id:'synthetic-organization', name:'Struttura sintetica', kind:'clinic'}], next:null},
       'patients/': {results:[{id:'synthetic-patient', first_name:'Paziente', last_name:'Fittizio', birth_date:'1990-01-01', organization:'synthetic-organization'}], next:null},
       'shares/':empty, 'notifications/':[], 'consents/texts/':[],
-      'clinical/patients/synthetic-patient/result-reviews/': acknowledgments ? empty : {
-        results:[{id:'synthetic-review', outcome:'critical', report:'synthetic-report', version:2, escalation_assigned:false}],
+      'clinical/patients/synthetic-patient/lab-orders/': empty,
+      'clinical/patients/synthetic-patient/result-reviews/': completions ? empty : {
+        results:[{id:'synthetic-review', outcome:'critical', report:'synthetic-report', version:2, escalation_assigned:false, acknowledged_at:acknowledgments ? '2026-01-02T00:00:00Z' : null}],
         next:null,
       },
     };
@@ -79,7 +102,7 @@ test('synthetic lab queue confirms patient before recording acknowledgment', asy
     return route.fulfill({json:responses[path]});
   });
   await page.goto('/');
-  await page.getByText('Referti da prendere in visione', {exact:true}).click();
+  await page.getByText('Esami e referti in sospeso', {exact:true}).click();
   await page.getByRole('button', {name:'Aggiorna coda'}).click();
   await expect(page.getByText('Limite critico configurato raggiunto')).toBeVisible();
   await expect(page.getByText('Escalation senza destinatario.', {exact:false})).toBeVisible();
@@ -94,6 +117,28 @@ test('synthetic lab queue confirms patient before recording acknowledgment', asy
   expect(acknowledgments).toBe(0);
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', {name:'Registra presa visione'}).click();
-  await expect(page.getByText('Nessun referto in coda.')).toBeVisible();
+  await page.getByLabel('Nota di revisione').fill('Fonte sintetica verificata');
   expect(acknowledgments).toBe(1);
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', {name:'Completa revisione'}).click();
+  await expect(page.getByText('Nessun referto in coda.')).toBeVisible();
+  expect(completions).toBe(1);
+
+  await page.getByText('Screening farmacologico sintetico', {exact:true}).click();
+  await page.getByLabel('Identificativo per screening', {exact:true}).fill('SYN-ID');
+  await page.getByLabel('Data di nascita per screening').fill('1990-01-01');
+  const medication = page.getByRole('group', {name:'Medicinale 1'});
+  await medication.getByLabel('Codice', {exact:true}).fill('SYN-A');
+  await medication.getByLabel('Via', {exact:true}).fill('SYN-ROUTE');
+  await medication.getByLabel('Unità', {exact:true}).fill('mg');
+  await medication.getByLabel('Dose giornaliera', {exact:true}).fill('2');
+  await page.getByLabel('Confermo la completezza del contesto').check();
+  await page.getByRole('button', {name:'Esegui screening'}).click();
+  await expect(page.getByText('Catalogo fittizio · test-1', {exact:false})).toBeVisible();
+  await expect(page.getByText('riferimento test · synthetic', {exact:false})).toBeVisible();
+  await page.getByLabel('Motivazione override').fill('Prova sintetica');
+  page.once('dialog', dialog => dialog.accept());
+  await page.getByRole('button', {name:'Registra override'}).click();
+  await expect(page.getByText('Motivazione registrata.')).toBeVisible();
+  expect(overrides).toBe(1);
 });

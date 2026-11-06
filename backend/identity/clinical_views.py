@@ -415,6 +415,9 @@ class FhirMetadataView(InputView):
 
     @extend_schema(responses={(200, "application/fhir+json"): OpenApiTypes.OBJECT})
     def get(self, request):
+        from identity.clinical_safety import enabled as safety_enabled
+
+        safety_resources = ("ServiceRequest",) if safety_enabled() else ()
         return JsonResponse(
             {
                 "resourceType": "CapabilityStatement",
@@ -444,6 +447,7 @@ class FhirMetadataView(InputView):
                                 "Observation",
                                 "Provenance",
                             )
+                            + safety_resources
                         ],
                     }
                 ],

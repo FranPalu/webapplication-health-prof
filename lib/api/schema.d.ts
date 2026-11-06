@@ -372,6 +372,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/medication-checks/{check_id}/override/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_medication_checks_override_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/opinions/{opinion_id}/publish/": {
         parameters: {
             query?: never;
@@ -446,6 +462,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_patients_identifiers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/patients/{patient_id}/lab-orders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_patients_lab_orders_list"];
+        put?: never;
+        post: operations["clinical_patients_lab_orders_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/patients/{patient_id}/medication-checks/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_patients_medication_checks_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -558,6 +606,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_result_reviews_acknowledge_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/result-reviews/{review_id}/complete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_result_reviews_complete_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -796,6 +860,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["fhir_Provenance__v_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fhir/ServiceRequest/{resource_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_ServiceRequest_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1624,6 +1704,31 @@ export interface components {
             /** Format: uuid */
             patient: string;
         };
+        LabCompletionInputRequest: {
+            /** Format: uuid */
+            patient: string;
+            note: string;
+        };
+        LabOrderInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+            code: components["schemas"]["ClinicalObservationCodeEnum"];
+            /** Format: date-time */
+            due_at: string;
+        };
+        LabOrderOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            readonly status: string;
+            readonly overdue: boolean;
+            /** Format: date-time */
+            due_at: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         LabReviewOutput: {
             /** Format: uuid */
             readonly id: string;
@@ -1699,6 +1804,49 @@ export interface components {
         MFASetupOutput: {
             uri: string;
         };
+        MedicationEvidenceOutput: {
+            name: string;
+            version: string;
+            license: string;
+            reference: string;
+            evidence_level: string;
+        };
+        MedicationFindingOutput: {
+            kind: string;
+            medications: string[];
+            reference: string;
+            evidence_level: string;
+        };
+        MedicationItemInputRequest: {
+            code: string;
+            route: string;
+            unit: string;
+            /** Format: decimal */
+            daily_dose: string;
+        };
+        MedicationResultOutput: {
+            status: string;
+            source: components["schemas"]["MedicationEvidenceOutput"] | null;
+            findings: components["schemas"]["MedicationFindingOutput"][];
+        };
+        MedicationSafetyInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+            /** @default false */
+            context_confirmed: boolean;
+            medications: components["schemas"]["MedicationItemInputRequest"][];
+            allergies: string[];
+            conditions: string[];
+        };
+        MedicationSafetyOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly result: components["schemas"]["MedicationResultOutput"];
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         MembershipInputRequest: {
             /** Format: email */
             email: string;
@@ -1770,6 +1918,11 @@ export interface components {
          * @enum {string}
          */
         OutcomeEnum: "paid" | "declined" | "cancelled";
+        OverrideInputRequest: {
+            /** Format: uuid */
+            patient: string;
+            reason: string;
+        };
         PaginatedAccessOutputList: {
             /** @example 123 */
             count: number;
@@ -1844,6 +1997,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["JobOutput"][];
+        };
+        PaginatedLabOrderOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["LabOrderOutput"][];
         };
         PaginatedLabReviewOutputList: {
             /** @example 123 */
@@ -2145,6 +2313,8 @@ export interface components {
             effective_at: string;
             /** Format: uuid */
             encounter_id?: string;
+            /** Format: uuid */
+            order_id?: string;
             evaluation_sex?: components["schemas"]["ClinicalSexEnum"];
             observations: components["schemas"]["ObservationInputRequest"][];
             expected_version: number;
@@ -2161,6 +2331,8 @@ export interface components {
             effective_at: string;
             /** Format: uuid */
             encounter_id?: string;
+            /** Format: uuid */
+            order_id?: string;
             evaluation_sex?: components["schemas"]["ClinicalSexEnum"];
             observations: components["schemas"]["ObservationInputRequest"][];
         };
@@ -3044,6 +3216,33 @@ export interface operations {
             };
         };
     };
+    clinical_medication_checks_override_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                check_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OverrideInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["OverrideInputRequest"];
+                "multipart/form-data": components["schemas"]["OverrideInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
     clinical_opinions_publish_create: {
         parameters: {
             query?: never;
@@ -3214,6 +3413,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
+    clinical_patients_lab_orders_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLabOrderOutputList"];
+                };
+            };
+        };
+    };
+    clinical_patients_lab_orders_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabOrderInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LabOrderInputRequest"];
+                "multipart/form-data": components["schemas"]["LabOrderInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabOrderOutput"];
+                };
+            };
+        };
+    };
+    clinical_patients_medication_checks_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MedicationSafetyInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MedicationSafetyInputRequest"];
+                "multipart/form-data": components["schemas"]["MedicationSafetyInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MedicationSafetyOutput"];
                 };
             };
         };
@@ -3420,6 +3697,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LabReviewOutput"];
+                };
+            };
+        };
+    };
+    clinical_result_reviews_complete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabCompletionInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LabCompletionInputRequest"];
+                "multipart/form-data": components["schemas"]["LabCompletionInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusOutput"];
                 };
             };
         };
@@ -3797,6 +4101,29 @@ export interface operations {
             path: {
                 resource_id: string;
                 version: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    fhir_ServiceRequest_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
             };
             cookie?: never;
         };

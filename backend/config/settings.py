@@ -156,3 +156,5 @@ CELERY_BEAT_SCHEDULE["clinical-result-escalation"] = {
     "task": "identity.tasks.escalate_lab_results",
     "schedule": 60.0,
 }
+
+CLINICAL_MEDICATION_PROVIDER = os.getenv("CLINICAL_MEDICATION_PROVIDER", "")
