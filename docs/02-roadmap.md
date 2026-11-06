@@ -1,5 +1,7 @@
 # Roadmap M0–M9
 
+Il [piano P1–P10](p0/roadmap.md) governa le nuove fasi. Questa roadmap conserva le milestone M0–M9 come riferimento storico.
+
 Data: 2026-11-03. Una milestone alla volta. M0 è documentale; M1 richiede
 «GO M1», poi ogni milestone richiede il relativo GO. Non sono stime temporali.
 

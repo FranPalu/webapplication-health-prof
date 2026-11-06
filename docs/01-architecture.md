@@ -1,5 +1,7 @@
 # Architettura della piattaforma sanitaria
 
+P0 ha verificato Next/React come frontend, Django/DRF come API, PostgreSQL/PostGIS come archivio operativo, Redis/Celery per job e SeaweedFS/ClamAV nel percorso documentale locale. Nginx separa le richieste API dal frontend. Il package conserva un build Vinext e strumenti D1/Drizzle per i percorsi storici. L’[audit P0](p0/gap-analysis.md) distingue componenti attivi, simulazioni e contratti. L’[ADR 0010](adr/0010-p0-clinical-access.md) aggiorna le regole di condivisione.
+
 Stato: progetto approvato per documentazione M0, 2026-11-03. Tutto ciò che segue
 è architettura target, non descrizione di funzionalità già disponibili.
 

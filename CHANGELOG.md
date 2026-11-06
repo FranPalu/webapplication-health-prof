@@ -1,5 +1,13 @@
 # Changelog
 
+## P0 · Audit e accessi clinici
+
+- Limitata la ri-condivisione ai destinatari autorizzati e la lettura dei messaggi al titolo corrente.
+- Applicato il consenso clinico v2 ai messaggi di cartella, documento e dossier.
+- Aggiunto audit delle letture di cartelle e liste job AI, con regressioni Django.
+- Aggiornate le dipendenze npm che causavano 28 avvisi alti nel grafo di sviluppo.
+- Registrati gap, verifiche, tracciabilità e piano P1–P10 in [P0](docs/p0/gap-analysis.md).
+
 ## Operazioni nel portale dimostrativo
 
 - Le dashboard per ruolo consentono di completare attività fittizie e conservarne lo stato nel browser.

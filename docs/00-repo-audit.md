@@ -1,5 +1,7 @@
 # M0 — Audit della repository
 
+Aggiornamento del 6 novembre 2026 nella [gap analysis P0](p0/gap-analysis.md). Questo documento conserva la fotografia storica M0.
+
 Data: 2026-11-03. Baseline: `ffccd98`. Perimetro: analisi locale del sorgente,
 configurazione, migrazioni e controlli disponibili; nessun accesso a dati o servizi
 di produzione. `AGENTS.md` era già presente come file non tracciato e non è stato modificato.

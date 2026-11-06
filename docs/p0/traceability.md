@@ -1,0 +1,23 @@
+# P0 · Matrice di tracciabilità
+
+Gli ID identificano gruppi di requisiti. In P1 la SRS li scompone in casi atomici con hazard, esito e riferimenti di rilascio. Le stime e i gate sono nel [piano](roadmap.md). L'esito aggregato M0–M9 è nella [gap analysis](gap-analysis.md).
+
+| ID | Requisito ↔ codice | Test ed evidenza | Rischio | Documento / fase |
+| --- | --- | --- | --- | --- |
+| TR-01 | M1 · Sessione, MFA, profili e accesso paziente · `security.py`, `services.py`, `views.py` | `test_identity.py` e flussi browser d'identità | H-01 account, ruolo o tenant errato | [ADR tenancy](../adr/0002-tenancy-and-authorization.md), P1/P6 |
+| TR-02 | M2 · Consenso, messaggi e ri-condivisione · `services.py`, `views.py` | `test_share_requires_patient_consent_and_revocation_blocks_access_and_messages`, `test_folder_scope_includes_descendants_and_preserves_patient_boundary` | H-02 accesso fuori finalità o dopo perdita titolo | [ADR P0](../adr/0010-p0-clinical-access.md), P6 |
+| TR-03 | M2/M9 · Break-glass e catena di audit · `views.py`, `models.py`, migrazioni 0002/0006 | `test_break_glass_is_mfa_gated_reasoned_and_audited`, `test_concurrent_audit_appends_preserve_sequence_and_hash_chain` | H-03 accesso non attribuibile o audit alterato | [ADR audit](../adr/0006-sharing-consent-audit.md), P6/P10 |
+| TR-04 | M3 · Versioni, download, cartelle e storage · `clinical_views.py`, `clinical_storage.py` | `test_clinical_version_lifecycle_and_access`, `test_real_clamav_storage_restore_and_retention`, regressione cartelle | H-04 file divulgato, infetto o non recuperabile | [Documenti](../04-clinical-documents.md), P2/P6 |
+| TR-05 | M3 · Letture FHIR e creazione report · `fhir.py`, `clinical_views.py` | `test_structured_report_and_observation_are_visible_only_in_care`. Profili/UCUM da verificare | H-05 associazione o unità errata | [Documenti](../04-clinical-documents.md), P2/P5 |
+| TR-06 | M4 · Analisi, review e pubblicazione · `analysis_views.py`, `analysis_pipeline.py`, `tasks.py` | `test_analysis_review_publication_and_tenant_isolation` e `test_analysis_revoked_during_run_and_retry`. Evidenza di firma elettronica assente | H-06 bozza esposta o falso risultato | [Analisi supervisionata](../05-supervised-analysis.md), P4 |
+| TR-07 | M5 · Checkout, webhook, rimborsi, fiscalità · `payment_views.py` (simulato) | `test_payments.py`. Gate Stripe reale assente | H-07 addebito, rimborso o dati fiscali errati | [Sandbox](../06-payments-sandbox.md), P8 |
+| TR-08 | M6 · Prenotazioni, farmacia e prescrizioni · `appointment_views.py`, `pharmacy_views.py` | `test_appointments.py`, `test_pharmacy.py`. Verificatore in mock | H-08 doppia prenotazione o farmaco senza verifica | [Prenotazioni e farmacia](../07-bookings-pharmacy.md), P5/P8 |
+| TR-09 | M7 · Consenso, ETL, rilascio ricerca · `research*.py` | `test_research.py`. Nessuna prova di anonimato generale | H-09 re-identificazione e rilasci incompatibili | [Ricerca](../research-anonymization.md), P5/P6 |
+| TR-10 | M8 · Ruoli, UI, i18n · `app/`, `components/ui/` | `e2e/demo.spec.ts`, `e2e/workspaces.spec.ts`, `e2e/identity.spec.ts`. Test assistivi completi aperti | H-10 azione o paziente errato nell'interfaccia | [Design system](../design-system.md), P9 |
+| TR-11 | M0/M9 · Build, CI, restore, dipendenze, portabilità · `.github/workflows/ci.yml`, `compose.yaml`, `scripts/restore-drill.sh` | [Esiti P0](verification.md). Ripristino congiunto DB, oggetti e chiavi da provare | H-11 indisponibilità, vulnerabilità o perdita dati | [Release](../09-release-verification.md), P10 |
+| TR-12 | P1 · QMS, classificazione e CAPA | Da implementare. Gate revisione del fascicolo e copertura SRS–hazard–V&V | H-12 rischio non governato | [Piano](roadmap.md), P1 |
+| TR-13 | P2/P3 · Identificazione, calcolatori, alert, farmaci | Da implementare. Test merge/unmerge, unità e almeno 100 scenari clinici | H-05/H-13 falso negativo, dosaggio o alert non consegnato | [Piano](roadmap.md), P2/P3 |
+| TR-14 | P5 · Sistemi sanitari esterni, DICOMweb, HL7 v2 | Da implementare. Contract test, validator FHIR, suite negativa scopes | H-14 import errato o esposizione esterna | [Piano](roadmap.md), P5 |
+| TR-15 | P7 · Televisita, telemonitoraggio, handover | Da implementare. Test identità, coda, consenso, alert e presa in carico | H-15 discontinuità o telemonitoraggio frainteso come emergenza | [Piano](roadmap.md), P7 |
+
+I percorsi Python in monospace sono sotto `backend/identity` o `backend/tests`. L'identificazione dei rischi è preliminare, senza stime cliniche approvate. Vedere il [Clinical Validation Log](clinical-validation-log.md).

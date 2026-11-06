@@ -1,5 +1,7 @@
 # Limitazioni note
 
+La [gap analysis P0](p0/gap-analysis.md) aggiorna lo stato verificato. Restano aperti il ruolo DB runtime a privilegi minimi, il checkpoint indipendente dell’audit, la copertura negativa per endpoint, la firma clinica, i gate di sicurezza in CI e sette avvisi npm moderati o bassi nel grafo completo. Vedere gli [esiti di verifica](p0/verification.md).
+
 - Le operazioni nei portali dimostrativi riguardano dati fittizi e salvano
   lo stato nel browser. Il portale autenticato usa i dati e le autorizzazioni
   del backend.
