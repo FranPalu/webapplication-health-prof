@@ -404,6 +404,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/patients/{patient_id}/encounters/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_patients_encounters_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/patients/{patient_id}/folders/": {
         parameters: {
             query?: never;
@@ -414,6 +430,22 @@ export interface paths {
         get: operations["clinical_patients_folders_list"];
         put?: never;
         post: operations["clinical_patients_folders_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/patients/{patient_id}/identifiers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_patients_identifiers_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -446,6 +478,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_patients_reports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/reports/{report_id}/corrections/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_reports_corrections_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -564,6 +612,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/fhir/DiagnosticReport/{resource_id}/_history/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_DiagnosticReport__history_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/fhir/DocumentReference/{resource_id}": {
         parameters: {
             query?: never;
@@ -572,6 +636,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["fhir_DocumentReference_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fhir/Encounter/{resource_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_Encounter_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -636,6 +716,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["fhir_Practitioner_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fhir/Provenance/{resource_id}-v{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fhir_Provenance__v_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1283,6 +1379,17 @@ export interface components {
             request_id: string;
             outcome: components["schemas"]["OutcomeEnum"];
         };
+        /**
+         * @description * `14749-6` - 14749-6
+         *     * `2345-7` - 2345-7
+         * @enum {string}
+         */
+        ClinicalObservationCodeEnum: "14749-6" | "2345-7";
+        /**
+         * @description * `11502-2` - 11502-2
+         * @enum {string}
+         */
+        ClinicalReportCodeEnum: "11502-2";
         CodeInputRequest: {
             code: string;
         };
@@ -1338,6 +1445,20 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        EncounterInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            ended_at: string;
+        };
+        EncounterOutput: {
+            /** Format: uuid */
+            id: string;
+        };
         FolderInputRequest: {
             title: string;
             /** Format: uuid */
@@ -1358,6 +1479,19 @@ export interface components {
          * @enum {string}
          */
         FormatNameEnum: "csv" | "parquet" | "fhir" | "dashboard";
+        IdentifierInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+        };
+        /**
+         * @description * `facility` - Facility identifier
+         *     * `tax_code` - Italian tax code
+         *     * `health_card` - Italian health card number
+         * @enum {string}
+         */
+        IdentifierKindEnum: "facility" | "tax_code" | "health_card";
         ItemInputRequest: {
             sku: string;
             title: string;
@@ -1428,11 +1562,12 @@ export interface components {
             read: boolean;
         };
         ObservationInputRequest: {
-            code: string;
+            code: components["schemas"]["ClinicalObservationCodeEnum"];
             display: string;
             /** Format: decimal */
             value: string;
             unit: string;
+            reference_range?: components["schemas"]["ReferenceRangeInputRequest"];
         };
         OrderOutput: {
             /** Format: uuid */
@@ -1740,6 +1875,16 @@ export interface components {
         RecoveryOutput: {
             recovery_codes: string[];
         };
+        ReferenceRangeInputRequest: {
+            /** Format: decimal */
+            low?: string;
+            /** Format: decimal */
+            high?: string;
+            laboratory: string;
+            min_age_years?: number;
+            max_age_years?: number;
+            sex?: components["schemas"]["SexEnum"];
+        };
         RegisterInputRequest: {
             /** Format: email */
             email: string;
@@ -1754,12 +1899,38 @@ export interface components {
             /** @default true */
             active: boolean;
         };
-        ReportInputRequest: {
-            code: string;
+        ReportCorrectionInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+            code: components["schemas"]["ClinicalReportCodeEnum"];
             title: string;
             /** Format: date-time */
             effective_at: string;
+            /** Format: uuid */
+            encounter_id?: string;
             observations: components["schemas"]["ObservationInputRequest"][];
+            expected_version: number;
+            correction_reason: string;
+        };
+        ReportInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+            code: components["schemas"]["ClinicalReportCodeEnum"];
+            title: string;
+            /** Format: date-time */
+            effective_at: string;
+            /** Format: uuid */
+            encounter_id?: string;
+            observations: components["schemas"]["ObservationInputRequest"][];
+        };
+        ReportOutput: {
+            /** Format: uuid */
+            id: string;
+            version: number;
         };
         /**
          * @description * `approve` - approve
@@ -1828,6 +1999,12 @@ export interface components {
             /** Format: date-time */
             created_at: string;
         };
+        /**
+         * @description * `female` - female
+         *     * `male` - male
+         * @enum {string}
+         */
+        SexEnum: "female" | "male";
         ShareInputRequest: {
             /** Format: uuid */
             folder?: string;
@@ -1933,6 +2110,10 @@ export interface components {
          */
         UploadInputKindEnum: "report" | "prescription" | "nutrition" | "psychology" | "other";
         UploadInputRequest: {
+            identifier_kind?: components["schemas"]["IdentifierKindEnum"];
+            identifier_value?: string;
+            /** Format: date */
+            source_birth_date?: string;
             /** Format: binary */
             file: string;
             /** Format: uuid */
@@ -2701,6 +2882,33 @@ export interface operations {
             };
         };
     };
+    clinical_patients_encounters_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EncounterInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["EncounterInputRequest"];
+                "multipart/form-data": components["schemas"]["EncounterInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EncounterOutput"];
+                };
+            };
+        };
+    };
     clinical_patients_folders_list: {
         parameters: {
             query?: {
@@ -2752,6 +2960,33 @@ export interface operations {
             };
         };
     };
+    clinical_patients_identifiers_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IdentifierInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["IdentifierInputRequest"];
+                "multipart/form-data": components["schemas"]["IdentifierInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusOutput"];
+                };
+            };
+        };
+    };
     clinical_patients_opinions_retrieve: {
         parameters: {
             query?: never;
@@ -2797,9 +3032,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["ReportOutput"];
+                };
+            };
+        };
+    };
+    clinical_reports_corrections_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportCorrectionInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReportCorrectionInputRequest"];
+                "multipart/form-data": components["schemas"]["ReportCorrectionInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOutput"];
                 };
             };
         };
@@ -3004,11 +3264,58 @@ export interface operations {
             };
         };
     };
+    fhir_DiagnosticReport__history_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
+                version: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     fhir_DocumentReference_retrieve: {
         parameters: {
             query?: {
                 format?: "fhir" | "json";
             };
+            header?: never;
+            path: {
+                resource_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    fhir_Encounter_retrieve: {
+        parameters: {
+            query?: never;
             header?: never;
             path: {
                 resource_id: string;
@@ -3106,6 +3413,30 @@ export interface operations {
             header?: never;
             path: {
                 resource_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/fhir+json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    fhir_Provenance__v_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                resource_id: string;
+                version: number;
             };
             cookie?: never;
         };

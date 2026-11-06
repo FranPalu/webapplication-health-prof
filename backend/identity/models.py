@@ -153,6 +153,27 @@ class Patient(models.Model):
         ]
 
 
+class PatientIdentifier(models.Model):
+    class Kind(models.TextChoices):
+        FACILITY = "facility", "Facility identifier"
+        TAX_CODE = "tax_code", "Italian tax code"
+        HEALTH_CARD = "health_card", "Italian health card number"
+
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    kind = models.CharField(max_length=16, choices=Kind.choices)
+    digest = models.CharField(max_length=64)
+    recorded_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "kind", "digest"], name="unique_tenant_patient_identifier"
+            )
+        ]
+
+
 class CareRelationship(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
     professional = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -370,13 +391,62 @@ class ClinicalDocumentVersion(models.Model):
         ]
 
 
+class ClinicalEncounter(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField()
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(ended_at__gte=models.F("started_at")),
+                name="clinical_encounter_period",
+            )
+        ]
+
+
 class ClinicalReport(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
+    encounter = models.ForeignKey(ClinicalEncounter, null=True, on_delete=models.PROTECT)
     code = models.CharField(max_length=32)
     title = models.CharField(max_length=160)
     effective_at = models.DateTimeField()
+
+    recorded_at = models.DateTimeField(null=True)
+    version = models.PositiveIntegerField(default=1)
+    root = models.ForeignKey("self", null=True, on_delete=models.PROTECT, related_name="revisions")
+    previous = models.OneToOneField(
+        "self", null=True, on_delete=models.PROTECT, related_name="superseding_revision"
+    )
+    correction_reason = models.CharField(max_length=500, blank=True)
+    terminology_version = models.CharField(max_length=32, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["root", "version"], name="unique_report_revision"),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(
+                        version=1, root__isnull=True, previous__isnull=True, correction_reason=""
+                    )
+                    | (
+                        models.Q(
+                            version__gt=1,
+                            root__isnull=False,
+                            previous__isnull=False,
+                            recorded_at__isnull=False,
+                        )
+                        & ~models.Q(correction_reason="")
+                    )
+                ),
+                name="report_revision_shape",
+            ),
+        ]
 
 
 class ClinicalObservation(models.Model):
@@ -388,6 +458,8 @@ class ClinicalObservation(models.Model):
     label = models.CharField(max_length=160)
     value = models.DecimalField(max_digits=16, decimal_places=6)
     unit = models.CharField(max_length=32)
+
+    reference_range = models.JSONField(default=dict)
 
 
 class AnalysisModel(models.Model):

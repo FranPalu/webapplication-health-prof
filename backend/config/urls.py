@@ -9,6 +9,7 @@ from identity import (
     clinical_views,
     directory_views,
     fhir,
+    patient_identification,
     payment_views,
     pharmacy_views,
     research_release_views,
@@ -76,11 +77,22 @@ urlpatterns += [
 ]
 
 urlpatterns += [
+    endpoint(
+        "clinical/patients/<uuid:patient_id>/identifiers/",
+        patient_identification.PatientIdentifierView,
+    ),
+    endpoint("clinical/patients/<uuid:patient_id>/encounters/", fhir.EncounterCreateView),
     endpoint("clinical/patients/<uuid:patient_id>/reports/", fhir.ReportCreateView),
+    endpoint("clinical/reports/<uuid:report_id>/corrections/", fhir.ReportCorrectionView),
+    endpoint("fhir/Encounter/<uuid:resource_id>", fhir.FhirEncounterView),
     endpoint("fhir/Organization/<uuid:resource_id>", fhir.FhirOrganizationView),
     endpoint("fhir/Practitioner/<uuid:resource_id>", fhir.FhirPractitionerView),
     endpoint("fhir/Consent/<int:resource_id>", fhir.FhirConsentView),
     endpoint("fhir/DiagnosticReport/<uuid:resource_id>", fhir.FhirReportView),
+    endpoint(
+        "fhir/DiagnosticReport/<uuid:resource_id>/_history/<int:version>", fhir.FhirReportView
+    ),
+    endpoint("fhir/Provenance/<uuid:resource_id>-v<int:version>", fhir.FhirReportProvenanceView),
     endpoint("fhir/Observation/<uuid:resource_id>", fhir.FhirObservationView),
 ]
 

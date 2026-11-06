@@ -105,8 +105,10 @@ def test_clinical_version_lifecycle_and_access(settings, monkeypatch):
         "Organization",
         "Practitioner",
         "Consent",
+        "Encounter",
         "DiagnosticReport",
         "Observation",
+        "Provenance",
     }
     assert outsider.get(download).status_code == 404
     assert outsider.get(fhir).status_code == 404
@@ -177,8 +179,15 @@ def test_structured_report_and_observation_are_visible_only_in_care():
     record = patient(org_for(professional), professional)
     outsider = signed(user("report-outsider@patients.example"))
     url = f"clinical/patients/{record.pk}/reports/"
+    identity = {
+        "identifier_kind": "facility",
+        "identifier_value": "SYN-REPORT-01",
+        "source_birth_date": str(record.birth_date),
+    }
+    assert author.post(f"clinical/patients/{record.pk}/identifiers/", identity).status_code == 201
     payload = {
-        "code": "24323-8",
+        **identity,
+        "code": "11502-2",
         "title": "Synthetic panel",
         "effective_at": "2026-01-02T12:00:00Z",
         "observations": [
@@ -415,3 +424,274 @@ def test_import_manifest_is_idempotent_and_rejects_hash_mismatch(settings, monke
         manifest.write_text(json.dumps({**row, "sha256": "0" * 64}))
         with pytest.raises(CommandError):
             call_command("import_legacy_documents", str(manifest), "--apply")
+
+
+def test_report_identity_scope_preliminary_visibility_and_append_only_history():
+    from django.db import DatabaseError, transaction
+
+    from identity.models import ClinicalObservation, ClinicalReport, PatientIdentifier
+
+    professional = user("history-author@patients.example", "professional")
+    approve(professional)
+    author = signed(professional)
+    org = org_for(professional)
+    record = patient(org, professional)
+    other = patient(org, professional)
+    other_org = patient(org_for(professional, "Other tenant"), professional)
+    account = user("history-patient@patients.example")
+    record.account = account
+    record.save(update_fields=["account"])
+    owner = signed(account)
+    outsider = user("history-outsider@patients.example", "professional")
+    approve(outsider)
+    outside = signed(outsider)
+    assert record.birth_date == other.birth_date == other_org.birth_date
+    check = {
+        "identifier_kind": "facility",
+        "identifier_value": "synthetic-010",
+        "source_birth_date": str(record.birth_date),
+    }
+
+    def intake(patient, suffix):
+        return f"clinical/patients/{patient.pk}/{suffix}/"
+
+    assert owner.post(intake(record, "identifiers"), check).status_code == 403
+    assert outside.post(intake(record, "identifiers"), check).status_code == 404
+    assert author.post(intake(record, "identifiers"), check).status_code == 201
+    assert author.post(intake(other, "identifiers"), check).status_code == 400
+    assert author.post(intake(other_org, "identifiers"), check).status_code == 201
+    assert PatientIdentifier.objects.count() == 2
+    assert PatientIdentifier.objects.get(patient=record).digest != check["identifier_value"]
+
+    episode = {
+        **check,
+        "started_at": "2026-01-02T10:00:00Z",
+        "ended_at": "2026-01-02T12:00:00Z",
+    }
+    assert (
+        author.post(
+            intake(record, "encounters"),
+            {
+                **episode,
+                "ended_at": "2026-01-01T12:00:00Z",
+            },
+        ).status_code
+        == 400
+    )
+    encounter = author.post(intake(record, "encounters"), episode)
+    foreign_encounter = author.post(intake(other_org, "encounters"), episode)
+    assert encounter.status_code == foreign_encounter.status_code == 201
+    encounter_path = f"fhir/Encounter/{encounter.data['id']}"
+    assert author.get(encounter_path).json()["status"] == "finished"
+    assert owner.get(encounter_path).status_code == 404
+    assert outside.get(encounter_path).status_code == 404
+
+    observation = {
+        "code": "2345-7",
+        "display": "Glucose",
+        "value": "90.01",
+        "unit": "mg/dL",
+        "reference_range": {
+            "low": "60",
+            "high": "100",
+            "min_age_years": 18,
+            "laboratory": "Synthetic lab",
+        },
+    }
+    report = {
+        **check,
+        "code": "11502-2",
+        "title": "Source record",
+        "encounter_id": str(encounter.data["id"]),
+        "effective_at": "2026-01-02T12:00:00Z",
+        "observations": [observation],
+    }
+    url = intake(record, "reports")
+    assert author.post(intake(other, "reports"), report).status_code == 400
+    assert author.post(url, {**report, "source_birth_date": "1980-01-01"}).status_code == 400
+    assert author.post(url, {**report, "identifier_value": "bad-id"}).status_code == 400
+    assert (
+        author.post(
+            url, {**report, "observations": [{**observation, "unit": "mmol/L"}]}
+        ).status_code
+        == 400
+    )
+    assert (
+        author.post(
+            url,
+            {
+                **report,
+                "observations": [
+                    {
+                        **observation,
+                        "reference_range": {
+                            "laboratory": "Synthetic lab",
+                            "low": "100",
+                            "high": "60",
+                        },
+                    }
+                ],
+            },
+        ).status_code
+        == 400
+    )
+    assert (
+        author.post(
+            url,
+            {
+                **report,
+                "encounter_id": str(foreign_encounter.data["id"]),
+            },
+        ).status_code
+        == 400
+    )
+    assert ClinicalReport.objects.count() == 0
+
+    created = author.post(url, report)
+    assert created.status_code == 201, created.content
+    root = ClinicalReport.objects.get(pk=created.data["id"])
+    path = f"fhir/DiagnosticReport/{root.pk}"
+    initial = author.get(path).json()
+    assert initial["status"] == "preliminary"
+    assert initial["encounter"]["reference"] == f"Encounter/{encounter.data['id']}"
+    assert owner.get(path).status_code == 404
+    assert outside.get(path).status_code == 404
+    obs_path = "fhir/" + initial["result"][0]["reference"]
+    assert owner.get(obs_path).status_code == 404
+    obs = author.get(obs_path).json()
+    assert obs["valueQuantity"] == {
+        "value": 90.01,
+        "unit": "mg/dL",
+        "system": "http://unitsofmeasure.org",
+        "code": "mg/dL",
+    }
+    assert obs["referenceRange"][0]["age"]["low"]["code"] == "a"
+
+    correct = f"clinical/reports/{root.pk}/corrections/"
+    correction = {
+        **report,
+        "expected_version": 1,
+        "correction_reason": "Source rectified",
+        "title": "Revised",
+        "observations": [{**observation, "value": "88.01"}],
+    }
+    assert outside.post(correct, correction).status_code == 404
+    assert author.post(correct, correction).data == {"id": root.pk, "version": 2}
+    assert author.post(correct, correction).status_code == 409
+    assert author.get(path).json()["meta"]["versionId"] == "2"
+    provenance_path = f"fhir/Provenance/{root.pk}-v2"
+    assert author.get(provenance_path).json()["target"] == [
+        {"reference": f"DiagnosticReport/{root.pk}/_history/2"}
+    ]
+    assert owner.get(provenance_path).status_code == 404
+    assert outside.get(provenance_path).status_code == 404
+    assert author.get(path + "/_history/1").json() == initial
+    from urllib.parse import quote
+
+    assert author.get(path + "?as_of=" + quote(root.recorded_at.isoformat())).json() == initial
+    assert author.get(path + "?as_of=2026-01-01T12:00:00").status_code == 400
+    assert owner.get(path + "/_history/1").status_code == 404
+    assert AuditEvent.objects.filter(action="clinical.report_corrected", organization=org).exists()
+    with pytest.raises(DatabaseError), transaction.atomic():
+        ClinicalReport.objects.create(
+            patient=record,
+            author=professional,
+            title="Invalid direct link",
+            code=report["code"],
+            effective_at=root.effective_at,
+            encounter_id=foreign_encounter.data["id"],
+        )
+    with pytest.raises(DatabaseError), transaction.atomic():
+        ClinicalReport.objects.create(
+            patient=other,
+            author=professional,
+            title="Invalid revision link",
+            code=report["code"],
+            effective_at=root.effective_at,
+            recorded_at=root.recorded_at,
+            version=3,
+            root=root,
+            previous=root.revisions.get(version=2),
+            correction_reason="wrong patient",
+        )
+    for model, field, value in (
+        (ClinicalReport, "title", "Overwritten"),
+        (ClinicalObservation, "label", "Overwritten"),
+        (PatientIdentifier, "digest", "Overwritten"),
+    ):
+        with pytest.raises(DatabaseError), transaction.atomic():
+            model.objects.all().update(**{field: value})
+
+
+def test_report_upload_requires_confirmation_before_scanning(settings):
+    settings.CLINICAL_MASTER_KEY = Fernet.generate_key().decode()
+    professional = user("intake-author@patients.example", "professional")
+    approve(professional)
+    author = signed(professional)
+    record = patient(org_for(professional), professional)
+    base = f"/api/v1/clinical/patients/{record.pk}"
+    check = {
+        "identifier_kind": "facility",
+        "identifier_value": "SYN-UPLOAD",
+        "source_birth_date": str(record.birth_date),
+    }
+    assert author.post(f"clinical/patients/{record.pk}/identifiers/", check).status_code == 201
+    csrf = author.client.cookies["csrftoken"].value
+
+    def upload(url, fields):
+        return author.client.post(
+            url,
+            {
+                "title": "Synthetic report",
+                "file": SimpleUploadedFile("report.pdf", PDF, content_type="application/pdf"),
+                **fields,
+            },
+            format="multipart",
+            HTTP_X_CSRFTOKEN=csrf,
+        )
+
+    with patch("identity.clinical.scan") as scan:
+        assert upload(base + "/documents/", {"kind": "report"}).status_code == 400
+        scan.assert_not_called()
+        first = upload(base + "/documents/", {"kind": "report", **check})
+        assert first.status_code == 201, first.content
+        versions = f"/api/v1/clinical/documents/{first.data['document']}/"
+        assert upload(versions, {"kind": "other"}).status_code == 400
+        assert upload(versions, check).status_code == 201
+        assert scan.call_count == 2
+
+
+def test_legacy_report_has_no_invented_timestamp_signature_or_ucum():
+    from django.utils import timezone
+
+    from identity.models import ClinicalObservation, ClinicalReport
+
+    professional = user("legacy-report-author@patients.example", "professional")
+    approve(professional)
+    record = patient(org_for(professional), professional)
+    account = user("legacy-report-patient@patients.example")
+    record.account = account
+    record.save(update_fields=["account"])
+    legacy = ClinicalReport.objects.create(
+        patient=record,
+        author=professional,
+        title="Legacy",
+        code="24323-8",
+        effective_at=timezone.now(),
+    )
+    observation = ClinicalObservation.objects.create(
+        report=legacy,
+        code="2345-7",
+        label="Legacy observation",
+        value=90,
+        unit="legacy unit",
+    )
+    browser = signed(account)
+    path = f"fhir/DiagnosticReport/{legacy.pk}"
+    report = browser.get(path).json()
+    assert report["status"] == "unknown"
+    assert report["meta"] == {"versionId": "1"}
+    assert browser.get(path + "?as_of=2026-11-01T10:00:00Z").status_code == 404
+    assert browser.get(f"fhir/Provenance/{legacy.pk}-v1").status_code == 404
+    result = browser.get(f"fhir/Observation/{observation.pk}").json()
+    assert result["valueQuantity"] == {"value": 90, "unit": "legacy unit"}

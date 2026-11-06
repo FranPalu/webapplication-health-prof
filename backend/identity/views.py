@@ -920,7 +920,12 @@ class AccessHistoryView(InputView):
         resource_ids = [str(value) for value in patient_ids] + [str(value) for value in share_ids]
         from django.db.models.functions import Cast
 
-        from identity.models import ClinicalDocumentVersion, ClinicalObservation, ClinicalReport
+        from identity.models import (
+            ClinicalDocumentVersion,
+            ClinicalEncounter,
+            ClinicalObservation,
+            ClinicalReport,
+        )
 
         versions = ClinicalDocumentVersion.objects.filter(
             document__patient_id__in=patient_ids
@@ -930,7 +935,8 @@ class AccessHistoryView(InputView):
         from django.db.models import CharField
 
         clinical_ids = Q()
-        for records in (versions, reports, observations):
+        encounters = ClinicalEncounter.objects.filter(patient_id__in=patient_ids)
+        for records in (versions, reports, observations, encounters):
             clinical_ids |= Q(
                 resource_id__in=records.annotate(
                     text_id=Cast("pk", output_field=CharField())

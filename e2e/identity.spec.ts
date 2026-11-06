@@ -132,11 +132,23 @@ test('professional reviews a local analysis and publishes only the final opinion
   await page.getByLabel('Codice TOTP o di recupero').fill(totp(await page.locator('.identity-secret').innerText()));
   await page.getByRole('button', {name:'Conferma',exact:true}).click();
   await page.getByText('Documenti clinici', {exact:true}).click();
+  await page.getByText('Registra identificativo da una fonte verificata', {exact:true}).click();
+  await page.getByLabel('Identificativo dalla fonte').fill('SYNTHETIC-REPORT-01');
+  await page.getByLabel('Data di nascita dalla fonte').fill('1990-01-01');
+  await page.getByRole('button', {name:'Registra identificativo'}).click();
+  await expect(page.getByText('Identificativo registrato.', {exact:true})).toBeVisible();
+  await page.getByText('Registra identificativo da una fonte verificata', {exact:true}).click();
   await page.getByLabel('Titolo del documento').fill('Referto sintetico M4');
   await page.getByLabel('Categoria').selectOption('report');
+  const reportPatient = page.getByRole('group', {name:'Conferma il paziente indicato nel referto'});
+  await reportPatient.getByLabel('Identificativo dalla fonte').fill('SYNTHETIC-WRONG-ID');
+  await reportPatient.getByLabel('Data di nascita dalla fonte').fill('1990-01-01');
   await page.getByLabel('File (massimo 10 MiB)').setInputFiles({
     name:'lab.pdf',mimeType:'application/pdf',buffer:Buffer.from(makePdf(['Glucosio 110 mg/dL 60-100'])),
   });
+  await page.getByRole('button', {name:'Carica documento',exact:true}).click();
+  await expect(page.getByText('Operazione non riuscita. Verifica il file, i permessi e riprova.')).toBeVisible();
+  await reportPatient.getByLabel('Identificativo dalla fonte').fill('SYNTHETIC-REPORT-01');
   await page.getByRole('button', {name:'Carica documento',exact:true}).click();
   await page.getByRole('button', {name:/Referto sintetico M4/}).click();
   await page.getByText('Analisi preliminare', {exact:true}).click();

@@ -101,6 +101,8 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "ProfileRoleEnum": ["patient", "professional", "researcher", "organization_admin"],
         "MembershipRoleEnum": ["admin", "professional", "researcher"],
+        "ClinicalReportCodeEnum": ["11502-2"],
+        "ClinicalObservationCodeEnum": ["14749-6", "2345-7"],
         "LocaleEnum": ["it", "en"],
         "DecisionEnum": ["granted", "revoked"],
         "ResearchAccessDecisionEnum": ["approve", "reject", "revoke"],
@@ -145,3 +147,5 @@ CELERY_BEAT_SCHEDULE["refresh-research-archive"] = {
     "task": "identity.tasks.refresh_research_archive",
     "schedule": 300.0,
 }
+
+CLINICAL_IDENTITY_KEY = os.getenv("CLINICAL_IDENTITY_KEY", "")

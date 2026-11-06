@@ -15,6 +15,8 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
   const [page, setPage] = useState<Page | null>(null);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [query, setQuery] = useState('');
+  const [kind, setKind] = useState('other');
+  const [identityRecorded, setIdentityRecorded] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<Version | null>(null);
@@ -59,6 +61,30 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
     });
   }
 
+  function enrollIdentifier(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fields = new FormData(form);
+    setIdentityRecorded(false);
+    void perform(async () => {
+      await api('clinical/patients/' + patient + '/identifiers/', Object.fromEntries(fields));
+      form.reset();
+      setIdentityRecorded(true);
+    });
+  }
+
+  function sourceFields() {
+    return <>
+      <label>{label('Tipo di identificativo', 'Identifier type')}<select name="identifier_kind">
+        <option value="facility">{label('Identificativo di struttura', 'Facility identifier')}</option>
+        <option value="tax_code">{label('Codice fiscale', 'Italian tax code')}</option>
+        <option value="health_card">{label('Numero tessera sanitaria', 'Health card number')}</option>
+      </select></label>
+      <label>{label('Identificativo dalla fonte', 'Identifier from source')}<input name="identifier_value" maxLength={64} autoComplete="off" required/></label>
+      <label>{label('Data di nascita dalla fonte', 'Date of birth from source')}<input name="source_birth_date" type="date" autoComplete="off" required/></label>
+    </>;
+  }
+
   function upload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -67,6 +93,7 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
     void perform(async () => {
       await api(selectedPath || path, payload);
       form.reset();
+      setKind('other');
       setSelected(null);
       setHistory(null);
       await load();
@@ -111,6 +138,15 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
         <button disabled={busy}>{label('Crea cartella', 'Create folder')}</button>
       </form>
     </details>}
+    {write && <details>
+      <summary>{label('Registra identificativo da una fonte verificata', 'Record an identifier from a verified source')}</summary>
+      <form onSubmit={enrollIdentifier}>
+        <p>{label('Verifica il paziente e i dati presso la fonte prima di registrare.', 'Verify the patient and details against the source before recording.')}</p>
+        {sourceFields()}
+        <button disabled={busy}>{label('Registra identificativo', 'Record identifier')}</button>
+      </form>
+      {identityRecorded && <p role="status">{label('Identificativo registrato.', 'Identifier recorded.')}</p>}
+    </details>}
     {error && <p role="alert">{error}</p>}
     {page && !page.results.length && <p>{label('Nessun documento trovato.', 'No documents found.')}</p>}
     <ul>{page?.results.map(version => <li key={version.id}>
@@ -148,7 +184,7 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
     </>}
     {write && (!selected || selected.can_edit) && <form onSubmit={upload}>
       <label>{label('Titolo del documento', 'Document title')}<input name="title" maxLength={160} required/></label>
-      {!selected && <label>{label('Categoria', 'Category')}<select name="kind">
+      {!selected && <label>{label('Categoria', 'Category')}<select name="kind" value={kind} onChange={event => setKind(event.target.value)}>
         <option value="other">{label('Altro', 'Other')}</option>
         <option value="prescription">{label('Ricetta', 'Prescription')}</option>
         <option value="report">{label('Referto', 'Report')}</option>
@@ -159,6 +195,10 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
         <option value="">{label('Nessuna', 'None')}</option>
         {folders.map(folder => <option key={folder.id} value={folder.id}>{folder.title}</option>)}
       </select></label>}
+      {(selected?.kind ?? kind) === 'report' && <fieldset>
+        <legend>{label('Conferma il paziente indicato nel referto', 'Confirm the patient identified on the report')}</legend>
+        {sourceFields()}
+      </fieldset>}
       <label>{label('File (massimo 10 MiB)', 'File (maximum 10 MiB)')}<input name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.dcm" required/></label>
       <button disabled={busy}>{selected ? label('Carica nuova versione', 'Upload new version') : label('Carica documento', 'Upload document')}</button>
       {selected && <button type="button" disabled={busy} onClick={() => {

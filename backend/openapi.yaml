@@ -719,6 +719,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/VersionOutput'
           description: ''
+  /api/v1/clinical/patients/{patient_id}/encounters/:
+    post:
+      operationId: clinical_patients_encounters_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EncounterInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EncounterInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EncounterInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterOutput'
+          description: ''
   /api/v1/clinical/patients/{patient_id}/folders/:
     get:
       operationId: clinical_patients_folders_list
@@ -778,6 +811,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/FolderOutput'
           description: ''
+  /api/v1/clinical/patients/{patient_id}/identifiers/:
+    post:
+      operationId: clinical_patients_identifiers_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentifierInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/IdentifierInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IdentifierInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOutput'
+          description: ''
   /api/v1/clinical/patients/{patient_id}/opinions/:
     get:
       operationId: clinical_patients_opinions_retrieve
@@ -831,8 +897,40 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: {}
+                $ref: '#/components/schemas/ReportOutput'
+          description: ''
+  /api/v1/clinical/reports/{report_id}/corrections/:
+    post:
+      operationId: clinical_reports_corrections_create
+      parameters:
+      - in: path
+        name: report_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportCorrectionInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportCorrectionInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportCorrectionInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportOutput'
           description: ''
   /api/v1/clinical/versions/{version_id}/analysis/:
     get:
@@ -1038,6 +1136,33 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/fhir/DiagnosticReport/{resource_id}/_history/{version}:
+    get:
+      operationId: fhir_DiagnosticReport__history_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: version
+        schema:
+          type: integer
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/fhir/DocumentReference/{resource_id}:
     get:
       operationId: fhir_DocumentReference_retrieve
@@ -1049,6 +1174,28 @@ paths:
           enum:
           - fhir
           - json
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/Encounter/{resource_id}:
+    get:
+      operationId: fhir_Encounter_retrieve
+      parameters:
       - in: path
         name: resource_id
         schema:
@@ -1149,6 +1296,33 @@ paths:
         schema:
           type: string
           format: uuid
+        required: true
+      tags:
+      - fhir
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/fhir+json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/fhir/Provenance/{resource_id}-v{version}:
+    get:
+      operationId: fhir_Provenance__v_retrieve
+      parameters:
+      - in: path
+        name: resource_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: version
+        schema:
+          type: integer
         required: true
       tags:
       - fhir
@@ -2534,6 +2708,19 @@ components:
       - outcome
       - price
       - request_id
+    ClinicalObservationCodeEnum:
+      enum:
+      - 14749-6
+      - 2345-7
+      type: string
+      description: |-
+        * `14749-6` - 14749-6
+        * `2345-7` - 2345-7
+    ClinicalReportCodeEnum:
+      enum:
+      - 11502-2
+      type: string
+      description: '* `11502-2` - 11502-2'
     CodeInputRequest:
       type: object
       properties:
@@ -2670,6 +2857,38 @@ components:
           minLength: 1
       required:
       - email
+    EncounterInputRequest:
+      type: object
+      properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+      required:
+      - ended_at
+      - identifier_kind
+      - identifier_value
+      - source_birth_date
+      - started_at
+    EncounterOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+      - id
     FolderInputRequest:
       type: object
       properties:
@@ -2711,6 +2930,32 @@ components:
         * `parquet` - parquet
         * `fhir` - fhir
         * `dashboard` - dashboard
+    IdentifierInputRequest:
+      type: object
+      properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+      required:
+      - identifier_kind
+      - identifier_value
+      - source_birth_date
+    IdentifierKindEnum:
+      enum:
+      - facility
+      - tax_code
+      - health_card
+      type: string
+      description: |-
+        * `facility` - Facility identifier
+        * `tax_code` - Italian tax code
+        * `health_card` - Italian health card number
     ItemInputRequest:
       type: object
       properties:
@@ -2879,9 +3124,7 @@ components:
       type: object
       properties:
         code:
-          type: string
-          minLength: 1
-          pattern: ^[0-9]{1,12}-[0-9]$
+          $ref: '#/components/schemas/ClinicalObservationCodeEnum'
         display:
           type: string
           minLength: 1
@@ -2889,11 +3132,13 @@ components:
         value:
           type: string
           format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,6})?$
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
         unit:
           type: string
           minLength: 1
           maxLength: 32
+        reference_range:
+          $ref: '#/components/schemas/ReferenceRangeInputRequest'
       required:
       - code
       - display
@@ -3449,6 +3694,33 @@ components:
             type: string
       required:
       - recovery_codes
+    ReferenceRangeInputRequest:
+      type: object
+      properties:
+        low:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+        high:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+        laboratory:
+          type: string
+          minLength: 1
+          maxLength: 120
+        min_age_years:
+          type: integer
+          maximum: 130
+          minimum: 0
+        max_age_years:
+          type: integer
+          maximum: 130
+          minimum: 0
+        sex:
+          $ref: '#/components/schemas/SexEnum'
+      required:
+      - laboratory
     RegisterInputRequest:
       type: object
       properties:
@@ -3483,13 +3755,20 @@ components:
           default: true
       required:
       - professional
-    ReportInputRequest:
+    ReportCorrectionInputRequest:
       type: object
       properties:
-        code:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
           type: string
           minLength: 1
-          pattern: ^[0-9]{1,12}-[0-9]$
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+        code:
+          $ref: '#/components/schemas/ClinicalReportCodeEnum'
         title:
           type: string
           minLength: 1
@@ -3497,6 +3776,54 @@ components:
         effective_at:
           type: string
           format: date-time
+        encounter_id:
+          type: string
+          format: uuid
+        observations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservationInputRequest'
+        expected_version:
+          type: integer
+          minimum: 1
+        correction_reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - code
+      - correction_reason
+      - effective_at
+      - expected_version
+      - identifier_kind
+      - identifier_value
+      - observations
+      - source_birth_date
+      - title
+    ReportInputRequest:
+      type: object
+      properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+        code:
+          $ref: '#/components/schemas/ClinicalReportCodeEnum'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        effective_at:
+          type: string
+          format: date-time
+        encounter_id:
+          type: string
+          format: uuid
         observations:
           type: array
           items:
@@ -3504,8 +3831,22 @@ components:
       required:
       - code
       - effective_at
+      - identifier_kind
+      - identifier_value
       - observations
+      - source_birth_date
       - title
+    ReportOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+      required:
+      - id
+      - version
     ResearchAccessDecisionEnum:
       enum:
       - approve
@@ -3666,6 +4007,14 @@ components:
       - created_at
       - id
       - sender
+    SexEnum:
+      enum:
+      - female
+      - male
+      type: string
+      description: |-
+        * `female` - female
+        * `male` - male
     ShareInputRequest:
       type: object
       properties:
@@ -3910,6 +4259,15 @@ components:
     UploadInputRequest:
       type: object
       properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
         file:
           type: string
           format: binary

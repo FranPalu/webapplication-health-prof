@@ -12,13 +12,24 @@ from rest_framework.response import Response
 
 from identity import analysis, clinical, clinical_storage
 from identity.clinical_formats import validated_text
-from identity.models import ClinicalDocument, ClinicalDocumentVersion, ClinicalFolder
+from identity.models import (
+    ClinicalDocument,
+    ClinicalDocumentVersion,
+    ClinicalFolder,
+    PatientIdentifier,
+)
+from identity.patient_identification import confirm_report_patient
 from identity.security import audit, rate_limit
 from identity.services import verified_professional, visible_patients
 from identity.views import InputView
 
 
 class UploadInput(serializers.Serializer):
+    identifier_kind = serializers.ChoiceField(
+        choices=PatientIdentifier.Kind.choices, required=False
+    )
+    identifier_value = serializers.CharField(max_length=64, required=False)
+    source_birth_date = serializers.DateField(required=False)
     file = serializers.FileField()
     folder = serializers.UUIDField(required=False)
     title = serializers.CharField(max_length=160)
@@ -112,10 +123,12 @@ def store_version(document, upload, number):
     )
 
 
-def prepared_upload(request, patient):
+def prepared_upload(request, patient, existing_kind=None):
     data = UploadInput(data=request.data)
     data.is_valid(raise_exception=True)
     upload = data.validated_data
+    if (existing_kind or upload.get("kind")) == ClinicalDocument.Kind.REPORT:
+        confirm_report_patient(patient, upload)
     file = upload["file"]
     if file.size > clinical.MAX_BYTES:
         raise ValidationError("Maximum file size is 10 MiB.")
@@ -225,6 +238,12 @@ class DocumentsView(InputView):
         if upload.get("folder"):
             folder = get_object_or_404(ClinicalFolder, pk=upload["folder"], patient=patient)
         with transaction.atomic():
+            patient = get_object_or_404(
+                clinical.clinical_patients(request.user).select_for_update(of=("self",)),
+                pk=patient_id,
+            )
+            if upload.get("kind") == ClinicalDocument.Kind.REPORT:
+                confirm_report_patient(patient, upload)
             document = ClinicalDocument.objects.create(
                 patient=patient,
                 author=request.user,
@@ -267,13 +286,15 @@ class DocumentView(InputView):
     def post(self, request, document_id):
         rate_limit(request, "clinical-upload", limit=12)
         document = get_object_or_404(self.editable(request), pk=document_id)
-        upload = prepared_upload(request, document.patient)
+        upload = prepared_upload(request, document.patient, document.kind)
         if "folder" in upload and upload["folder"] != document.folder_id:
             raise ValidationError("Document folder cannot change between versions.")
         if "kind" in upload and upload["kind"] != document.kind:
             raise ValidationError("Document category cannot change between versions.")
         with transaction.atomic():
             document = get_object_or_404(self.editable(request).select_for_update(), pk=document_id)
+            if document.kind == ClinicalDocument.Kind.REPORT:
+                confirm_report_patient(document.patient, upload)
             version = store_version(document, upload, latest(document).number + 1)
             audit(
                 request.user, "clinical.version_created", version.pk, document.patient.organization
@@ -407,15 +428,21 @@ class FhirMetadataView(InputView):
                     {
                         "mode": "server",
                         "resource": [
-                            {"type": resource, "interaction": [{"code": "read"}]}
+                            {
+                                "type": resource,
+                                "interaction": [{"code": "read"}]
+                                + ([{"code": "vread"}] if resource == "DiagnosticReport" else []),
+                            }
                             for resource in (
                                 "DocumentReference",
                                 "Patient",
                                 "Organization",
                                 "Practitioner",
                                 "Consent",
+                                "Encounter",
                                 "DiagnosticReport",
                                 "Observation",
+                                "Provenance",
                             )
                         ],
                     }
