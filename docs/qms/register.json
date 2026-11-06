@@ -540,7 +540,9 @@
       ],
       "p0_trace": "TR-13",
       "phase": "P3",
-      "evidence": [],
+      "evidence": [
+        "backend/tests/test_medication_safety.py::test_synthetic_screening_requires_evidence_and_audits_motivated_override"
+      ],
       "planned_test": "Casi farmaco-allergia, unità, insufficienza renale e override motivato."
     },
     {
@@ -559,6 +561,20 @@
         "backend/tests/test_clinical_calculators.py::test_full_questionnaire_scores_without_interpretation"
       ],
       "planned_test": "Validazione clinica del contesto, qualità e unità degli input e prevenzione dell’uso improprio prima di esporre i calcolatori."
+    },
+    {
+      "id": "SRS-22",
+      "text": "Mantenere ogni richiesta di esame in sospeso fino alla revisione esplicita del risultato corrente.",
+      "hazards": [
+        "H-05",
+        "H-17"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P3",
+      "evidence": [
+        "backend/tests/test_lab_orders.py::test_order_remains_pending_until_latest_result_is_reviewed"
+      ],
+      "planned_test": "Validare con il laboratorio le eccezioni, le richieste scadute, il risultato collegato e la riapertura dopo correzione."
     }
   ]
 }

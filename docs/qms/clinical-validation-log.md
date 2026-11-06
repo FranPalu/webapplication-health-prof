@@ -38,3 +38,5 @@
 | CV-P3-01 | Patologo clinico | Soglie o unità possono essere errate per il laboratorio o la popolazione. Validare fonte, limiti inclusivi, coorti e comportamento in assenza di una regola univoca |
 | CV-P3-02 | Infermiere di processo e risk manager | Notifica e presa visione sono eventi diversi. Provare indisponibilità, mancata presa visione, referente fuori turno ed escalation manuale |
 | CV-P3-03 | MMG e DPO | L'operatore può confermare il risultato di un omonimo. Verificare il banner, la conferma e la revoca dell'accesso durante il turno |
+| CV-P3-04 | Patologo clinico e infermiere | Una presa visione può essere scambiata per una revisione. Verificare richiesta senza esito, risultato tardivo, revisione e riapertura dopo correzione |
+| CV-P3-05 | Farmacista ospedaliero e internista | Un catalogo incompleto, una via diversa o un allergene non codificato può mascherare un rischio. Verificare copertura per popolazione, dati mancanti, aggiornamento della fonte e override |

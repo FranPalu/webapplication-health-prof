@@ -1,6 +1,6 @@
 # Limitazioni note
 
-P3 è in corso. Coda e regole di laboratorio sono limitate al collaudo sintetico. Ordini in sospeso, interazioni e controlli farmacologici, consegna affidabile e validazione clinica restano aperti. [Limiti P3](11-clinical-safety-p3.md)
+P3 copre coda, ordini e screening farmacologico nel collaudo sintetico. Restano aperti fonte clinica licenziata, affidabilità della consegna, conferma sui flussi futuri di firma e prescrizione e validazione clinica. [Limiti P3](11-clinical-safety-p3.md)
 
 P2 implementa identificazione, episodi ambulatoriali e storico dei referti in un perimetro limitato. La riconciliazione reversibile collega schede mantenendone distinti i dati. Restano aperti fusione canonica, rappresentanza, cartella estesa, cataloghi e profili, firma e conservazione. [Limiti P2](10-clinical-record-p2.md)
 
