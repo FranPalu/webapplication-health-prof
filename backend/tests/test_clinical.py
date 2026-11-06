@@ -8,7 +8,14 @@ from pypdf import PdfWriter
 from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 from test_identity import approve, org_for, patient, signed, user
 
-from identity.models import ClinicalDocumentVersion, ConsentTextVersion, PatientConsent, Share
+from identity.models import (
+    AuditEvent,
+    CareRelationship,
+    ClinicalDocumentVersion,
+    ConsentTextVersion,
+    PatientConsent,
+    Share,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -286,6 +293,10 @@ def test_folder_scope_includes_descendants_and_preserves_patient_boundary():
     route = f"clinical/patients/{record.pk}/folders/"
     root = author.post(route, {"title": "Synthetic root"})
     assert root.status_code == 201, root.content
+    assert author.get(route).status_code == 200
+    assert AuditEvent.objects.filter(
+        actor=professional, action="clinical.folders_read", resource_id=record.pk
+    ).exists()
     child = author.post(route, {"title": "Synthetic child", "parent_folder": root.data["id"]})
     assert child.status_code == 201, child.content
     other = patient(org_for(professional, "Other synthetic tenant"), professional)
@@ -315,11 +326,12 @@ def test_folder_scope_includes_descendants_and_preserves_patient_boundary():
             "scope": "folder",
             "recipient_user": str(recipient.pk),
             "purpose": "Synthetic",
-            "permissions": ["view", "reshare"],
+            "permissions": ["view", "reshare", "comment"],
         },
     )
     assert response.status_code == 201, response.content
     share = Share.objects.get(pk=response.data["id"])
+    messages = f"shares/{share.pk}/messages/"
     for version, status in [(1, 404), (2, 200)]:
         text = ConsentTextVersion.objects.get(purpose="care_sharing", locale="it", version=version)
         PatientConsent.objects.create(
@@ -330,7 +342,29 @@ def test_folder_scope_includes_descendants_and_preserves_patient_boundary():
             decision="granted",
         )
         assert receiver.get(f"clinical/documents/{document.pk}/").status_code == status
+        assert receiver.get(messages).status_code == (403 if version == 1 else 200)
     assert receiver.get(f"shares/{share.pk}/patient/").status_code == 404
+    assert receiver.get(route).status_code == 404
+    assert receiver.post(messages, {"body": "Synthetic clinical discussion"}).status_code == 201
+    assert author.get(messages).status_code == 200
+    CareRelationship.objects.filter(patient=record, professional=professional).update(active=False)
+    assert author.get(messages).status_code == 404
+    assert author.post(messages, {"body": "Former grantor"}).status_code == 404
+    assert (
+        author.post(
+            "shares/",
+            {
+                "parent_share": str(share.pk),
+                "patient": str(record.pk),
+                "scope": "folder",
+                "folder": root.data["id"],
+                "permissions": ["view"],
+                "purpose": share.purpose,
+                "recipient_user": str(patient_account.pk),
+            },
+        ).status_code
+        == 404
+    )
 
 
 def test_import_manifest_is_idempotent_and_rejects_hash_mismatch(settings, monkeypatch, tmp_path):

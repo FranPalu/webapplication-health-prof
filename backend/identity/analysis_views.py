@@ -51,7 +51,17 @@ class JobsView(InputView):
     def get(self, request, version_id):
         require_reviewer(request)
         rows = authorized_jobs(request.user).filter(version_id=version_id).order_by("-created_at")
-        return self.get_paginated_response(JobOutput(self.paginate_queryset(rows), many=True).data)
+        page = self.paginate_queryset(
+            rows.select_related("version__document__patient__organization")
+        )
+        for job in page or []:
+            audit(
+                request.user,
+                "analysis.job_listed",
+                job.pk,
+                job.version.document.patient.organization,
+            )
+        return self.get_paginated_response(JobOutput(page, many=True).data)
 
     @extend_schema(request=None, responses={202: JobOutput})
     @transaction.atomic

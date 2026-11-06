@@ -137,12 +137,6 @@ def share_is_active(share, minimum_version=1) -> bool:
     return True
 
 
-def user_is_share_participant(user, share) -> bool:
-    if share.granted_by_id == user.pk or share.patient.account_id == user.pk:
-        return True
-    return share_recipient_queryset(user).filter(pk=share.pk).exists()
-
-
 @transaction.atomic
 def change_membership(user, org, target, role: str, active: bool):
     # Lock the organization so concurrent removals cannot remove all administrators.

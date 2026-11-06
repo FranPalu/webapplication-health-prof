@@ -155,6 +155,7 @@ class FoldersView(InputView):
         patient = get_object_or_404(visible_patients(request.user), pk=patient_id)
         folders = ClinicalFolder.objects.filter(patient=patient).order_by("title", "pk")
         page = self.paginate_queryset(folders)
+        audit(request.user, "clinical.folders_read", patient.pk, patient.organization)
         return self.get_paginated_response(FolderOutput(page, many=True).data)
 
     @transaction.atomic

@@ -12,6 +12,7 @@ from identity.models import (
     AnalysisDraft,
     AnalysisJob,
     AnalysisOpinion,
+    AuditEvent,
     CareRelationship,
     ClinicalDocument,
     ClinicalDocumentVersion,
@@ -57,6 +58,12 @@ def test_analysis_review_publication_and_tenant_isolation(scenario, decision):
     assert first.status_code == 202, first.content
     assert reviewer.post(start, {}).data["id"] == first.data["id"]
     job_id = first.data["id"]
+    assert patient_browser.get(start).status_code == 403
+    assert outside.get(start).data["count"] == 0
+    assert reviewer.get(start).data["count"] == 1
+    assert AuditEvent.objects.filter(
+        actor=author, action="analysis.job_listed", resource_id=job_id
+    ).exists()
     path = f"clinical/analysis/{job_id}/"
     published = f"clinical/patients/{record.pk}/opinions/"
     assert patient_browser.get(path).status_code == 403

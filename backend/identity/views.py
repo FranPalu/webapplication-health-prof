@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Q
+from django.http import Http404
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -82,7 +83,6 @@ from .services import (
     share_is_active,
     share_recipient_queryset,
     token_entry,
-    user_is_share_participant,
     verified_professional,
     visible_patients,
 )
@@ -579,8 +579,11 @@ class SharesView(InputView):
         data = self.data(request)
         parent = None
         if data.get("parent_share"):
-            parent = get_object_or_404(Share.objects.select_for_update(), pk=data["parent_share"])
-            if not share_is_active(parent) or not user_is_share_participant(request.user, parent):
+            parent = get_object_or_404(
+                share_recipient_queryset(request.user).select_for_update(of=("self",)),
+                pk=data["parent_share"],
+            )
+            if not share_is_active(parent):
                 raise PermissionDenied()
             if "reshare" not in parent.permissions:
                 raise PermissionDenied("Re-sharing is not permitted")
@@ -811,12 +814,26 @@ class ShareMessagesView(InputView):
     pagination_class = None
 
     def get_share(self, request, share_id):
-        participants = Q(granted_by=request.user) | Q(patient__account=request.user)
-        recipients = share_recipient_queryset(request.user).values("pk")
-        share = get_object_or_404(
-            Share.objects.filter(participants | Q(pk__in=recipients)), pk=share_id
+        from identity.clinical import CLINICAL_CONSENT_VERSION
+
+        share = get_object_or_404(Share.objects.select_related("patient"), pk=share_id)
+        if share.patient.account_id != request.user.pk and not (
+            share_recipient_queryset(request.user).filter(pk=share.pk).exists()
+            or (
+                share.granted_by_id == request.user.pk
+                and (
+                    visible_patients(request.user).filter(pk=share.patient_id).exists()
+                    or share_recipient_queryset(request.user).filter(pk=share.parent_id).exists()
+                )
+            )
+        ):
+            raise Http404
+        minimum_version = (
+            CLINICAL_CONSENT_VERSION
+            if share.scope in ("chart", "folder") or share.document_id
+            else 1
         )
-        if not share_is_active(share):
+        if not share_is_active(share, minimum_version):
             raise PermissionDenied()
         return share
 
