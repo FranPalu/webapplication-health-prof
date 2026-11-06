@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: '3.14'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --prod --audit-level high
+      - run: pnpm audit --audit-level high
       - run: python -m venv .venv && .venv/bin/pip install -r backend/requirements.txt
       - name: Audit Python dependencies
         run: |
