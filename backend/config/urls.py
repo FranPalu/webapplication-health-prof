@@ -6,6 +6,7 @@ from config.health import liveness, readiness
 from identity import (
     analysis_views,
     appointment_views,
+    clinical_safety,
     clinical_views,
     directory_views,
     fhir,
@@ -91,6 +92,16 @@ urlpatterns += [
         reconciliation.PatientReconciliationApprovalView,
     ),
     endpoint("clinical/patients/<uuid:patient_id>/encounters/", fhir.EncounterCreateView),
+    endpoint("organizations/<uuid:org_id>/lab-rules/", clinical_safety.LabRuleView),
+    endpoint(
+        "organizations/<uuid:org_id>/lab-rules/<uuid:rule_id>/approve/",
+        clinical_safety.LabRuleApprovalView,
+    ),
+    endpoint("clinical/patients/<uuid:patient_id>/result-reviews/", clinical_safety.LabReviewView),
+    endpoint(
+        "clinical/result-reviews/<uuid:review_id>/acknowledge/",
+        clinical_safety.LabReviewAcknowledgmentView,
+    ),
     endpoint("clinical/patients/<uuid:patient_id>/reports/", fhir.ReportCreateView),
     endpoint("clinical/reports/<uuid:report_id>/corrections/", fhir.ReportCorrectionView),
     endpoint("fhir/Encounter/<uuid:resource_id>", fhir.FhirEncounterView),

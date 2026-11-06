@@ -425,6 +425,7 @@ class ClinicalReport(models.Model):
     )
     correction_reason = models.CharField(max_length=500, blank=True)
     terminology_version = models.CharField(max_length=32, blank=True)
+    evaluation_sex = models.CharField(max_length=6, blank=True)
 
     class Meta:
         constraints = [
@@ -705,4 +706,60 @@ class PatientReconciliation(models.Model):
 class PatientReconciliationApproval(models.Model):
     proposal = models.OneToOneField(PatientReconciliation, on_delete=models.PROTECT)
     reviewer = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class LabAlertRule(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT, related_name="+")
+    backup = models.ForeignKey(User, on_delete=models.PROTECT, related_name="+")
+    code = models.CharField(max_length=32)
+    unit = models.CharField(max_length=32)
+    laboratory = models.CharField(max_length=120)
+    sex = models.CharField(max_length=6, blank=True)
+    min_age = models.PositiveSmallIntegerField()
+    max_age = models.PositiveSmallIntegerField()
+    low = models.DecimalField(max_digits=14, decimal_places=6, null=True)
+    high = models.DecimalField(max_digits=14, decimal_places=6, null=True)
+    sla_minutes = models.PositiveSmallIntegerField()
+    evidence = models.CharField(max_length=500)
+    enabled = models.BooleanField(default=True)
+    version = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "organization",
+                    "code",
+                    "laboratory",
+                    "sex",
+                    "min_age",
+                    "max_age",
+                    "version",
+                ],
+                name="unique_lab_alert_rule_version",
+            )
+        ]
+
+
+class LabAlertRuleApproval(models.Model):
+    rule = models.OneToOneField(LabAlertRule, on_delete=models.PROTECT)
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class LabResultReview(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    report = models.OneToOneField(ClinicalReport, on_delete=models.PROTECT)
+    outcome = models.CharField(max_length=16)
+    findings = models.JSONField(default=list)
+    backup = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name="+")
+    due_at = models.DateTimeField(null=True, db_index=True)
+    acknowledged_at = models.DateTimeField(null=True)
+    acknowledged_by = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name="+")
+    escalated_at = models.DateTimeField(null=True)
+    escalation_assigned = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)

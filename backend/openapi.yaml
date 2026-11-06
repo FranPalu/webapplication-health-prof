@@ -958,6 +958,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/ReportOutput'
           description: ''
+  /api/v1/clinical/patients/{patient_id}/result-reviews/:
+    get:
+      operationId: clinical_patients_result_reviews_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLabReviewOutputList'
+          description: ''
   /api/v1/clinical/reconciliations/{reconciliation_id}/approve/:
     post:
       operationId: clinical_reconciliations_approve_create
@@ -1023,6 +1050,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportOutput'
+          description: ''
+  /api/v1/clinical/result-reviews/{review_id}/acknowledge/:
+    post:
+      operationId: clinical_result_reviews_acknowledge_create
+      parameters:
+      - in: path
+        name: review_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabAcknowledgmentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabAcknowledgmentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabAcknowledgmentInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabReviewOutput'
           description: ''
   /api/v1/clinical/versions/{version_id}/analysis/:
     get:
@@ -1593,6 +1653,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SlotOutput'
+          description: ''
+  /api/v1/organizations/{org_id}/lab-rules/:
+    get:
+      operationId: organizations_lab_rules_list
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLabRuleOutputList'
+          description: ''
+    post:
+      operationId: organizations_lab_rules_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabRuleInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabRuleInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabRuleInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabRuleOutput'
+          description: ''
+  /api/v1/organizations/{org_id}/lab-rules/{rule_id}/approve/:
+    post:
+      operationId: organizations_lab_rules_approve_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: rule_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabRuleOutput'
           description: ''
   /api/v1/organizations/{org_id}/location/:
     post:
@@ -2715,6 +2861,9 @@ components:
       required:
       - decision
       - text
+    BlankEnum:
+      enum:
+      - ''
     BookingInputRequest:
       type: object
       properties:
@@ -2813,6 +2962,14 @@ components:
       - 11502-2
       type: string
       description: '* `11502-2` - 11502-2'
+    ClinicalSexEnum:
+      enum:
+      - female
+      - male
+      type: string
+      description: |-
+        * `female` - female
+        * `male` - male
     CodeInputRequest:
       type: object
       properties:
@@ -3118,6 +3275,183 @@ components:
       - id
       - input_hash
       - pipeline
+    LabAcknowledgmentInputRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+      required:
+      - patient
+    LabReviewOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        report:
+          type: string
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+        outcome:
+          type: string
+          maxLength: 16
+        findings: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        due_at:
+          type: string
+          format: date-time
+          nullable: true
+        acknowledged_at:
+          type: string
+          format: date-time
+          nullable: true
+        escalated_at:
+          type: string
+          format: date-time
+          nullable: true
+        escalation_assigned:
+          type: boolean
+          nullable: true
+      required:
+      - created_at
+      - id
+      - outcome
+      - report
+      - version
+    LabRuleInputRequest:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ClinicalObservationCodeEnum'
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 32
+        laboratory:
+          type: string
+          minLength: 1
+          maxLength: 120
+        sex:
+          default: ''
+          oneOf:
+          - $ref: '#/components/schemas/ClinicalSexEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        min_age:
+          type: integer
+          maximum: 130
+          minimum: 18
+        max_age:
+          type: integer
+          maximum: 130
+          minimum: 18
+        low:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        high:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        sla_minutes:
+          type: integer
+          maximum: 1440
+          minimum: 1
+        backup:
+          type: string
+          format: uuid
+        evidence:
+          type: string
+          minLength: 1
+          maxLength: 500
+        enabled:
+          type: boolean
+          default: true
+      required:
+      - backup
+      - code
+      - evidence
+      - laboratory
+      - max_age
+      - min_age
+      - sla_minutes
+      - unit
+    LabRuleOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          maxLength: 32
+        unit:
+          type: string
+          maxLength: 32
+        laboratory:
+          type: string
+          maxLength: 120
+        sex:
+          type: string
+          maxLength: 6
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        max_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        low:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        high:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        sla_minutes:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        backup:
+          type: string
+          format: uuid
+        evidence:
+          type: string
+          maxLength: 500
+        enabled:
+          type: boolean
+        version:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        approved:
+          type: boolean
+          readOnly: true
+      required:
+      - approved
+      - backup
+      - code
+      - evidence
+      - id
+      - laboratory
+      - max_age
+      - min_age
+      - sla_minutes
+      - unit
+      - version
     LinkInputRequest:
       type: object
       properties:
@@ -3429,6 +3763,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JobOutput'
+    PaginatedLabReviewOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabReviewOutput'
+    PaginatedLabRuleOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LabRuleOutput'
     PaginatedOrderOutputList:
       type: object
       required:
@@ -3898,7 +4278,7 @@ components:
           maximum: 130
           minimum: 0
         sex:
-          $ref: '#/components/schemas/SexEnum'
+          $ref: '#/components/schemas/ClinicalSexEnum'
       required:
       - laboratory
     RegisterInputRequest:
@@ -3959,6 +4339,8 @@ components:
         encounter_id:
           type: string
           format: uuid
+        evaluation_sex:
+          $ref: '#/components/schemas/ClinicalSexEnum'
         observations:
           type: array
           items:
@@ -4004,6 +4386,8 @@ components:
         encounter_id:
           type: string
           format: uuid
+        evaluation_sex:
+          $ref: '#/components/schemas/ClinicalSexEnum'
         observations:
           type: array
           items:
@@ -4187,14 +4571,6 @@ components:
       - created_at
       - id
       - sender
-    SexEnum:
-      enum:
-      - female
-      - male
-      type: string
-      description: |-
-        * `female` - female
-        * `male` - male
     ShareInputRequest:
       type: object
       properties:

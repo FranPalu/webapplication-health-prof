@@ -431,7 +431,9 @@
       ],
       "p0_trace": "TR-10",
       "phase": "P9",
-      "evidence": [],
+      "evidence": [
+        "backend/tests/test_clinical_safety.py::test_rule_approval_result_queue_escalation_and_acknowledgment"
+      ],
       "planned_test": "E2E tastiera/screen reader e scenari di errore di contesto."
     },
     {
@@ -472,7 +474,9 @@
       "p0_trace": "TR-13",
       "phase": "P3",
       "evidence": [
-        "backend/tests/test_analysis.py::test_golden_report_rows"
+        "backend/tests/test_analysis.py::test_golden_report_rows",
+        "backend/tests/test_clinical_safety.py::test_synthetic_limit_scenarios",
+        "backend/tests/test_clinical_safety.py::test_incomplete_or_overlapping_context_fails_closed"
       ],
       "planned_test": "Casi soglia esatta, età/sesso mancanti, unità incompatibile e valore critico."
     },
@@ -523,7 +527,9 @@
       ],
       "p0_trace": "TR-13",
       "phase": "P3",
-      "evidence": [],
+      "evidence": [
+        "backend/tests/test_clinical_safety.py::test_rule_approval_result_queue_escalation_and_acknowledgment"
+      ],
       "planned_test": "Clock controllato, canale indisponibile, retry e mancata presa visione."
     },
     {

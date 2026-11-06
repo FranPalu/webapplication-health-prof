@@ -216,3 +216,12 @@ def refresh_research_archive():
     dsn = os.environ.get("RESEARCH_DATABASE_DSN")
     if dsn:
         refresh(dsn)
+
+
+@shared_task
+def escalate_lab_results():
+    from django.utils import timezone
+
+    from identity.clinical_safety import escalate_due
+
+    return escalate_due(timezone.now())

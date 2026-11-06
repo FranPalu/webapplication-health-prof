@@ -10,6 +10,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 
 from identity.clinical import clinical_patients, shared_scopes
+from identity.clinical_safety import create_review
 from identity.clinical_terminology import (
     LOINC_SYSTEM,
     OBSERVATION_UNITS,
@@ -76,6 +77,7 @@ class ReportInput(IdentifierInput):
     title = serializers.CharField(max_length=160)
     effective_at = serializers.DateTimeField()
     encounter_id = serializers.UUIDField(required=False)
+    evaluation_sex = serializers.ChoiceField(choices=["female", "male"], required=False)
     observations = ObservationInput(many=True, allow_empty=False)
 
     def validate_effective_at(self, value):
@@ -120,6 +122,7 @@ def store_report(request, patient, data, *, root=None, previous=None):
         version=previous.version + 1 if previous else 1,
         correction_reason=data.get("correction_reason", ""),
         terminology_version=PROFILE_VERSION,
+        evaluation_sex=data.get("evaluation_sex", ""),
     )
     ClinicalObservation.objects.bulk_create(
         ClinicalObservation(report=report, **observation) for observation in data["observations"]
@@ -130,6 +133,7 @@ def store_report(request, patient, data, *, root=None, previous=None):
         report.pk,
         patient.organization,
     )
+    create_review(report)
     return Response({"id": root.pk if root else report.pk, "version": report.version}, status=201)
 
 

@@ -500,6 +500,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/patients/{patient_id}/result-reviews/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_patients_result_reviews_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/reconciliations/{reconciliation_id}/approve/": {
         parameters: {
             query?: never;
@@ -526,6 +542,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_reports_corrections_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/result-reviews/{review_id}/acknowledge/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_result_reviews_acknowledge_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -846,6 +878,38 @@ export interface paths {
         get: operations["organizations_appointment_slots_list"];
         put?: never;
         post: operations["organizations_appointment_slots_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{org_id}/lab-rules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_lab_rules_list"];
+        put?: never;
+        post: operations["organizations_lab_rules_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{org_id}/lab-rules/{rule_id}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["organizations_lab_rules_approve_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1373,6 +1437,8 @@ export interface components {
             /** @default false */
             confirmed: boolean;
         };
+        /** @enum {unknown} */
+        BlankEnum: "";
         BookingInputRequest: {
             /** Format: uuid */
             payment?: string;
@@ -1422,6 +1488,12 @@ export interface components {
          * @enum {string}
          */
         ClinicalReportCodeEnum: "11502-2";
+        /**
+         * @description * `female` - female
+         *     * `male` - male
+         * @enum {string}
+         */
+        ClinicalSexEnum: "female" | "male";
         CodeInputRequest: {
             code: string;
         };
@@ -1547,6 +1619,67 @@ export interface components {
             input_hash: string;
             /** Format: date-time */
             readonly created_at: string;
+        };
+        LabAcknowledgmentInputRequest: {
+            /** Format: uuid */
+            patient: string;
+        };
+        LabReviewOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly report: string;
+            readonly version: number;
+            outcome: string;
+            findings?: unknown;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            due_at?: string | null;
+            /** Format: date-time */
+            acknowledged_at?: string | null;
+            /** Format: date-time */
+            escalated_at?: string | null;
+            escalation_assigned?: boolean | null;
+        };
+        LabRuleInputRequest: {
+            code: components["schemas"]["ClinicalObservationCodeEnum"];
+            unit: string;
+            laboratory: string;
+            /** @default  */
+            sex: components["schemas"]["ClinicalSexEnum"] | components["schemas"]["BlankEnum"];
+            min_age: number;
+            max_age: number;
+            /** Format: decimal */
+            low?: string | null;
+            /** Format: decimal */
+            high?: string | null;
+            sla_minutes: number;
+            /** Format: uuid */
+            backup: string;
+            evidence: string;
+            /** @default true */
+            enabled: boolean;
+        };
+        LabRuleOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            unit: string;
+            laboratory: string;
+            sex?: string;
+            min_age: number;
+            max_age: number;
+            /** Format: decimal */
+            low?: string | null;
+            /** Format: decimal */
+            high?: string | null;
+            sla_minutes: number;
+            /** Format: uuid */
+            backup: string;
+            evidence: string;
+            enabled?: boolean;
+            version: number;
+            readonly approved: boolean;
         };
         LinkInputRequest: {
             /** Format: email */
@@ -1711,6 +1844,36 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["JobOutput"][];
+        };
+        PaginatedLabReviewOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["LabReviewOutput"][];
+        };
+        PaginatedLabRuleOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["LabRuleOutput"][];
         };
         PaginatedOrderOutputList: {
             /** @example 123 */
@@ -1955,7 +2118,7 @@ export interface components {
             laboratory: string;
             min_age_years?: number;
             max_age_years?: number;
-            sex?: components["schemas"]["SexEnum"];
+            sex?: components["schemas"]["ClinicalSexEnum"];
         };
         RegisterInputRequest: {
             /** Format: email */
@@ -1982,6 +2145,7 @@ export interface components {
             effective_at: string;
             /** Format: uuid */
             encounter_id?: string;
+            evaluation_sex?: components["schemas"]["ClinicalSexEnum"];
             observations: components["schemas"]["ObservationInputRequest"][];
             expected_version: number;
             correction_reason: string;
@@ -1997,6 +2161,7 @@ export interface components {
             effective_at: string;
             /** Format: uuid */
             encounter_id?: string;
+            evaluation_sex?: components["schemas"]["ClinicalSexEnum"];
             observations: components["schemas"]["ObservationInputRequest"][];
         };
         ReportOutput: {
@@ -2071,12 +2236,6 @@ export interface components {
             /** Format: date-time */
             created_at: string;
         };
-        /**
-         * @description * `female` - female
-         *     * `male` - male
-         * @enum {string}
-         */
-        SexEnum: "female" | "male";
         ShareInputRequest: {
             /** Format: uuid */
             folder?: string;
@@ -3160,6 +3319,30 @@ export interface operations {
             };
         };
     };
+    clinical_patients_result_reviews_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLabReviewOutputList"];
+                };
+            };
+        };
+    };
     clinical_reconciliations_approve_create: {
         parameters: {
             query?: never;
@@ -3210,6 +3393,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportOutput"];
+                };
+            };
+        };
+    };
+    clinical_result_reviews_acknowledge_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                review_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabAcknowledgmentInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LabAcknowledgmentInputRequest"];
+                "multipart/form-data": components["schemas"]["LabAcknowledgmentInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabReviewOutput"];
                 };
             };
         };
@@ -3763,6 +3973,79 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SlotOutput"];
+                };
+            };
+        };
+    };
+    organizations_lab_rules_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLabRuleOutputList"];
+                };
+            };
+        };
+    };
+    organizations_lab_rules_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabRuleInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LabRuleInputRequest"];
+                "multipart/form-data": components["schemas"]["LabRuleInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabRuleOutput"];
+                };
+            };
+        };
+    };
+    organizations_lab_rules_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabRuleOutput"];
                 };
             };
         };

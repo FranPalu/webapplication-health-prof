@@ -101,6 +101,7 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "ProfileRoleEnum": ["patient", "professional", "researcher", "organization_admin"],
         "MembershipRoleEnum": ["admin", "professional", "researcher"],
+        "ClinicalSexEnum": ["female", "male"],
         "ClinicalReportCodeEnum": ["11502-2"],
         "ClinicalObservationCodeEnum": ["14749-6", "2345-7"],
         "LocaleEnum": ["it", "en"],
@@ -149,3 +150,9 @@ CELERY_BEAT_SCHEDULE["refresh-research-archive"] = {
 }
 
 CLINICAL_IDENTITY_KEY = os.getenv("CLINICAL_IDENTITY_KEY", "")
+
+CLINICAL_SAFETY_ENABLED = os.getenv("CLINICAL_SAFETY_ENABLED", "") == "1"
+CELERY_BEAT_SCHEDULE["clinical-result-escalation"] = {
+    "task": "identity.tasks.escalate_lab_results",
+    "schedule": 60.0,
+}

@@ -1,5 +1,10 @@
 # Changelog
 
+## P3 · Coda e regole di laboratorio
+
+- Aggiunti regole versionate approvate, esito dato insufficiente, coda, conferma del paziente, presa visione ed escalation per il collaudo sintetico.
+- Aggiunte 132 prove parametriche e verifiche Django e browser. [Sicurezza clinica](docs/11-clinical-safety-p3.md)
+
 ## P2 · Identificazione e storico clinico
 
 - Aggiunta riconciliazione reversibile a doppia approvazione, con accessi mantenuti separati.

@@ -28,3 +28,13 @@
 | CV-P2-06 | Calcolo isolato · Nefrologo simulato, nutrizionista, psicologo | Un eGFR può essere usato impropriamente per dosi, e il totale PHQ-9 può nascondere un item critico. Validare popolazione, input e comportamento clinico prima di esporre i calcoli |
 
 **DA VALIDARE da professionista abilitato · CV-P2-07.** Risk manager e DPO simulati. Il collegamento reversibile richiede due operatori con accesso a entrambe le schede e non estende le autorizzazioni. Verificare il processo di identificazione alla fonte e i casi di accesso incompleto dopo il collegamento.
+
+## Revisione simulata P3
+
+**DA VALIDARE da professionista abilitato** per ogni voce.
+
+| ID | Ruolo simulato | Rischio e verifica attesa |
+| --- | --- | --- |
+| CV-P3-01 | Patologo clinico | Soglie o unità possono essere errate per il laboratorio o la popolazione. Validare fonte, limiti inclusivi, coorti e comportamento in assenza di una regola univoca |
+| CV-P3-02 | Infermiere di processo e risk manager | Notifica e presa visione sono eventi diversi. Provare indisponibilità, mancata presa visione, referente fuori turno ed escalation manuale |
+| CV-P3-03 | MMG e DPO | L'operatore può confermare il risultato di un omonimo. Verificare il banner, la conferma e la revoca dell'accesso durante il turno |

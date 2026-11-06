@@ -1,5 +1,7 @@
 # Limitazioni note
 
+P3 è in corso. Coda e regole di laboratorio sono limitate al collaudo sintetico. Ordini in sospeso, interazioni e controlli farmacologici, consegna affidabile e validazione clinica restano aperti. [Limiti P3](11-clinical-safety-p3.md)
+
 P2 implementa identificazione, episodi ambulatoriali e storico dei referti in un perimetro limitato. La riconciliazione reversibile collega schede mantenendone distinti i dati. Restano aperti fusione canonica, rappresentanza, cartella estesa, cataloghi e profili, firma e conservazione. [Limiti P2](10-clinical-record-p2.md)
 
 P1 mantiene il rilascio clinico bloccato. Destinazione e classi sono preliminari, i responsabili sono ruoli da designare e gli hazard attendono evidenze e accettazione. Lo snapshot SOUP copre le versioni dichiarate, con SBOM per immagini, pacchetti OS e verifica dei diritti dei pesi imaging ancora aperte. Il profilo imaging offline ha advisory aperti su PyTorch, pip e setuptools. Resta limitato alle fixture sintetiche isolate fino a remediation e nuova prova P4. [Fascicolo P1](qms/README.md)
