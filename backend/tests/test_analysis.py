@@ -147,7 +147,7 @@ def test_concurrent_rejections_can_only_record_one_review(scenario):
     from concurrent.futures import ThreadPoolExecutor
     from threading import Barrier
 
-    from django.db import close_old_connections
+    from django.db import connections
     from rest_framework.test import APIClient
 
     from identity.models import AnalysisReview
@@ -166,7 +166,6 @@ def test_concurrent_rejections_can_only_record_one_review(scenario):
     barrier = Barrier(2)
 
     def submit(text):
-        close_old_connections()
         try:
             client = APIClient(enforce_csrf_checks=True)
             for key, value in cookies.items():
@@ -179,7 +178,7 @@ def test_concurrent_rejections_can_only_record_one_review(scenario):
                 HTTP_X_CSRFTOKEN=cookies["csrftoken"],
             ).status_code
         finally:
-            close_old_connections()
+            connections.close_all()
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         assert sorted(executor.map(submit, ["First reason", "Second reason"])) == [201, 409]

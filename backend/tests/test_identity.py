@@ -658,18 +658,17 @@ def test_audit_events_are_hash_chained_and_head_tracks_latest_event():
 def test_concurrent_audit_appends_preserve_sequence_and_hash_chain():
     from concurrent.futures import ThreadPoolExecutor
 
-    from django.db import close_old_connections
+    from django.db import connections
 
     actor = user("audit-concurrent@patients.example")
 
     def append(index):
-        close_old_connections()
         try:
             AuditEvent.objects.create(
                 actor=User.objects.get(pk=actor.pk), action=f"parallel.{index}"
             )
         finally:
-            close_old_connections()
+            connections.close_all()
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         list(pool.map(append, range(2)))
@@ -811,7 +810,7 @@ def test_english_email_and_disabled_seed(settings):
 def test_concurrent_second_factor_consumption():
     from concurrent.futures import ThreadPoolExecutor
 
-    from django.db import close_old_connections
+    from django.db import connections
 
     from identity.security import consume_totp
 
@@ -823,11 +822,10 @@ def test_concurrent_second_factor_consumption():
     code = pyotp.TOTP(secret).now()
 
     def verify(_):
-        close_old_connections()
         try:
             return consume_totp(User.objects.get(pk=account.pk), code)
         finally:
-            close_old_connections()
+            connections.close_all()
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         assert sorted(pool.map(verify, range(2))) == [False, True]
@@ -835,11 +833,10 @@ def test_concurrent_second_factor_consumption():
     RecoveryCode.objects.create(user=account, digest=digest("synthetic-recovery"))
 
     def recover(_):
-        close_old_connections()
         try:
             return consume_recovery(User.objects.get(pk=account.pk), "synthetic-recovery")
         finally:
-            close_old_connections()
+            connections.close_all()
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         assert sorted(pool.map(recover, range(2))) == [False, True]

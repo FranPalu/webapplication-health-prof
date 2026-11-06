@@ -67,17 +67,16 @@ def test_booking_excludes_overlaps_and_refunds_on_cancellation():
     from concurrent.futures import ThreadPoolExecutor
     from threading import Barrier
 
-    from django.db import close_old_connections
+    from django.db import connections
 
     gate = Barrier(2)
 
     def compete(browser):
-        close_old_connections()
         try:
             gate.wait(timeout=5)
             return browser.post(booking_route, {}).status_code
         finally:
-            close_old_connections()
+            connections.close_all()
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         assert sorted(executor.map(compete, [first, second])) == [201, 409]
