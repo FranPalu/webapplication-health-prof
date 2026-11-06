@@ -32,9 +32,13 @@ Fonti del mapping. [LOINC 11502-2](https://loinc.org/11502-2) · [LOINC 2345-7](
 - Energia dei tre macronutrienti in kcal. Carboidrati esclusi i polioli. Il calcolo non stima il fabbisogno o l'energia di una dieta che include altre fonti. [Regolamento UE 1169/2011, allegato XIV](https://eur-lex.europa.eu/eli/reg/2011/1169/oj)
 - Somma dei punteggi PHQ-9 e GAD-7, con rifiuto di item mancanti o fuori scala. Nessuna raccolta delle risposte, classificazione o valutazione del singolo item è esposta. [PHQ-9](https://pubmed.ncbi.nlm.nih.gov/11556941/) · [GAD-7](https://doi.org/10.1001/archinte.166.10.1092)
 
+## Riconciliazione reversibile
+
+La riconciliazione associa due schede dello stesso tenant senza trasferire dati o permessi. Il professionista con accesso a entrambe propone il collegamento con i due controlli alla fonte per ciascuna scheda. Un secondo professionista ripete i controlli e approva. Schede con date di nascita o account differenti richiedono revisione separata. La revoca segue lo stesso doppio controllo. Il registro conserva proposte e approvazioni in sola aggiunta e rifiuta catene di collegamenti attivi. Le rotte sono `/clinical/patients/{id}/reconciliations/` e `/clinical/reconciliations/{id}/approve/`. La migrazione è `0033`.
+
 ## Requisiti P2 aperti
 
-- Merge/unmerge dei pazienti e rollback di legami, consensi, audit e contenuti. Nessuna fusione automatica. Minori, capacità decisionale, tutori, caregiver e deleghe restano fuori dal flusso.
+- Fusione canonica delle schede e rollback di trasferimenti di dati. La riconciliazione reversibile mantiene le schede separate. Minori, capacità decisionale, tutori, caregiver e deleghe restano fuori dal flusso.
 - Problem list, anamnesi strutturata, allergie, vaccinazioni, parametri vitali, procedure, piani di cura, terapie, richieste, AuditEvent FHIR e template per visita, nutrizione e psicologia restano da completare. Rimane disponibile il precedente isolamento delle note psicologiche. I soli punteggi matematici non costituiscono il modulo psicologico.
 - Cataloghi completi e import con licenze e versioni, in particolare SNOMED CT, ICD, ATC e AIC. Mapping ai profili italiani e IPS e validazione con il validatore HL7 restano aperti.
 - Firma elettronica PAdES/CAdES, marca temporale e conservazione. L'adapter futuro deve associare firmatario, artefatto esatto e versione, verificare catena, revoca e marca temporale e registrare prova e ricevuta di conservazione prima della pubblicazione. Le bozze nuove restano riservate senza questo gate.
@@ -46,7 +50,7 @@ Eseguire `make dev` per generare la configurazione locale e applicare le migrazi
 
 ### Evidenze tecniche locali
 
-- 58 test Django passati con ClamAV e S3. Copertura complessiva `identity` **83,55%**. Il target globale resta 85%.
+- 59 test Django passati con ClamAV e S3. Copertura complessiva `identity` **83,88%**. Il target globale resta 85%.
 - Il test dedicato ai calcolatori copre **37 istruzioni e 18 rami su 18**. Il gate 100% è inserito nella configurazione CI. L'esito CI remoto resta da verificare.
 - Upgrade sintetico da `0030` a `0032` provato con referto e osservazione preesistenti. Valori e identificativi sono preservati, senza ricostruire una data di registrazione.
 - 22 test Node, controlli SQLite, quattro prove QMS e 26 scenari browser complessivi. L'AI viene provata con fixture nuova e task Django su DB isolato.

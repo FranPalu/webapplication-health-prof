@@ -26,3 +26,5 @@
 | CV-P2-04 | Coppie LOINC/UCUM e range della fonte · Patologo clinico | Confondere mg/dL con mmol/L può cambiare l'interpretazione. Provare rifiuto della coppia e verificare eventuali conversioni in un protocollo separato |
 | CV-P2-05 | Episodio ambulatoriale e collegamenti · Medico di medicina generale | Un paziente può avere episodi contemporanei. Verificare corrispondenza paziente/struttura e flusso di rettifica prima dell'uso reale |
 | CV-P2-06 | Calcolo isolato · Nefrologo simulato, nutrizionista, psicologo | Un eGFR può essere usato impropriamente per dosi, e il totale PHQ-9 può nascondere un item critico. Validare popolazione, input e comportamento clinico prima di esporre i calcoli |
+
+**DA VALIDARE da professionista abilitato · CV-P2-07.** Risk manager e DPO simulati. Il collegamento reversibile richiede due operatori con accesso a entrambe le schede e non estende le autorizzazioni. Verificare il processo di identificazione alla fonte e i casi di accesso incompleto dopo il collegamento.

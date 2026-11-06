@@ -340,7 +340,8 @@
       "phase": "P2",
       "evidence": [
         "backend/tests/test_clinical.py::test_report_identity_scope_preliminary_visibility_and_append_only_history",
-        "backend/tests/test_clinical.py::test_report_upload_requires_confirmation_before_scanning"
+        "backend/tests/test_clinical.py::test_report_upload_requires_confirmation_before_scanning",
+        "backend/tests/test_reconciliation.py::test_two_people_link_and_unlink_without_inheriting_access"
       ],
       "planned_test": "Rifiuto di omonimo, mismatch, identificatore mancante e import duplicato."
     },

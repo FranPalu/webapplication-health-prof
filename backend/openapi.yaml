@@ -866,6 +866,65 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/clinical/patients/{patient_id}/reconciliations/:
+    get:
+      operationId: clinical_patients_reconciliations_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReconciliationOutputList'
+          description: ''
+    post:
+      operationId: clinical_patients_reconciliations_create
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReconciliationInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReconciliationInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReconciliationInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationOutput'
+          description: ''
   /api/v1/clinical/patients/{patient_id}/reports/:
     post:
       operationId: clinical_patients_reports_create
@@ -898,6 +957,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportOutput'
+          description: ''
+  /api/v1/clinical/reconciliations/{reconciliation_id}/approve/:
+    post:
+      operationId: clinical_reconciliations_approve_create
+      parameters:
+      - in: path
+        name: reconciliation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReconciliationIdentityInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReconciliationIdentityInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReconciliationIdentityInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReconciliationOutput'
           description: ''
   /api/v1/clinical/reports/{report_id}/corrections/:
     post:
@@ -3429,6 +3521,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PriceOutput'
+    PaginatedReconciliationOutputList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReconciliationOutput'
     PaginatedReservationOutputList:
       type: object
       required:
@@ -3685,6 +3800,71 @@ components:
         * `professional` - professional
         * `researcher` - researcher
         * `organization_admin` - organization_admin
+    ReconciliationIdentityInputRequest:
+      type: object
+      properties:
+        source_identity:
+          $ref: '#/components/schemas/IdentifierInputRequest'
+        target_identity:
+          $ref: '#/components/schemas/IdentifierInputRequest'
+      required:
+      - source_identity
+      - target_identity
+    ReconciliationInputRequest:
+      type: object
+      properties:
+        source_identity:
+          $ref: '#/components/schemas/IdentifierInputRequest'
+        target_identity:
+          $ref: '#/components/schemas/IdentifierInputRequest'
+        target:
+          type: string
+          format: uuid
+        link:
+          type: boolean
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - link
+      - reason
+      - source_identity
+      - target
+      - target_identity
+    ReconciliationOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        source:
+          type: string
+          format: uuid
+        target:
+          type: string
+          format: uuid
+        link:
+          type: boolean
+        reason:
+          type: string
+          maxLength: 500
+        approved:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - approved
+      - created_at
+      - id
+      - link
+      - reason
+      - source
+      - target
     RecoveryOutput:
       type: object
       properties:

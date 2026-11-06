@@ -12,6 +12,7 @@ from identity import (
     patient_identification,
     payment_views,
     pharmacy_views,
+    reconciliation,
     research_release_views,
     research_views,
     views,
@@ -80,6 +81,14 @@ urlpatterns += [
     endpoint(
         "clinical/patients/<uuid:patient_id>/identifiers/",
         patient_identification.PatientIdentifierView,
+    ),
+    endpoint(
+        "clinical/patients/<uuid:patient_id>/reconciliations/",
+        reconciliation.PatientReconciliationView,
+    ),
+    endpoint(
+        "clinical/reconciliations/<uuid:reconciliation_id>/approve/",
+        reconciliation.PatientReconciliationApprovalView,
     ),
     endpoint("clinical/patients/<uuid:patient_id>/encounters/", fhir.EncounterCreateView),
     endpoint("clinical/patients/<uuid:patient_id>/reports/", fhir.ReportCreateView),

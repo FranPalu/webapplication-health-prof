@@ -676,3 +676,33 @@ class ResearchTerminology(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["system", "code"], name="research_terminology_key")
         ]
+
+
+class PatientReconciliation(models.Model):
+    """Proposed reversible identity link, without transfer of clinical data."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    source = models.ForeignKey(
+        Patient, on_delete=models.PROTECT, related_name="source_reconciliations"
+    )
+    target = models.ForeignKey(
+        Patient, on_delete=models.PROTECT, related_name="target_reconciliations"
+    )
+    proposer = models.ForeignKey(User, on_delete=models.PROTECT)
+    link = models.BooleanField()
+    reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(source=models.F("target")),
+                name="reconciliation_distinct_patients",
+            )
+        ]
+
+
+class PatientReconciliationApproval(models.Model):
+    proposal = models.OneToOneField(PatientReconciliation, on_delete=models.PROTECT)
+    reviewer = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)

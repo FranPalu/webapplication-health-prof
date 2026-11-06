@@ -468,6 +468,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/patients/{patient_id}/reconciliations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["clinical_patients_reconciliations_list"];
+        put?: never;
+        post: operations["clinical_patients_reconciliations_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/patients/{patient_id}/reports/": {
         parameters: {
             query?: never;
@@ -478,6 +494,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_patients_reports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/reconciliations/{reconciliation_id}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_reconciliations_approve_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1740,6 +1772,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["PriceOutput"][];
         };
+        PaginatedReconciliationOutputList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["ReconciliationOutput"][];
+        };
         PaginatedReservationOutputList: {
             /** @example 123 */
             count: number;
@@ -1872,6 +1919,31 @@ export interface components {
          * @enum {string}
          */
         ProfileRoleEnum: "patient" | "professional" | "researcher" | "organization_admin";
+        ReconciliationIdentityInputRequest: {
+            source_identity: components["schemas"]["IdentifierInputRequest"];
+            target_identity: components["schemas"]["IdentifierInputRequest"];
+        };
+        ReconciliationInputRequest: {
+            source_identity: components["schemas"]["IdentifierInputRequest"];
+            target_identity: components["schemas"]["IdentifierInputRequest"];
+            /** Format: uuid */
+            target: string;
+            link: boolean;
+            reason: string;
+        };
+        ReconciliationOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            source: string;
+            /** Format: uuid */
+            target: string;
+            link: boolean;
+            reason: string;
+            readonly approved: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         RecoveryOutput: {
             recovery_codes: string[];
         };
@@ -3010,6 +3082,57 @@ export interface operations {
             };
         };
     };
+    clinical_patients_reconciliations_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedReconciliationOutputList"];
+                };
+            };
+        };
+    };
+    clinical_patients_reconciliations_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReconciliationInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReconciliationInputRequest"];
+                "multipart/form-data": components["schemas"]["ReconciliationInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationOutput"];
+                };
+            };
+        };
+    };
     clinical_patients_reports_create: {
         parameters: {
             query?: never;
@@ -3033,6 +3156,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportOutput"];
+                };
+            };
+        };
+    };
+    clinical_reconciliations_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reconciliation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReconciliationIdentityInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReconciliationIdentityInputRequest"];
+                "multipart/form-data": components["schemas"]["ReconciliationIdentityInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationOutput"];
                 };
             };
         };

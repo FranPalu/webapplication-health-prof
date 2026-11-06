@@ -2,6 +2,7 @@
 
 ## P2 · Identificazione e storico clinico
 
+- Aggiunta riconciliazione reversibile a doppia approvazione, con accessi mantenuti separati.
 - Aggiunti identificativi per tenant e doppio controllo all’associazione dei referti.
 - Registrati episodi ambulatoriali, referti append-only, correzioni, lettura FHIR storica e provenienza.
 - Aggiunti profilo LOINC/UCUM di collaudo e calcolatori puri con prove automatiche.
