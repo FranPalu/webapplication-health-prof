@@ -1,5 +1,7 @@
 # Piano P1–P10 dopo P0
 
+Il [fascicolo P1](../qms/README.md) registra la base tecnica di qualità e rischio. P2 può usare i requisiti e gli hazard dopo il proprio GO. Restano aperte designazione dei ruoli e approvazioni cliniche e regolatorie.
+
 Stime di impegno in **giornate-persona**, per un team con competenze già disponibili. Includono progettazione, implementazione, QA e documentazione. Escludono attese per licenze, accesso ai sandbox, validazione clinica reale, organismo notificato e accreditamento. Totale indicativo **435–690 giornate-persona**. Ricalibrare alla chiusura di P1 e prima di ogni GO.
 
 | Fase | Impegno | Dipendenze | Consegna e prova di uscita |

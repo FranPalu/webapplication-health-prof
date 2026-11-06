@@ -1,5 +1,7 @@
 # Limitazioni note
 
+P1 mantiene il rilascio clinico bloccato. Destinazione e classi sono preliminari, i responsabili sono ruoli da designare e gli hazard attendono evidenze e accettazione. Lo snapshot SOUP copre le versioni dichiarate, con SBOM per immagini, pacchetti OS e verifica dei diritti dei pesi imaging ancora aperte. Il profilo imaging offline ha advisory aperti su PyTorch, pip e setuptools. Resta limitato alle fixture sintetiche isolate fino a remediation e nuova prova P4. [Fascicolo P1](qms/README.md)
+
 La [gap analysis P0](p0/gap-analysis.md) aggiorna lo stato verificato. Restano aperti il ruolo DB runtime a privilegi minimi, il checkpoint indipendente dell’audit, la copertura negativa per endpoint, la firma clinica, i gate di sicurezza in CI e sette avvisi npm moderati o bassi nel grafo completo. Vedere gli [esiti di verifica](p0/verification.md).
 
 - Le operazioni nei portali dimostrativi riguardano dati fittizi e salvano

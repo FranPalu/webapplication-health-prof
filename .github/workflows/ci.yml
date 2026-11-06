@@ -39,16 +39,20 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level high
       - run: python -m venv .venv && .venv/bin/pip install -r backend/requirements.txt
-      - name: Audit Python dependencies
+      - name: Audit Python dependencies and scan source
         run: |
           python -m venv "$RUNNER_TEMP/audit-venv"
-          "$RUNNER_TEMP/audit-venv/bin/pip" install pip-audit==2.10.1
+          "$RUNNER_TEMP/audit-venv/bin/pip" install pip-audit==2.10.1 bandit==1.9.4 semgrep==1.184.0
           "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements.txt
+          "$RUNNER_TEMP/audit-venv/bin/bandit" -r backend/config backend/identity scripts/check_qms.py -ll
+          "$RUNNER_TEMP/audit-venv/bin/semgrep" scan --config p/typescript --config p/secrets --metrics off --error app lib backend/config backend/identity scripts/check_qms.py
       - run: python scripts/dev-env.py
-      - run: .venv/bin/ruff check backend && .venv/bin/ruff format --check backend
+      - run: .venv/bin/ruff check backend scripts/check_qms.py tests/qms_test.py && .venv/bin/ruff format --check backend scripts/check_qms.py tests/qms_test.py
+      - run: .venv/bin/mypy --explicit-package-bases scripts/check_qms.py tests/qms_test.py
       - run: python scripts/backend.py ../.venv/bin/mypy config identity
       - run: python scripts/backend.py ../.venv/bin/python manage.py makemigrations --check --dry-run
-      - run: python scripts/backend.py ../.venv/bin/pytest
+      - run: python scripts/backend.py ../.venv/bin/pytest --no-cov
+      - run: python scripts/check_qms.py && python -m unittest discover -s tests -p qms_test.py
       - run: python scripts/backend.py ../.venv/bin/python manage.py migrate identity 0001 --noinput
       - run: python scripts/backend.py ../.venv/bin/python manage.py migrate --noinput
       - run: python scripts/backend.py ../.venv/bin/python manage.py spectacular --file openapi.yaml --validate --fail-on-warn

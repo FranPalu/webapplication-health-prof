@@ -1,0 +1,533 @@
+{
+  "baseline": "40ee17e",
+  "hazards": [
+    {
+      "id": "H-01",
+      "failure": "Identità o tenant errato",
+      "cause": "Account, sessione o relazione sbagliati",
+      "effect": "Dati consultati o azione eseguita sul paziente sbagliato",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 3,
+      "deviation": "Altro paziente o altro tenant",
+      "current_control": "MFA, sessione versionata e filtri tenant/relazione",
+      "residual": "Il controllo d’accesso non identifica l’omonimo durante la cura",
+      "owner": "Responsabile identità",
+      "phase": "P2",
+      "status": "blocking"
+    },
+    {
+      "id": "H-02",
+      "failure": "Accesso dopo revoca",
+      "cause": "Cache, grant derivato o base giuridica scaduta",
+      "effect": "Divulgazione di dati sanitari",
+      "severity": 3,
+      "probability": 3,
+      "detectability": 3,
+      "deviation": "Dopo la revoca",
+      "current_control": "Grant verificati e regressione P0 su messaggi e delega",
+      "residual": "Restano verifica concorrente, categorie e tutti gli endpoint",
+      "owner": "DPO",
+      "phase": "P6",
+      "status": "blocking"
+    },
+    {
+      "id": "H-03",
+      "failure": "Audit incompleto o alterato",
+      "cause": "Lettura priva di evento, ruolo DB privilegiato",
+      "effect": "Accesso illecito non ricostruibile",
+      "severity": 3,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Meno eventi o eventi alterati",
+      "current_control": "Catena locale, trigger UPDATE/DELETE, eventi clinici P0",
+      "residual": "TRUNCATE e modifica privilegiata richiedono separazione e prova esterna",
+      "owner": "Security lead",
+      "phase": "P6",
+      "status": "blocking"
+    },
+    {
+      "id": "H-04",
+      "failure": "Allegato errato, infetto o non disponibile",
+      "cause": "Upload ostile, archivio o chiave indisponibile",
+      "effect": "Danno da perdita, esposizione o referto non disponibile",
+      "severity": 4,
+      "probability": 2,
+      "detectability": 3,
+      "deviation": "Altro file o nessun file",
+      "current_control": "Scanner, cifratura e autorizzazione al download",
+      "residual": "Restore coordinato e prova di abuso da completare",
+      "owner": "SRE",
+      "phase": "P10",
+      "status": "blocking"
+    },
+    {
+      "id": "H-05",
+      "failure": "Referto associato alla persona sbagliata",
+      "cause": "Identificatore singolo, omonimia, import o merge errato",
+      "effect": "Decisione clinica su referto di un altro paziente",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Altro soggetto o altra versione",
+      "current_control": "Filtri di cura e relazione; nessuna conferma a doppio identificatore",
+      "residual": "Resta possibile l’associazione errata da parte di un utente autorizzato",
+      "owner": "Responsabile cartella clinica",
+      "phase": "P2",
+      "status": "blocking"
+    },
+    {
+      "id": "H-06",
+      "failure": "Falso negativo o bozza AI esposta",
+      "cause": "OCR/modello fuori distribuzione o pubblicazione impropria",
+      "effect": "Falsa rassicurazione, ritardo diagnostico o informazione non validata",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Nessuna segnalazione o output anticipato",
+      "current_control": "Bozza separata, attestazione interna e pubblicazione esplicita in collaudo",
+      "residual": "Mancano firma, validazione clinica, soglie e OOD provati. L’immagine di collaudo radiologico presenta advisory aperti",
+      "owner": "Responsabile clinico AI",
+      "phase": "P4",
+      "status": "blocking"
+    },
+    {
+      "id": "H-07",
+      "failure": "Pagamento o rimborso errato",
+      "cause": "Retry, webhook duplicato o contabilità incoerente",
+      "effect": "Perdita economica o appuntamento rinviato",
+      "severity": 2,
+      "probability": 3,
+      "detectability": 2,
+      "deviation": "Duplicato o importo diverso",
+      "current_control": "Esiti e rimborsi interni simulati",
+      "residual": "Serve ledger, idempotenza esterna e riconciliazione",
+      "owner": "Responsabile pagamenti",
+      "phase": "P8",
+      "status": "blocking"
+    },
+    {
+      "id": "H-08",
+      "failure": "Prenotazione o farmaco impropri",
+      "cause": "Concorrenza stock, ricetta invalida o verifica indisponibile",
+      "effect": "Ritardo nell’accesso o farmaco riservato senza verifica",
+      "severity": 4,
+      "probability": 2,
+      "detectability": 3,
+      "deviation": "Troppi slot o ricetta assente",
+      "current_control": "Lock, gate ricetta e contratto verificatore con test mock",
+      "residual": "Integrazione ufficiale e responsabilità farmacista da validare",
+      "owner": "Responsabile farmacia",
+      "phase": "P8",
+      "status": "blocking"
+    },
+    {
+      "id": "H-09",
+      "failure": "Re-identificazione nella ricerca",
+      "cause": "Piccole celle, aggregati combinati o revoca tardiva",
+      "effect": "Esposizione di informazioni sanitarie",
+      "severity": 3,
+      "probability": 2,
+      "detectability": 4,
+      "deviation": "Più granularità o export tardivo",
+      "current_control": "Snapshot e rilascio limitato con controllo del consenso",
+      "residual": "Rischio composizione e modello di minaccia da valutare",
+      "owner": "DPO ricerca",
+      "phase": "P6",
+      "status": "blocking"
+    },
+    {
+      "id": "H-10",
+      "failure": "Selezione paziente o azione errata in UI",
+      "cause": "Contesto nascosto, traduzione ambigua o tecnologia assistiva",
+      "effect": "Firma, invio o revisione sul paziente sbagliato",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 3,
+      "deviation": "Altro paziente o azione involontaria",
+      "current_control": "Dashboard per ruolo e prove browser su flussi campione",
+      "residual": "Mancano conferma contestuale e validazione con utenti",
+      "owner": "UX clinica",
+      "phase": "P9",
+      "status": "blocking"
+    },
+    {
+      "id": "H-11",
+      "failure": "Perdita, alterazione o indisponibilità",
+      "cause": "Corruzione, guasto rete, recovery senza oggetti o chiavi",
+      "effect": "Interruzione della cura o dato obsoleto",
+      "severity": 4,
+      "probability": 2,
+      "detectability": 3,
+      "deviation": "Nessun servizio o ripristino incompleto",
+      "current_control": "Health check e restore sintetico separato del DB",
+      "residual": "Mancano RPO/RTO congiunti e procedura downtime provata",
+      "owner": "SRE",
+      "phase": "P10",
+      "status": "blocking"
+    },
+    {
+      "id": "H-12",
+      "failure": "Rischio non governato",
+      "cause": "Modifica senza revisione, evidenza o responsabilità",
+      "effect": "Rilascio di un difetto clinicamente significativo",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Troppo presto o senza prova",
+      "current_control": "Registro P1 e controllo di integrità CI",
+      "residual": "Autorità di rilascio e approvazione clinica da nominare",
+      "owner": "Responsabile qualità",
+      "phase": "P1",
+      "status": "blocking"
+    },
+    {
+      "id": "H-13",
+      "failure": "Valore fuori range non segnalato",
+      "cause": "Intervallo mancante, estrazione errata o soglia errata",
+      "effect": "Risultato critico ignorato",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Nessun alert o soglia diversa",
+      "current_control": "Confronto preliminare dei valori con intervalli riportati, con casi golden",
+      "residual": "Manca il motore critico approvato e validato per età/sesso/laboratorio",
+      "owner": "Patologia clinica",
+      "phase": "P3",
+      "status": "blocking"
+    },
+    {
+      "id": "H-14",
+      "failure": "Import o rappresentazione esterna errati",
+      "cause": "Mapping, versione o profilo FHIR divergente",
+      "effect": "Risultato associato o interpretato in modo errato",
+      "severity": 4,
+      "probability": 2,
+      "detectability": 4,
+      "deviation": "Altro codice, profilo o soggetto",
+      "current_control": "FHIR R4 a lettura limitata e isolamento verificato su risorse campione",
+      "residual": "Restano validator, identificazione dei messaggi e contract test",
+      "owner": "Responsabile interoperabilità",
+      "phase": "P5",
+      "status": "blocking"
+    },
+    {
+      "id": "H-15",
+      "failure": "Discontinuità assistenziale",
+      "cause": "Telemonitoraggio o handover senza responsabile",
+      "effect": "Peggioramento non intercettato",
+      "severity": 4,
+      "probability": 2,
+      "detectability": 4,
+      "deviation": "Troppo tardi o nessuna presa in carico",
+      "current_control": "Nessun flusso di telemonitoraggio attivo",
+      "residual": "Servono ownership, fallback e verifica del passaggio",
+      "owner": "Coordinamento clinico",
+      "phase": "P7",
+      "status": "blocking"
+    },
+    {
+      "id": "H-16",
+      "failure": "Unità di misura incompatibile",
+      "cause": "UCUM non validato, conversione o decimale errati",
+      "effect": "Valore clinico alterato o comparato a una soglia errata",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Più, meno o unità diversa",
+      "current_control": "Decimali e parser con insieme limitato di unità",
+      "residual": "Restano convalida UCUM, conversioni e blocco mismatch",
+      "owner": "Patologia clinica",
+      "phase": "P2",
+      "status": "blocking"
+    },
+    {
+      "id": "H-17",
+      "failure": "Notifica critica non consegnata o non vista",
+      "cause": "Provider accetta ma destinatario assente, retry fallisce",
+      "effect": "Ritardo nella presa in carico di un valore critico",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Nessuna notifica o ritardo",
+      "current_control": "Reminder ordinari e notifiche in-app esistenti",
+      "residual": "Mancano ack clinico, SLA ed escalation",
+      "owner": "Infermieristica di processo",
+      "phase": "P3",
+      "status": "blocking"
+    },
+    {
+      "id": "H-18",
+      "failure": "Dosaggio, allergia o interazione non rilevati",
+      "cause": "Dati incompleti, terminologia errata o fonte obsoleta",
+      "effect": "Reazione avversa o terapia incompatibile",
+      "severity": 4,
+      "probability": 3,
+      "detectability": 4,
+      "deviation": "Più dose, altra sostanza o nessun avviso",
+      "current_control": "Gate ricetta per prenotazioni; nessun controllo farmacologico",
+      "residual": "Fonte licenziata, versionata e validata necessaria",
+      "owner": "Farmacia clinica",
+      "phase": "P3",
+      "status": "blocking"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "SRS-01",
+      "text": "Negare accessi fuori tenant o senza relazione, consenso o base autorizzativa applicabile.",
+      "hazards": [
+        "H-01",
+        "H-02"
+      ],
+      "p0_trace": "TR-01",
+      "phase": "P6",
+      "evidence": [
+        "backend/tests/test_identity.py::test_cross_tenant_patient_lists_details_and_no_admin_clinical_access"
+      ],
+      "planned_test": "Casi negativi per ogni metodo/endpoint e ruolo, incluso tenant estraneo."
+    },
+    {
+      "id": "SRS-02",
+      "text": "Bloccare messaggi e ri-condivisioni dopo perdita del titolo o revoca.",
+      "hazards": [
+        "H-02"
+      ],
+      "p0_trace": "TR-02",
+      "phase": "P6",
+      "evidence": [
+        "backend/tests/test_identity.py::test_share_requires_patient_consent_and_revocation_blocks_access_and_messages",
+        "backend/tests/test_clinical.py::test_folder_scope_includes_descendants_and_preserves_patient_boundary"
+      ],
+      "planned_test": "Concorrenza revoca/lettura, grant derivati e cache."
+    },
+    {
+      "id": "SRS-03",
+      "text": "Registrare le letture sensibili e rilevare alterazioni, cancellazioni o lacune nell’audit.",
+      "hazards": [
+        "H-03"
+      ],
+      "p0_trace": "TR-03",
+      "phase": "P6",
+      "evidence": [
+        "backend/tests/test_identity.py::test_audit_database_rejects_mutation_and_schema_requires_auth",
+        "backend/tests/test_identity.py::test_concurrent_audit_appends_preserve_sequence_and_hash_chain"
+      ],
+      "planned_test": "Test per endpoint, ripristino checkpoint e simulazione amministratore privilegiato."
+    },
+    {
+      "id": "SRS-04",
+      "text": "Servire gli allegati privati solo dopo autorizzazione e accettare upload solo dopo scansione.",
+      "hazards": [
+        "H-04"
+      ],
+      "p0_trace": "TR-04",
+      "phase": "P6",
+      "evidence": [
+        "backend/tests/test_clinical.py::test_clinical_version_lifecycle_and_access",
+        "backend/tests/test_clinical.py::test_real_clamav_storage_restore_and_retention"
+      ],
+      "planned_test": "Fixture EICAR, tenant estraneo, key rotation e restore congiunto."
+    },
+    {
+      "id": "SRS-05",
+      "text": "Confermare due identificatori prima di associare un risultato al paziente.",
+      "hazards": [
+        "H-01",
+        "H-05"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P2",
+      "evidence": [],
+      "planned_test": "Rifiuto di omonimo, mismatch, identificatore mancante e import duplicato."
+    },
+    {
+      "id": "SRS-06",
+      "text": "Versionare immutabilmente correzioni, firmatario e motivazione con vista as-of.",
+      "hazards": [
+        "H-05"
+      ],
+      "p0_trace": "TR-05",
+      "phase": "P2",
+      "evidence": [],
+      "planned_test": "Correzione e merge/unmerge concorrenti preservano provenienza e storico."
+    },
+    {
+      "id": "SRS-07",
+      "text": "Bloccare al paziente bozze e pareri privi della firma richiesta.",
+      "hazards": [
+        "H-06"
+      ],
+      "p0_trace": "TR-06",
+      "phase": "P4",
+      "evidence": [
+        "backend/tests/test_analysis.py::test_analysis_review_publication_and_tenant_isolation"
+      ],
+      "planned_test": "E2E su firma assente, invalida, revocata, e pubblicazione autorizzata."
+    },
+    {
+      "id": "SRS-08",
+      "text": "Rifiutare input AI fuori modalità, distribuzione o soglia di qualità validata.",
+      "hazards": [
+        "H-06"
+      ],
+      "p0_trace": "TR-06",
+      "phase": "P4",
+      "evidence": [
+        "backend/tests/test_analysis.py::test_extraction_reports_limits"
+      ],
+      "planned_test": "Golden set, rumore, OOD, soglie predefinite e risultati per sottogruppo."
+    },
+    {
+      "id": "SRS-09",
+      "text": "Elaborare gli eventi contabili in modo idempotente e riconciliare saldo, payout e rimborsi.",
+      "hazards": [
+        "H-07"
+      ],
+      "p0_trace": "TR-07",
+      "phase": "P8",
+      "evidence": [],
+      "planned_test": "Webhook duplicati, fuori ordine, crash e riconciliazione."
+    },
+    {
+      "id": "SRS-10",
+      "text": "Impedire sovraprenotazioni e conferme di farmaci soggetti a ricetta senza verifica.",
+      "hazards": [
+        "H-08"
+      ],
+      "p0_trace": "TR-08",
+      "phase": "P8",
+      "evidence": [
+        "backend/tests/test_appointments.py::test_booking_excludes_overlaps_and_refunds_on_cancellation",
+        "backend/tests/test_pharmacy.py::test_prescription_attachment_only_reaches_verifier_for_its_owner"
+      ],
+      "planned_test": "Concorrenza stock, NRE duplicato e indisponibilità del verificatore."
+    },
+    {
+      "id": "SRS-11",
+      "text": "Rilasciare dataset di ricerca solo per consensi, finalità e regole di disclosure applicabili.",
+      "hazards": [
+        "H-09"
+      ],
+      "p0_trace": "TR-09",
+      "phase": "P6",
+      "evidence": [
+        "backend/tests/test_research.py::test_research_counts_distinct_consented_accounts_and_honors_revocation"
+      ],
+      "planned_test": "Revoca, piccoli gruppi e re-identificazione con combinazioni di export."
+    },
+    {
+      "id": "SRS-12",
+      "text": "Mostrare e confermare il contesto del paziente nelle azioni critiche anche con tecnologia assistiva.",
+      "hazards": [
+        "H-10"
+      ],
+      "p0_trace": "TR-10",
+      "phase": "P9",
+      "evidence": [],
+      "planned_test": "E2E tastiera/screen reader e scenari di errore di contesto."
+    },
+    {
+      "id": "SRS-13",
+      "text": "Ripristinare DB, oggetti e chiavi con coerenza e RPO/RTO approvati.",
+      "hazards": [
+        "H-04",
+        "H-11"
+      ],
+      "p0_trace": "TR-11",
+      "phase": "P10",
+      "evidence": [
+        "backend/tests/test_clinical.py::test_real_clamav_storage_restore_and_retention"
+      ],
+      "planned_test": "Disaster drill con checksum, prova downtime e tempi misurati."
+    },
+    {
+      "id": "SRS-14",
+      "text": "Tracciare ogni modifica clinicamente rilevante a rischio, controllo, prova e approvazione.",
+      "hazards": [
+        "H-12"
+      ],
+      "p0_trace": "TR-12",
+      "phase": "P1",
+      "evidence": [
+        "tests/qms_test.py::test_missing_hazard_and_test_are_rejected",
+        "tests/qms_test.py::test_clinical_release_refuses_unresolved_hazards"
+      ],
+      "planned_test": "Controllo di integrità CI; prova rifiuto di riferimento mancante e di rischio bloccante."
+    },
+    {
+      "id": "SRS-15",
+      "text": "Versionare e approvare regole cliniche e soglie contestuali; segnalare dato insufficiente.",
+      "hazards": [
+        "H-13",
+        "H-16"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P3",
+      "evidence": [
+        "backend/tests/test_analysis.py::test_golden_report_rows"
+      ],
+      "planned_test": "Casi soglia esatta, età/sesso mancanti, unità incompatibile e valore critico."
+    },
+    {
+      "id": "SRS-16",
+      "text": "Validare identificatori, profili e codici interoperabili prima di accettare dati esterni.",
+      "hazards": [
+        "H-05",
+        "H-14"
+      ],
+      "p0_trace": "TR-14",
+      "phase": "P5",
+      "evidence": [
+        "backend/tests/test_clinical.py::test_structured_report_and_observation_are_visible_only_in_care"
+      ],
+      "planned_test": "Validator HL7, messaggio duplicato, profilo errato e scope negativo."
+    },
+    {
+      "id": "SRS-17",
+      "text": "Registrare presa in carico, perdita di connessione e fallback nei passaggi assistenziali.",
+      "hazards": [
+        "H-15"
+      ],
+      "p0_trace": "TR-15",
+      "phase": "P7",
+      "evidence": [],
+      "planned_test": "Test handover senza destinatario, disconnessione e device non associato."
+    },
+    {
+      "id": "SRS-18",
+      "text": "Convalidare unità UCUM e rifiutare comparazioni o conversioni non validate.",
+      "hazards": [
+        "H-16"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P2",
+      "evidence": [
+        "backend/tests/test_analysis.py::test_golden_report_rows"
+      ],
+      "planned_test": "Vettori esatti con unità discordanti, decimali e valori fuori dominio."
+    },
+    {
+      "id": "SRS-19",
+      "text": "Richiedere presa visione per risultati critici ed escalare oltre SLA.",
+      "hazards": [
+        "H-17"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P3",
+      "evidence": [],
+      "planned_test": "Clock controllato, canale indisponibile, retry e mancata presa visione."
+    },
+    {
+      "id": "SRS-20",
+      "text": "Validare interazioni, dosi, allergie e controindicazioni con fonte licenziata e versionata.",
+      "hazards": [
+        "H-18"
+      ],
+      "p0_trace": "TR-13",
+      "phase": "P3",
+      "evidence": [],
+      "planned_test": "Casi farmaco-allergia, unità, insufficienza renale e override motivato."
+    }
+  ]
+}

@@ -1,5 +1,11 @@
 # Changelog
 
+## P1 · Qualità e gestione del rischio
+
+- Aggiunti QMS, destinazione d’uso, SAD, SRS, FMECA/HAZOP, procedure, inventario SOUP e valutazioni preliminari MDR/IVDR e AI Act.
+- Verifica automatica di hazard, tracciabilità, riferimenti ai test e copertura dell’inventario, con gate di rilascio clinico separato.
+- Aggiunti SAST in CI e gate di copertura nel job con integrazione ClamAV/S3. Corretti il teardown delle connessioni dei test concorrenti e tre entità JSX che impedivano il parsing completo in SAST.
+
 ## P0 · Audit e accessi clinici
 
 - Limitata la ri-condivisione ai destinatari autorizzati e la lettura dei messaggi al titolo corrente.

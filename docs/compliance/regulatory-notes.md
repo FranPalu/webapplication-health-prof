@@ -1,5 +1,7 @@
 # Note normative preliminari
 
+P1 aggiunge la [qualificazione preliminare MDR/IVDR](mdr-qualification.md), la [valutazione AI Act](ai-act-assessment.md) e il [fascicolo QMS](../qms/README.md).
+
 La [gap analysis P0](../p0/gap-analysis.md) distingue le funzioni operative, simulate e mancanti. Il [piano P1](../p0/roadmap.md) prevede intended use, qualificazione MDR/IVDR, verifica dell’AI Act vigente e tracciabilità del rischio. Le revisioni simulate sono nel [Clinical Validation Log](../p0/clinical-validation-log.md).
 
 Data: 2026-11-03. Stato: requisiti di progettazione e attività da svolgere.

@@ -1,0 +1,992 @@
+ecosystem	component	license	source	scope	risk
+imaging-observed	certifi==2026.10.23	Mozilla Public License 2.0 (MPL 2.0)	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	charset-normalizer==3.5.2	MIT	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	filelock==4.2.4	MIT	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	fsspec==2026.9.0	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	idna==3.20	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	ImageIO==2.38.1	BSD-2-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	Jinja2==3.1.6	BSD License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	lazy-loader==0.6	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	MarkupSafe==3.0.3	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	mpmath==1.3.0	BSD License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	networkx==3.7	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	numpy==2.5.4	BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	packaging==26.3	Apache-2.0 OR BSD-2-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	pandas==3.1.0	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	pillow==13.0.0	MIT-CMU	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	pip==25.0.1	MIT License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	python-dateutil==4.0.0	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	requests==2.34.2	Apache Software License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	scikit-image==0.26.0	BSD License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	scipy==1.18.1	BSD License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	setuptools==78.1.0	MIT License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	sympy==1.14.0	BSD License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	tifffile==2026.10.15	BSD-3-Clause	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	torch==2.7.1+cpu	BSD License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	torchvision==0.22.1	BSD	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	torchxrayvision==1.4.0	Apache Software License	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	tqdm==4.70.1	MPL-2.0 AND MIT	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	typing_extensions==4.16.0	PSF-2.0	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	tzdata==2026.6	Apache-2.0	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+imaging-observed	urllib3==2.8.0	MIT	metadata immagine locale	imaging	alto: pipeline di collaudo AI
+model	densenet121-res224-all@v1	Pesi e dataset DA VERIFICARE; libreria Apache-2.0	SHA-256 56524913dd16a906422e8d8b66a7a5c46be1d82eb7ac012d8103776f1aa68899	imaging offline	alto: classificazione errata e licenza
+model	Qwen2.5-1.5B-Instruct-GGUF-Q4_K_M@dd26da4	Apache-2.0	SHA-256 6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e	sintesi	alto: selezione incompleta o errata
+model	tessdata_fast-eng@4.1.0	Apache-2.0	SHA-256 7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2	OCR	alto: trascrizione errata
+model	tessdata_fast-ita@4.1.0	Apache-2.0	SHA-256 b8f89e1e785118dac4d51ae042c029a64edb5c3ee42ef73027a6d412748d8827	OCR	alto: trascrizione errata
+npm	@alloc/quick-lru@5.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@babel/code-frame@7.29.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/compat-data@7.29.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/core@7.29.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/generator@7.29.8	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-compilation-targets@7.28.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-globals@7.28.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-module-imports@7.28.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-module-transforms@7.28.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-string-parser@7.27.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@babel/helper-string-parser@7.29.11	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-validator-identifier@7.28.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@babel/helper-validator-identifier@7.29.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helper-validator-option@7.27.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/helpers@7.29.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/parser@7.29.11	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/parser@7.29.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@babel/runtime@7.29.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/template@7.28.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/traverse@7.29.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@babel/types@7.29.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@babel/types@7.29.11	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@base-ui/react@1.7.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@base-ui/utils@0.3.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@cloudflare/kv-asset-handler@0.5.0	MIT OR Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/unenv-preset@2.16.1	MIT OR Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/vite-plugin@1.37.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/workerd-darwin-64@1.20260515.1	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/workerd-darwin-arm64@1.20260515.1	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/workerd-linux-64@1.20260515.1	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/workerd-linux-arm64@1.20260515.1	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/workerd-windows-64@1.20260515.1	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@cloudflare/workers-types@4.20260515.1	MIT OR Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@cspotcode/source-map-support@0.8.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@date-fns/tz@1.5.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@drizzle-team/brocli@0.10.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@emnapi/core@1.10.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@emnapi/core@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@emnapi/runtime@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@emnapi/runtime@1.11.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@emnapi/wasi-threads@1.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@emnapi/wasi-threads@1.2.2	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild-kit/core-utils@3.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@esbuild-kit/esm-loader@2.6.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/aix-ppc64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/aix-ppc64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/aix-ppc64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-arm@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/android-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-arm64@0.18.20	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-arm64@0.25.12	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-arm64@0.27.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-arm64@0.28.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/darwin-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-arm64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/freebsd-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-arm@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ia32@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ia32@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ia32@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ia32@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-loong64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-loong64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-loong64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-loong64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-mips64el@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-mips64el@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-mips64el@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-mips64el@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ppc64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ppc64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ppc64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-ppc64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-riscv64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-riscv64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-riscv64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-riscv64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-s390x@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-s390x@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-s390x@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-s390x@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/linux-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/netbsd-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openbsd-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openharmony-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openharmony-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/openharmony-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/sunos-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/sunos-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/sunos-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/sunos-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-arm64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-arm64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-arm64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-arm64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-ia32@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-ia32@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-ia32@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-ia32@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-x64@0.18.20	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-x64@0.25.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-x64@0.27.3	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@esbuild/win32-x64@0.28.0	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@eslint-community/eslint-utils@4.9.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint-community/regexpp@4.12.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/config-array@0.21.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/config-helpers@0.4.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/core@0.17.0	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/eslintrc@3.3.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/js@9.39.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/object-schema@2.1.7	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@eslint/plugin-kit@0.4.1	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@floating-ui/core@1.8.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@floating-ui/dom@1.8.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@floating-ui/react-dom@2.1.9	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@floating-ui/utils@0.2.12	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@hookform/resolvers@5.7.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@humanfs/core@0.19.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@humanfs/node@0.16.8	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@humanfs/types@0.15.0	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@humanwhocodes/module-importer@1.0.1	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@humanwhocodes/retry@0.4.3	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@img/colour@1.1.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@img/sharp-darwin-arm64@0.35.5	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@img/sharp-darwin-x64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-freebsd-wasm32@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-darwin-arm64@1.3.4	LGPL-3.0-or-later	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@img/sharp-libvips-darwin-x64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linux-arm64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linux-arm@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linux-ppc64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linux-riscv64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linux-s390x@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linux-x64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linuxmusl-arm64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-libvips-linuxmusl-x64@1.3.4	LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linux-arm64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linux-arm@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linux-ppc64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linux-riscv64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linux-s390x@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linux-x64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linuxmusl-arm64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-linuxmusl-x64@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-wasm32@0.35.5	Apache-2.0 AND LGPL-3.0-or-later AND MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-webcontainers-wasm32@0.35.5	Apache-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-win32-arm64@0.35.5	Apache-2.0 AND LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-win32-ia32@0.35.5	Apache-2.0 AND LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@img/sharp-win32-x64@0.35.5	Apache-2.0 AND LGPL-3.0-or-later	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@jridgewell/gen-mapping@0.3.13	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@jridgewell/remapping@2.3.5	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@jridgewell/resolve-uri@3.1.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@jridgewell/source-map@0.3.11	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@jridgewell/sourcemap-codec@1.5.5	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@jridgewell/trace-mapping@0.3.31	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@jridgewell/trace-mapping@0.3.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@napi-rs/wasm-runtime@0.2.12	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@napi-rs/wasm-runtime@1.2.6	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/env@16.4.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@next/eslint-plugin-next@16.3.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-darwin-arm64@16.4.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@next/swc-darwin-x64@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-linux-arm64-gnu@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-linux-arm64-musl@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-linux-x64-gnu@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-linux-x64-musl@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-win32-arm64-msvc@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@next/swc-win32-x64-msvc@16.4.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@nodelib/fs.scandir@2.1.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@nodelib/fs.stat@2.0.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@nodelib/fs.walk@1.2.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@nolyfill/is-core-module@1.0.39	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@oxc-project/types@0.139.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@playwright/test@1.64.1	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@poppinss/colors@4.1.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@poppinss/dumper@0.6.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@poppinss/exception@1.2.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@radix-ui/number@1.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/primitive@1.1.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-accessible-icon@1.1.15	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-accordion@1.2.20	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-alert-dialog@1.1.23	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-arrow@1.1.15	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-aspect-ratio@1.1.15	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-avatar@1.2.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-checkbox@1.3.11	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-collapsible@1.1.20	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-collection@1.1.15	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-compose-refs@1.1.5	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-context-menu@2.3.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-context@1.2.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-dialog@1.1.23	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-direction@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-dismissable-layer@1.1.19	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-dropdown-menu@2.1.24	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-focus-guards@1.1.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-focus-scope@1.1.16	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-form@0.1.16	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-hover-card@1.1.23	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-id@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-label@2.1.15	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-menu@2.1.24	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-menubar@1.1.24	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-navigation-menu@1.2.22	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-one-time-password-field@0.1.16	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-password-toggle-field@0.1.11	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-popover@1.1.23	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-popper@1.3.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-portal@1.1.17	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-presence@1.1.10	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-primitive@2.1.10	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-progress@1.1.16	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-radio-group@1.4.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-roving-focus@1.1.19	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-scroll-area@1.2.18	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-select@2.3.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-separator@1.1.15	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-slider@1.4.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-slot@1.3.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-switch@1.3.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-tabs@1.1.21	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-toast@1.2.23	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-toggle-group@1.1.19	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-toggle@1.1.18	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-toolbar@1.1.19	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-tooltip@1.2.16	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-callback-ref@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-controllable-state@1.2.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-effect-event@0.0.5	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-escape-keydown@1.1.5	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-is-hydrated@0.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-layout-effect@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-previous@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-rect@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-use-size@1.1.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/react-visually-hidden@1.2.11	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@radix-ui/rect@1.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@redocly/ajv@8.11.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@redocly/config@0.22.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@redocly/openapi-core@1.34.22	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@reduxjs/toolkit@2.12.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@resvg/resvg-wasm@2.4.0	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-android-arm64@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-darwin-arm64@1.1.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-darwin-x64@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-freebsd-x64@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-arm-gnueabihf@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-arm64-gnu@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-arm64-musl@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-ppc64-gnu@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-s390x-gnu@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-x64-gnu@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-linux-x64-musl@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-openharmony-arm64@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-wasm32-wasi@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-win32-arm64-msvc@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/binding-win32-x64-msvc@1.1.5	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/pluginutils@1.0.0-rc.18	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@rolldown/pluginutils@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@rtsao/scc@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@shadcn/react@0.3.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@shuding/opentype.js@1.4.0-beta.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@sindresorhus/is@7.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@speed-highlight/core@1.2.15	CC0-1.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@standard-schema/spec@1.1.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@standard-schema/utils@0.3.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@swc/helpers@0.5.23	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@tailwindcss/node@4.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-android-arm64@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-darwin-arm64@4.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-darwin-x64@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-freebsd-x64@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-linux-arm-gnueabihf@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-linux-arm64-gnu@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-linux-arm64-musl@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-linux-x64-gnu@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-linux-x64-musl@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-wasm32-wasi@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-win32-arm64-msvc@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide-win32-x64-msvc@4.2.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/oxide@4.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@tailwindcss/postcss@4.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@tybys/wasm-util@0.10.2	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@tybys/wasm-util@0.10.4	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@types/d3-array@3.2.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-color@3.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-ease@3.0.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-interpolate@3.0.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-path@3.1.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-scale@4.0.9	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-shape@3.1.8	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-time@3.0.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/d3-timer@3.0.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/eslint-scope@3.7.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@types/eslint@9.6.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@types/estree@1.0.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@types/json-schema@7.0.15	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@types/json5@0.0.29	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@types/node@22.19.19	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/react-dom@19.2.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/react@19.2.14	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@types/use-sync-external-store@0.0.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	@typescript-eslint/eslint-plugin@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/parser@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/project-service@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/scope-manager@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/tsconfig-utils@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/type-utils@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/types@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/typescript-estree@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/utils@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@typescript-eslint/visitor-keys@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@unpic/core@1.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@unpic/react@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-android-arm-eabi@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-android-arm64@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-darwin-arm64@1.11.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-darwin-x64@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-freebsd-x64@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-arm-gnueabihf@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-arm-musleabihf@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-arm64-gnu@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-arm64-musl@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-ppc64-gnu@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-riscv64-gnu@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-riscv64-musl@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-s390x-gnu@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-x64-gnu@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-linux-x64-musl@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-wasm32-wasi@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-win32-arm64-msvc@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-win32-ia32-msvc@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@unrs/resolver-binding-win32-x64-msvc@1.11.1	MIT	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	@vercel/og@0.8.6	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@vinext/types@1.0.0-beta.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@vitejs/plugin-react@6.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@vitejs/plugin-rsc@0.5.26	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/ast@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/floating-point-hex-parser@1.13.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/helper-api-error@1.13.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/helper-buffer@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/helper-numbers@1.13.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/helper-wasm-bytecode@1.13.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/helper-wasm-section@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/ieee754@1.13.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/leb128@1.13.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/utf8@1.13.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/wasm-edit@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/wasm-gen@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/wasm-opt@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/wasm-parser@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@webassemblyjs/wast-printer@1.14.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@xtuc/ieee754@1.2.0	BSD-3-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	@xtuc/long@4.2.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	acorn-import-phases@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	acorn-jsx@5.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	acorn-loose@8.5.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	acorn@8.16.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	agent-base@7.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ajv-formats@2.1.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	ajv-keywords@5.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ajv@6.15.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ajv@8.20.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	ansi-colors@4.1.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ansi-styles@4.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	argparse@2.0.1	Python-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	aria-hidden@1.2.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	aria-query@5.3.2	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array-buffer-byte-length@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array-includes@3.1.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array.prototype.findlast@1.2.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array.prototype.findlastindex@1.2.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array.prototype.flat@1.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array.prototype.flatmap@1.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	array.prototype.tosorted@1.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	arraybuffer.prototype.slice@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ast-types-flow@0.0.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	async-function@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	available-typed-arrays@1.0.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	axe-core@4.11.4	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	axobject-query@4.1.0	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	balanced-match@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	balanced-match@4.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	base64-js@0.0.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	baseline-browser-mapping@2.11.0	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	blake3-wasm@2.1.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	brace-expansion@1.1.20	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	brace-expansion@2.1.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	brace-expansion@5.0.11	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	braces@3.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	browserslist@4.28.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	buffer-from@1.1.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	bytes@3.1.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	call-bind-apply-helpers@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	call-bind@1.0.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	call-bound@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	callsites@3.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	camelize@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	caniuse-lite@1.0.30001793	CC-BY-4.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	caniuse-lite@1.0.30001820	CC-BY-4.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	chalk@4.1.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	change-case@5.4.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	chrome-trace-event@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	class-variance-authority@0.7.1	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	client-only@0.0.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	clsx@2.1.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	cmdk@1.1.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	color-convert@2.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	color-name@1.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	colorette@1.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	commander@2.20.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	concat-map@0.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	convert-source-map@2.0.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	cookie@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	cross-spawn@7.0.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	css-background-parser@0.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	css-box-shadow@1.0.0-3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	css-color-keywords@1.0.0	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	css-gradient-parser@0.0.16	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	css-to-react-native@3.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	csstype@3.2.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-array@3.2.4	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-color@3.1.0	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-ease@3.0.1	BSD-3-Clause	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-format@3.1.2	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-interpolate@3.0.1	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-path@3.1.0	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-scale@4.0.2	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-shape@3.2.0	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-time-format@4.1.0	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-time@3.1.0	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	d3-timer@3.0.1	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	damerau-levenshtein@1.0.8	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	data-view-buffer@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	data-view-byte-length@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	data-view-byte-offset@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	date-fns@4.4.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	debug@3.2.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	debug@4.4.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	decimal.js-light@2.5.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	deep-is@0.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	define-data-property@1.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	define-properties@1.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	depd@2.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	detect-libc@2.1.2	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	detect-node-es@1.1.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	doctrine@2.1.0	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	drizzle-kit@0.31.10	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	drizzle-orm@0.45.2	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	dunder-proto@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	electron-to-chromium@1.5.467	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	embla-carousel-react@8.6.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	embla-carousel-reactive-utils@8.6.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	embla-carousel@8.6.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	emoji-regex-xs@2.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	emoji-regex@9.2.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	enhanced-resolve@5.21.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	error-stack-parser-es@1.0.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-abstract@1.24.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-define-property@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-errors@1.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-iterator-helpers@1.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-module-lexer@1.7.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-module-lexer@2.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-object-atoms@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-set-tostringtag@2.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-shim-unscopables@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-to-primitive@1.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	es-toolkit@1.50.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	esbuild@0.18.20	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	esbuild@0.25.12	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	esbuild@0.27.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	esbuild@0.28.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	escalade@3.2.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	escape-html@1.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	escape-string-regexp@4.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-config-next@16.3.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-import-resolver-node@0.3.10	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-import-resolver-typescript@3.10.1	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-module-utils@2.12.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-plugin-import@2.32.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-plugin-jsx-a11y@6.10.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-plugin-react-hooks@7.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-plugin-react@7.37.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-scope@5.1.1	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-scope@8.4.0	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-visitor-keys@3.4.3	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-visitor-keys@4.2.1	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint-visitor-keys@5.0.1	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eslint@9.39.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	espree@10.4.0	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	esquery@1.7.0	BSD-3-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	esrecurse@4.3.0	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	estraverse@4.3.0	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	estraverse@5.3.0	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	estree-walker@3.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	esutils@2.0.3	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	eventemitter3@5.0.4	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	events@3.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fast-deep-equal@3.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	fast-glob@3.3.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fast-glob@3.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fast-json-stable-stringify@2.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fast-levenshtein@2.0.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fast-uri@3.1.9	BSD-3-Clause	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	fastq@1.20.1	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fdir@6.5.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fflate@0.7.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	file-entry-cache@8.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fill-range@7.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	find-up@5.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	flat-cache@4.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	flatted@3.4.2	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	for-each@0.3.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	fsevents@2.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	function-bind@1.1.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	function.prototype.name@1.1.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	functions-have-names@1.2.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	generator-function@2.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	gensync@1.0.0-beta.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	get-intrinsic@1.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	get-nonce@1.0.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	get-proto@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	get-symbol-description@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	get-tsconfig@4.14.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	glob-parent@5.1.2	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	glob-parent@6.0.2	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	glob-to-regexp@0.4.1	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	globals@14.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	globals@16.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	globalthis@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	gopd@1.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	graceful-fs@4.2.11	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	has-bigints@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	has-flag@4.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	has-property-descriptors@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	has-proto@1.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	has-symbols@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	has-tostringtag@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	hasown@2.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	hermes-estree@0.25.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	hermes-parser@0.25.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	hex-rgb@4.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	http-errors@2.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	https-proxy-agent@7.0.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	iconv-lite@0.7.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ignore@5.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ignore@7.0.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	image-size@2.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	immer@10.2.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	immer@11.1.16	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	import-fresh@3.3.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	imurmurhash@0.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	index-to-position@1.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	inherits@2.0.4	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	input-otp@1.4.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	internal-slot@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	internmap@2.0.3	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	ipaddr.js@2.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-array-buffer@3.0.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-async-function@2.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-bigint@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-boolean-object@1.2.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-bun-module@2.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-callable@1.2.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-core-module@2.16.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-data-view@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-date-object@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-extglob@2.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-finalizationregistry@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-generator-function@1.1.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-glob@4.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-map@2.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-negative-zero@2.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-number-object@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-number@7.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-regex@1.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-set@2.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-shared-array-buffer@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-string@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-symbol@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-typed-array@1.1.15	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-weakmap@2.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-weakref@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	is-weakset@2.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	isarray@2.0.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	isexe@2.0.0	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	iterator.prototype@1.1.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	jest-worker@27.5.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	jiti@2.7.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	js-levenshtein@1.1.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	js-tokens@4.0.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	js-tokens@9.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	js-yaml@4.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	jsesc@3.1.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	json-buffer@3.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	json-rpc-2.0@1.7.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	json-schema-traverse@0.4.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	json-schema-traverse@1.0.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	json-stable-stringify-without-jsonify@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	json5@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	json5@2.2.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	jsx-ast-utils@3.3.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	keyv@4.5.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	kleur@4.1.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	language-subtag-registry@0.3.23	CC0-1.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	language-tags@1.0.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	levn@0.4.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-android-arm64@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-android-arm64@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-darwin-arm64@1.31.1	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-darwin-arm64@1.32.0	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-darwin-x64@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-darwin-x64@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-freebsd-x64@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-freebsd-x64@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-arm-gnueabihf@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-arm-gnueabihf@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-arm64-gnu@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-arm64-gnu@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-arm64-musl@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-arm64-musl@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-x64-gnu@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-x64-gnu@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-x64-musl@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-linux-x64-musl@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-win32-arm64-msvc@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-win32-arm64-msvc@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-win32-x64-msvc@1.31.1	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss-win32-x64-msvc@1.32.0	MPL-2.0	registry	opzionale/piattaforma	medio: build, test o dipendenza di piattaforma
+npm	lightningcss@1.31.1	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	lightningcss@1.32.0	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	linebreak@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	loader-runner@4.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	locate-path@6.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	lodash.merge@4.6.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	loose-envify@1.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	lru-cache@5.1.1	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	lucide-react@1.31.0	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	magic-string@0.30.21	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	math-intrinsics@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	merge-stream@2.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	merge2@1.4.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	micromatch@4.0.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	mime-db@1.54.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	miniflare@4.20260515.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	minimatch@10.2.5	BlueOak-1.0.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	minimatch@3.1.5	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	minimatch@5.1.9	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	minimist@1.2.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ms@2.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	nanoid@3.3.18	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	napi-postinstall@0.3.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	natural-compare@1.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	neo-async@2.6.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	next-themes@0.4.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	next@16.4.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	node-exports-info@1.6.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	node-releases@2.0.61	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	object-assign@4.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object-inspect@1.13.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object-keys@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object.assign@4.1.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object.entries@1.1.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object.fromentries@2.0.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object.groupby@1.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	object.values@1.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	openapi-typescript@7.13.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	optionator@0.9.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	own-keys@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	p-limit@3.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	p-locate@5.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	pako@0.2.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	parent-module@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	parse-css-color@0.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	parse-json@8.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	path-exists@4.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	path-key@3.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	path-parse@1.0.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	path-to-regexp@6.3.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	pathe@2.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	picocolors@1.1.1	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	picomatch@2.3.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	picomatch@4.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	picomatch@4.0.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	playwright-core@1.64.1	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	playwright@1.64.1	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	pluralize@8.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	possible-typed-array-names@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	postcss-value-parser@4.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	postcss@8.5.23	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	prelude-ls@1.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	prop-types@15.8.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	punycode@2.3.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	queue-microtask@1.2.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	radix-ui@1.6.7	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	raw-body@3.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	react-day-picker@10.0.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-dom@19.2.8	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-hook-form@7.85.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-is@16.13.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-redux@9.3.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-remove-scroll-bar@2.3.8	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-remove-scroll@2.7.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-resizable-panels@4.12.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react-server-dom-webpack@19.2.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	react-style-singleton@2.2.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	react@19.2.8	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	recharts@3.8.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	redux-thunk@3.1.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	redux@5.0.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	reflect.getprototypeof@1.0.10	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	regexp.prototype.flags@1.5.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	require-from-string@2.0.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	reselect@5.1.1	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	reselect@5.2.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	resolve-from@4.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	resolve-pkg-maps@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	resolve@2.0.0-next.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	reusify@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	rolldown@1.1.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	run-parallel@1.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	safe-array-concat@1.1.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	safe-push-apply@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	safe-regex-test@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	safer-buffer@2.1.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	satori@0.16.0	MPL-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	scheduler@0.27.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	schema-utils@4.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	semver@6.3.1	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	semver@7.8.5	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	set-function-length@1.2.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	set-function-name@2.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	set-proto@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	setprototypeof@1.2.0	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	sharp@0.35.5	Apache-2.0	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	shebang-command@2.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	shebang-regex@3.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	side-channel-list@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	side-channel-map@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	side-channel-weakmap@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	side-channel@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	sonner@2.0.8	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	source-map-js@1.2.2	BSD-3-Clause	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	source-map-support@0.5.21	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	source-map@0.6.1	BSD-3-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	srvx@0.11.15	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	stable-hash@0.0.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	statuses@2.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	stop-iteration-iterator@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.codepointat@0.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.includes@2.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.matchall@4.0.12	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.repeat@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.trim@1.2.10	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.trimend@1.0.9	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	string.prototype.trimstart@1.0.8	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	strip-bom@3.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	strip-json-comments@3.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	strip-literal@3.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	styled-jsx@5.1.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	supports-color@10.2.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	supports-color@7.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	supports-color@8.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	supports-preserve-symlinks-flag@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tailwind-merge@3.6.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	tailwindcss@4.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tapable@2.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	terser-webpack-plugin@5.6.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	terser@5.47.1	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tiny-inflate@1.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tiny-invariant@1.3.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	tinyglobby@0.2.16	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tinyglobby@0.2.17	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	to-regex-range@5.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	toidentifier@1.0.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ts-api-utils@2.5.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tsconfig-paths@3.15.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tslib@2.8.1	0BSD	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	tsx@4.22.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	turbo-stream@3.2.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	tw-animate-css@1.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	type-check@0.4.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	type-fest@4.41.0	(MIT OR CC0-1.0)	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	typed-array-buffer@1.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	typed-array-byte-length@1.0.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	typed-array-byte-offset@1.0.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	typed-array-length@1.0.7	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	typescript-eslint@8.59.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	typescript@5.9.3	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	unbox-primitive@1.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	undici-types@6.21.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	undici@7.30.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	unenv@2.0.0-rc.24	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	unicode-trie@2.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	unpic@4.2.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	unpipe@1.0.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	unrs-resolver@1.11.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	update-browserslist-db@1.2.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	uri-js-replace@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	uri-js@4.4.1	BSD-2-Clause	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	use-callback-ref@1.3.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	use-sidecar@1.1.3	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	use-sync-external-store@1.6.0	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	vaul@1.1.2	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	victory-vendor@37.3.6	MIT AND ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	vinext@1.0.0-beta.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	vite-plugin-commonjs@0.10.4	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	vite-plugin-dynamic-import@1.6.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	vite@8.1.6	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	vitefu@1.1.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	watchpack@2.5.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	web-vitals@4.2.4	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	webpack-sources@3.4.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	webpack@5.106.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	which-boxed-primitive@1.1.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	which-builtin-type@1.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	which-collection@1.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	which-typed-array@1.1.20	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	which@2.0.2	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	word-wrap@1.2.5	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	workerd@1.20260515.1	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	wrangler@4.92.0	MIT OR Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	ws@8.21.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	yallist@3.1.1	ISC	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+npm	yaml-ast-parser@0.0.43	Apache-2.0	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	yargs-parser@21.1.1	ISC	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	yocto-queue@0.1.0	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	yoga-layout@3.2.1	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	youch-core@0.3.3	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	youch@4.1.0-beta.10	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	zod-validation-error@4.0.2	MIT	manifest	tooling	medio: build, test o dipendenza di piattaforma
+npm	zod@4.6.6	MIT	manifest	runtime	alto: interfaccia clinica o esecuzione applicativa
+python	amqp==5.4.2	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	argon2-cffi-bindings==26.1.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	argon2-cffi==25.1.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	asgiref==3.13.0	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	ast_serialize==0.13.1	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	attrs==26.1.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	billiard==4.3.2	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	boto3==1.43.123	Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	botocore==1.43.123	Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	celery==5.6.3	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	cffi==2.1.1	MIT-0	metadata installati	backend	alto: processo backend o tool Python
+python	click-didyoumean==0.3.1	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	click-plugins==1.1.1.2	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	click-repl==0.4.1	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	click==8.5.0	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	coverage==7.17.0	Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	cryptography==50.0.2	Apache-2.0 OR BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	django-stubs-ext==6.1.2	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	django-stubs==6.1.2	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	Django==5.2.18	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	djangorestframework-stubs==3.18.2	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	djangorestframework==3.18.3	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	drf-spectacular==0.30.0	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	gunicorn==26.2.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	inflection==0.5.1	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	iniconfig==2.3.1	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	jmespath==1.1.0	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	jsonschema-specifications==2025.9.1	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	jsonschema==4.26.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	kombu==5.7.0	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	librt==0.16.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	mypy==2.4.1	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	mypy_extensions==1.1.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	packaging==26.3	Apache-2.0 OR BSD-2-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	pathspec==1.1.1	License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)	metadata installati	backend	alto: processo backend o tool Python
+python	pillow==13.0.0	MIT-CMU	metadata installati	backend	alto: processo backend o tool Python
+python	pluggy==1.7.0	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	prompt_toolkit==3.0.53	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	psycopg-binary==3.3.7	LGPL-3.0-only	metadata installati	backend	alto: processo backend o tool Python
+python	psycopg==3.3.7	LGPL-3.0-only	metadata installati	backend	alto: processo backend o tool Python
+python	pyarrow==23.0.1	Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	pycparser==3.12	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	pydicom==3.0.2	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	Pygments==2.21.0	BSD-2-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	PyOTP==2.10.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	pypdf==6.21.4	BSD-3-Clause	metadata installati	backend	alto: processo backend o tool Python
+python	pytest-cov==7.1.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	pytest-django==4.14.0	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	pytest==9.2.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	python-dateutil==2.9.0.post0	License :: OSI Approved :: BSD License; License :: OSI Approved :: Apache Software License	metadata installati	backend	alto: processo backend o tool Python
+python	PyYAML==6.0.3	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	redis==8.1.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	referencing==0.37.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	rpds-py==2026.9.1	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	ruff==0.17.3	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	s3transfer==0.19.3	License :: OSI Approved :: Apache Software License	metadata installati	backend	alto: processo backend o tool Python
+python	six==1.17.0	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+python	sqlparse==0.6.1	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	torch==2.7.1	License :: OSI Approved :: BSD License	PyPI	imaging	alto: pipeline di collaudo AI
+python	torchvision==0.22.1	BSD	PyPI	imaging	alto: pipeline di collaudo AI
+python	torchxrayvision==1.4.0	License :: OSI Approved :: Apache Software License	PyPI	imaging	alto: pipeline di collaudo AI
+python	types-PyYAML==6.0.12.20261103	Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	typing_extensions==4.16.0	PSF-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	tzdata==2026.6	Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	tzlocal==5.4.5	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	uritemplate==4.2.0	BSD 3-Clause OR Apache-2.0	metadata installati	backend	alto: processo backend o tool Python
+python	urllib3==2.8.0	MIT	metadata installati	backend	alto: processo backend o tool Python
+python	vine==5.1.0	License :: OSI Approved :: BSD License	metadata installati	backend	alto: processo backend o tool Python
+python	wcwidth==0.9.4	License :: OSI Approved :: MIT License	metadata installati	backend	alto: processo backend o tool Python
+runtime	node:24.22.2-bookworm-slim	MIT per Node.js; immagine con componenti multipli	Dockerfile	frontend	alto: esecuzione UI
+runtime	python:3.12.12-slim	PSF-2.0 per CPython; immagine con componenti multipli	infra/imaging/Dockerfile	imaging	alto: esecuzione analisi
+runtime	python:3.14.5-slim	PSF-2.0 per CPython; immagine con componenti multipli	backend/Dockerfile*	backend e worker	alto: esecuzione API e worker
+service	axllent/mailpit:v1.27.4	MIT per Mailpit; immagine composita	compose.yaml	mail locale	medio: consegna email di prova
+service	chrislusf/seaweedfs:4.22	Apache-2.0 per SeaweedFS; immagine composita	compose.yaml	storage	alto: integrità e disponibilità degli oggetti
+service	clamav/clamav:1.4	GPL-2.0-only per ClamAV; immagine composita	compose.yaml	antivirus	alto: file ostile o scanner indisponibile
+service	nginx:1.28.0-alpine	BSD-2-Clause per Nginx; immagine composita	compose.yaml	proxy	alto: instradamento, timeout e accesso
+service	postgis/postgis:17-3.5	PostgreSQL License e GPL-2.0-or-later; immagine composita	compose.yaml	database	alto: dati, autorizzazione, audit
+service	redis:7.4.2-alpine	RSALv2 OR SSPLv1 per Redis 7.4; immagine composita	compose.yaml	coda	alto: perdita o ritardo job
+tool	bandit@1.9.4	Apache-2.0	workflow CI	SAST	medio: controllo sorgente
+tool	llama.cpp@4762ad7316dcdec20016ab5985fb46a27902204d	MIT	backend/Dockerfile.analysis	AI	alto: runtime generativo
+tool	pip-audit@2.10.1	Apache-2.0	workflow CI	SCA	medio: controllo catena di fornitura
+tool	semgrep@1.184.0	LGPL-2.1 per motore OSS; termini ruleset da verificare	workflow CI	SAST	medio: controllo sorgente
+tool	shadcn-tailwind@4.13.0	MIT	vendor/shadcn-tailwind-4.13.0.LICENSE.md	UI	medio: stile e leggibilità

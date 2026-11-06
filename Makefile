@@ -8,10 +8,12 @@ dev: env
 down:
 	$(COMPOSE) down
 test:
-	$(COMPOSE) run --rm backend pytest
+	python3 -m unittest discover -s tests -p qms_test.py
+	$(COMPOSE) run --rm -e CLINICAL_INTEGRATION_TEST=1 backend pytest
 	pnpm test
 	python3 tests/database_test.py
 check:
+	python3 scripts/check_qms.py
 	$(COMPOSE) run --rm backend ruff check .
 	$(COMPOSE) run --rm backend mypy config identity
 	$(COMPOSE) run --rm backend python manage.py makemigrations --check --dry-run
