@@ -1,0 +1,71 @@
+{
+  "pipeline": "lab-v2:source-v1:ucum-v1:prompt-v2",
+  "purpose": "Synthetic laboratory extraction with mandatory professional verification",
+  "population": "Synthetic adult laboratory reports only",
+  "review_status": "Clinical validation pending",
+  "components": [
+    {
+      "name": "Claria deterministic extraction",
+      "version": "2",
+      "checksum": "repository-versioned",
+      "license": "Project source",
+      "training_data": "No training",
+      "intended_use": "Extract supported lines and compare only reported reference limits",
+      "limits": "Restricted layouts, analytes and units. Censored and ambiguous values require confirmation",
+      "published_metrics": "Not verified for this deployment; no clinical accuracy claim"
+    },
+    {
+      "name": "Tesseract tessdata_fast ita",
+      "version": "4.1.0",
+      "checksum": "b8f89e1e785118dac4d51ae042c029a64edb5c3ee42ef73027a6d412748d8827",
+      "license": "Apache-2.0",
+      "source": "https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0",
+      "training_data": "Upstream tessdata_fast. Medical population representativeness unverified",
+      "intended_use": "OCR of supported synthetic report pages",
+      "limits": "Confidence is word-recognition confidence, uncalibrated for clinical extraction",
+      "published_metrics": "Not verified for this deployment; no clinical accuracy claim"
+    },
+    {
+      "name": "Tesseract tessdata_fast eng",
+      "version": "4.1.0",
+      "checksum": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "license": "Apache-2.0",
+      "source": "https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0",
+      "training_data": "Upstream tessdata_fast. Medical population representativeness unverified",
+      "intended_use": "OCR of supported synthetic report pages",
+      "limits": "Confidence is word-recognition confidence, uncalibrated for clinical extraction",
+      "published_metrics": "Not verified for this deployment; no clinical accuracy claim"
+    },
+    {
+      "name": "Qwen2.5-1.5B-Instruct-GGUF",
+      "version": "dd26da4/Q4_K_M",
+      "checksum": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "training_data": "Upstream general-purpose instruction model. Clinical performance unverified",
+      "intended_use": "Select supplied row IDs for deterministic server rendering",
+      "limits": "No diagnostic generation. Invalid references are rejected. No calibrated confidence",
+      "published_metrics": "Not verified for this deployment; no clinical accuracy claim"
+    },
+    {
+      "name": "TorchXRayVision densenet121-res224-all",
+      "version": "v1/tensor-state-p4",
+      "checksum": "9557a4685000af1490869d2abb19be6a651beb57feff6c1da8cf88bef28eb068",
+      "license": "Library Apache-2.0. Checkpoint and training dataset rights pending",
+      "source": "https://github.com/mlmed/torchxrayvision",
+      "training_data": "Upstream mixed chest-radiograph datasets. Representativeness unverified",
+      "intended_use": "Isolated synthetic frontal chest X-ray smoke test",
+      "limits": "Disabled for clinical processing. no clinical OOD detector or calibrated confidence",
+      "published_metrics": "Not verified for this deployment; no clinical accuracy claim",
+      "source_artifact_sha256": "56524913dd16a906422e8d8b66a7a5c46be1d82eb7ac012d8103776f1aa68899",
+      "conversion": "Pinned upstream model converted offline to tensor state with forward equivalence check; no training"
+    }
+  ],
+  "prompt": {
+    "version": "row-selection-v2",
+    "inputs": "Row IDs, supported analyte labels, deterministic flags only",
+    "outputs": "At most five unique supplied IDs",
+    "numerical_consistency": "All displayed values rendered from original structured rows",
+    "clinical_interpretation": "Prohibited in automatic summaries"
+  }
+}

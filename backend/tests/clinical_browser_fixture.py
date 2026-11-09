@@ -9,7 +9,9 @@ import pyotp
 from django.conf import settings
 from django.db import transaction
 
+from identity.analysis_registry import manifest
 from identity.models import (
+    AnalysisPolicyEvent,
     CareRelationship,
     Membership,
     Organization,
@@ -33,6 +35,13 @@ with transaction.atomic():
     )
     organization = Organization.objects.create(name="Studio sintetico M3 E2E", kind="clinic")
     Membership.objects.create(organization=organization, user=professional, role="professional")
+    AnalysisPolicyEvent.objects.create(
+        organization=organization,
+        author=professional,
+        enabled=True,
+        manifest_hash=manifest()[1],
+        reason="Synthetic browser fixture, not clinical approval",
+    )
     patient_password = secrets.token_urlsafe(32)
     account = User.objects.create_user(
         f"m4-browser-{uuid.uuid4()}@patients.example",

@@ -4,6 +4,7 @@ from drf_spectacular.views import SpectacularAPIView
 
 from config.health import liveness, readiness
 from identity import (
+    analysis_registry,
     analysis_views,
     appointment_views,
     clinical_safety,
@@ -132,7 +133,13 @@ urlpatterns += [
 urlpatterns += [
     endpoint("clinical/versions/<uuid:version_id>/analysis/", analysis_views.JobsView),
     endpoint("clinical/analysis/<uuid:job_id>/", analysis_views.JobView),
+    endpoint(
+        "organizations/<uuid:org_id>/analysis/registry/", analysis_registry.AnalysisPolicyView
+    ),
+    endpoint("clinical/analysis/<uuid:job_id>/review-start/", analysis_views.StartReviewView),
+    endpoint("clinical/analysis/<uuid:job_id>/incidents/", analysis_views.AnalysisIncidentView),
     endpoint("clinical/analysis/<uuid:job_id>/review/", analysis_views.ReviewView),
+    endpoint("clinical/opinions/<uuid:opinion_id>/sign/", analysis_views.SignOpinionView),
     endpoint("clinical/opinions/<uuid:opinion_id>/publish/", analysis_views.PublishView),
     endpoint("clinical/patients/<uuid:patient_id>/opinions/", analysis_views.PublishedOpinionsView),
     endpoint("organizations/<uuid:org_id>/analysis/metrics/", analysis_views.AnalysisMetricsView),

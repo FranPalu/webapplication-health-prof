@@ -77,7 +77,17 @@ def run_clinical_analysis(job_id):
     from django.utils import timezone
 
     from identity.analysis import encode, requester_allowed
-    from identity.analysis_pipeline import DISCLAIMER, OCR_WEIGHTS, extract, pages_from, summary
+    from identity.analysis_pipeline import (
+        DISCLAIMER,
+        OCR_WEIGHTS,
+        PIPELINE,
+        PROMPT_VERSION,
+        QWEN_SHA256,
+        extract,
+        pages_from,
+        summary,
+    )
+    from identity.analysis_registry import manifest
     from identity.clinical_storage import read_content
     from identity.models import AnalysisDraft, AnalysisJob, AnalysisModel
     from identity.security import audit
@@ -88,7 +98,7 @@ def run_clinical_analysis(job_id):
             return
         organization = job.version.document.patient.organization
         allowed = requester_allowed(job, lock=True)
-        if not allowed or job.attempts >= 3:
+        if not allowed or job.pipeline != PIPELINE or job.attempts >= 3:
             job.state = "cancelled" if not allowed else "failed"
             job.save(update_fields=["state"])
             audit(job.requested_by, "analysis." + job.state, job.pk, organization)
@@ -113,11 +123,18 @@ def run_clinical_analysis(job_id):
             for number, page in enumerate(pages, 1)
             if len(page) > 2 and page[2] is not None
         ]
+        selected = summary(rows) if not notices else None
+        if selected and selected.get("checksum") != QWEN_SHA256:
+            raise ValueError("Summary model checksum mismatch")
         result = {
             "label": DISCLAIMER,
+            "pipeline": PIPELINE,
+            "prompt_version": PROMPT_VERSION,
+            "manifest_hash": manifest()[1],
+            "source_document_sha256": job.input_hash,
             "rows": rows,
             "ocr": OCR_WEIGHTS if ocr_used else {},
-            "summary": summary(rows) if not notices else None,
+            "summary": selected,
             "notices": sorted(notices),
             "confidence": {"value": None, "source": "not_calibrated", "ocr_pages": confidence},
         }
@@ -159,9 +176,11 @@ def run_clinical_analysis(job_id):
                     },
                 )
             AnalysisDraft.objects.create(job=job, model=model, **sealed)
+            job.extraction_rows = len(result["rows"])
+            job.uncertain_rows = sum(row["requires_confirmation"] for row in result["rows"])
             job.state = "ready"
         job.lease_until = None
-        job.save(update_fields=["state", "lease_until"])
+        job.save(update_fields=["state", "lease_until", "extraction_rows", "uncertain_rows"])
         audit(job.requested_by, "analysis." + job.state, job.pk, organization)
 
 

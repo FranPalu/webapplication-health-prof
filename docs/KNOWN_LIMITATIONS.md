@@ -1,10 +1,12 @@
 # Limitazioni note
 
+P4 aggiunge schede approvate per hash, riquadri e conferme delle fonti, controllo firma e sospensione. Rimane limitato a collaudo sintetico DEBUG: provider firma reale e conservazione assenti, metriche cliniche e sottogruppi non stimabili, drift non validato, imaging senza OOD/localizzazione/calibrazione clinici. La rotazione sintetica di 3° riduce F1 a 0,80. [Perimetro P4](12-supervised-ai-p4.md) · [Esiti](p4/verification.md)
+
 P3 copre coda, ordini e screening farmacologico nel collaudo sintetico. Restano aperti fonte clinica licenziata, affidabilità della consegna, conferma sui flussi futuri di firma e prescrizione e validazione clinica. [Limiti P3](11-clinical-safety-p3.md)
 
 P2 implementa identificazione, episodi ambulatoriali e storico dei referti in un perimetro limitato. La riconciliazione reversibile collega schede mantenendone distinti i dati. Restano aperti fusione canonica, rappresentanza, cartella estesa, cataloghi e profili, firma e conservazione. [Limiti P2](10-clinical-record-p2.md)
 
-P1 mantiene il rilascio clinico bloccato. Destinazione e classi sono preliminari, i responsabili sono ruoli da designare e gli hazard attendono evidenze e accettazione. Lo snapshot SOUP copre le versioni dichiarate, con SBOM per immagini, pacchetti OS e verifica dei diritti dei pesi imaging ancora aperte. Il profilo imaging offline ha advisory aperti su PyTorch, pip e setuptools. Resta limitato alle fixture sintetiche isolate fino a remediation e nuova prova P4. [Fascicolo P1](qms/README.md)
+P1 mantiene il rilascio clinico bloccato. Destinazione e classi sono preliminari, i responsabili sono ruoli da designare e gli hazard attendono evidenze e accettazione. Lo snapshot SOUP copre le versioni dichiarate, con SBOM per immagini, pacchetti OS e verifica dei diritti dei pesi imaging ancora aperte. Gli advisory del vecchio profilo imaging su PyTorch, pip e setuptools sono stati corretti e il nuovo inventario P4 non presenta advisory noti alla scansione. Restano la scansione OS/container, i diritti dei pesi e la validazione clinica; il profilo resta esclusivamente sintetico e isolato. [Fascicolo P1](qms/README.md)
 
 La [gap analysis P0](p0/gap-analysis.md) aggiorna lo stato verificato. Restano aperti il ruolo DB runtime a privilegi minimi, il checkpoint indipendente dell’audit, la copertura negativa per endpoint, la firma clinica, i gate di sicurezza in CI e sette avvisi npm moderati o bassi nel grafo completo. Vedere gli [esiti di verifica](p0/verification.md).
 

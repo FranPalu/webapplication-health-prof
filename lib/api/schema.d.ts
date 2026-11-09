@@ -340,6 +340,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clinical/analysis/{job_id}/incidents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_analysis_incidents_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/clinical/analysis/{job_id}/review/": {
         parameters: {
             query?: never;
@@ -350,6 +366,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_analysis_review_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/analysis/{job_id}/review-start/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_analysis_review_start_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -398,6 +430,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["clinical_opinions_publish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clinical/opinions/{opinion_id}/sign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["clinical_opinions_sign_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -942,6 +990,22 @@ export interface paths {
         get: operations["organizations_analysis_metrics_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{org_id}/analysis/registry/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizations_analysis_registry_retrieve"];
+        put?: never;
+        post: operations["organizations_analysis_registry_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1511,11 +1575,23 @@ export interface components {
          * @enum {string}
          */
         AnalysisDecisionEnum: "accept" | "modify" | "reject";
+        AnalysisIncidentInputRequest: {
+            category: components["schemas"]["CategoryEnum"];
+            note: string;
+        };
+        AnalysisPolicyInputRequest: {
+            enabled: boolean;
+            manifest_hash: string;
+            reason: string;
+        };
         AnalysisReviewInputRequest: {
             decision: components["schemas"]["AnalysisDecisionEnum"];
             text: string;
             /** @default false */
             confirmed: boolean;
+            confirmed_rows?: string[];
+            /** @default false */
+            source_checked: boolean;
         };
         /** @enum {unknown} */
         BlankEnum: "";
@@ -1550,6 +1626,15 @@ export interface components {
             /** Format: date-time */
             expires_at: string;
         };
+        /**
+         * @description * `incorrect_extraction` - incorrect_extraction
+         *     * `missed_finding` - missed_finding
+         *     * `unexpected_output` - unexpected_output
+         *     * `privacy` - privacy
+         *     * `other` - other
+         * @enum {string}
+         */
+        CategoryEnum: "incorrect_extraction" | "missed_finding" | "unexpected_output" | "privacy" | "other";
         CheckoutInputRequest: {
             /** Format: uuid */
             price: string;
@@ -2470,6 +2555,13 @@ export interface components {
          * @enum {string}
          */
         ShareOutputScopeEnum: "item" | "folder" | "chart";
+        SignatureInputRequest: {
+            identifier_kind: components["schemas"]["IdentifierKindEnum"];
+            identifier_value: string;
+            /** Format: date */
+            source_birth_date: string;
+            artifact: string;
+        };
         SlotInputRequest: {
             title: string;
             /** Format: uuid */
@@ -3118,6 +3210,35 @@ export interface operations {
             };
         };
     };
+    clinical_analysis_incidents_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisIncidentInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AnalysisIncidentInputRequest"];
+                "multipart/form-data": components["schemas"]["AnalysisIncidentInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     clinical_analysis_review_create: {
         parameters: {
             query?: never;
@@ -3143,6 +3264,27 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    clinical_analysis_review_start_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOutput"];
                 };
             };
         };
@@ -3260,6 +3402,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    clinical_opinions_sign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opinion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignatureInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SignatureInputRequest"];
+                "multipart/form-data": components["schemas"]["SignatureInputRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
             };
         };
     };
@@ -4242,6 +4413,58 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    organizations_analysis_registry_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    organizations_analysis_registry_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                org_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalysisPolicyInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AnalysisPolicyInputRequest"];
+                "multipart/form-data": components["schemas"]["AnalysisPolicyInputRequest"];
+            };
+        };
+        responses: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

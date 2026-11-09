@@ -1,5 +1,13 @@
 # Changelog
 
+## P4 · Controlli sul workflow AI
+
+- Aggiunte approvazioni e sospensioni per tenant legate a schede, prompt e codice; le nuove decisioni invalidano i job precedenti.
+- Conservati testo sorgente e riquadri PDF/OCR; introdotte conferme esplicite, terminologie preliminari e blocco dell’estrazione incompleta.
+- Separata la firma verificata dall’attestazione, con manifest del testo finale, controllo del paziente e rifiuto della pubblicazione senza provider/prova.
+- Aggiunte sessioni di revisione, metriche di processo, segnalazioni cifrate, regressioni e gate CI per AI locale e dipendenze imaging. Aggiornato il runtime imaging vulnerabile.
+- Impatto clinico: cambiamenti ai gate di revisione/pubblicazione; uso reale bloccato. [Perimetro e limiti](docs/12-supervised-ai-p4.md) · [Verifica](docs/p4/verification.md).
+
 ## P3 · Coda e regole di laboratorio
 
 - Aggiunti regole versionate approvate, esito dato insufficiente, coda, conferma del paziente, presa visione ed escalation per il collaudo sintetico.

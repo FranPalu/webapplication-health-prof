@@ -116,7 +116,7 @@ test('professional uploads, searches, downloads and archives a clinical document
   await expect(page.getByText('Nessun documento trovato.')).toBeVisible();
 });
 
-test('professional reviews a local analysis and publishes only the final opinion', async ({page, browser}) => {
+test('professional reviews local analysis and blocks publication without verified signature', async ({page, browser}) => {
   const fixture = process.env.E2E_CLINICAL_FIXTURE;
   test.skip(process.env.E2E_ANALYSIS !== '1' || !fixture, 'Requires an enabled local analysis worker.');
   const account = JSON.parse(readFileSync(fixture!, 'utf8')) as {
@@ -162,6 +162,8 @@ test('professional reviews a local analysis and publishes only the final opinion
   await page.getByLabel('Decisione').selectOption('modify');
   const text = 'Parere sintetico verificato per il collaudo.';
   await page.getByLabel('Parere finale').fill(text);
+  for (const checkbox of await page.getByLabel(/Confermo dalla fonte la riga/).all()) await checkbox.check();
+  await page.getByLabel('Ho confrontato ogni valore con il documento originale').check();
   await page.getByLabel('Ho verificato il referto e attesto il testo finale').check();
   await page.getByRole('button', {name:'Registra revisione'}).click();
 
@@ -176,10 +178,11 @@ test('professional reviews a local analysis and publishes only the final opinion
     expect((await patient.request.get('/api/v1/clinical/analysis/' + job.id + '/')).status()).toBe(403);
     page.once('dialog', dialog => dialog.accept());
     await page.getByRole('button', {name:'Pubblica il parere al paziente'}).click();
-    await expect(page.getByText('Parere pubblicato', {exact:true})).toBeVisible();
+    await expect(page.getByText('Operazione non disponibile o accesso modificato.')).toBeVisible();
     await patient.getByText('Pareri professionali pubblicati', {exact:true}).click();
     await patient.getByText('Pareri professionali pubblicati', {exact:true}).click();
-    await expect(patient.getByText(text, {exact:true})).toBeVisible();
+    await expect(patient.getByText('Nessun parere pubblicato.')).toBeVisible();
+    await expect(patient.getByText(text, {exact:true})).toHaveCount(0);
     await expect(patient.getByText('Analisi automatica preliminare', {exact:false})).toHaveCount(0);
   } finally {
     await patient.close();

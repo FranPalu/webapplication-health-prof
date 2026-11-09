@@ -12,7 +12,14 @@ from django.db import transaction
 from django.utils import timezone
 
 from identity.clinical import MAX_BYTES, DocumentUnavailable, tenant_cipher
-from identity.models import AnalysisDraft, AnalysisOpinion, AnalysisReview, ClinicalDocumentVersion
+from identity.models import (
+    AnalysisDraft,
+    AnalysisIncident,
+    AnalysisOpinion,
+    AnalysisReview,
+    AnalysisSignature,
+    ClinicalDocumentVersion,
+)
 from identity.security import audit
 
 
@@ -145,6 +152,12 @@ def maintain_version(version_id, *, cutoff=None, rotate=False):
         AnalysisDraft.objects.filter(job__version=version).update(ciphertext=b"", wrapped_key=b"")
         AnalysisReview.objects.filter(job__version=version).update(ciphertext=b"", wrapped_key=b"")
         AnalysisOpinion.objects.filter(review__job__version=version).update(
+            ciphertext=b"", wrapped_key=b""
+        )
+        AnalysisSignature.objects.filter(opinion__review__job__version=version).update(
+            ciphertext=b"", wrapped_key=b""
+        )
+        AnalysisIncident.objects.filter(job__version=version).update(
             ciphertext=b"", wrapped_key=b""
         )
         audit(None, "clinical.purged", version.pk, organization)

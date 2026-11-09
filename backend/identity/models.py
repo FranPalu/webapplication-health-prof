@@ -486,6 +486,9 @@ class AnalysisJob(models.Model):
     auth_version = models.PositiveIntegerField()
     pipeline = models.CharField(max_length=64)
     input_hash = models.CharField(max_length=64)
+    policy = models.ForeignKey("AnalysisPolicyEvent", null=True, on_delete=models.PROTECT)
+    extraction_rows = models.PositiveSmallIntegerField(null=True)
+    uncertain_rows = models.PositiveSmallIntegerField(null=True)
     state = models.CharField(max_length=16, default="queued")
     attempts = models.PositiveSmallIntegerField(default=0)
     lease_until = models.DateTimeField(null=True)
@@ -493,7 +496,9 @@ class AnalysisJob(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["version", "pipeline"], name="analysis_job_dedup")
+            models.UniqueConstraint(
+                fields=["version", "pipeline", "policy"], name="analysis_job_dedup"
+            )
         ]
 
 
@@ -799,4 +804,40 @@ class MedicationSafetyOverride(models.Model):
     screening = models.OneToOneField(MedicationSafetyCheck, on_delete=models.PROTECT)
     actor = models.ForeignKey(User, on_delete=models.PROTECT)
     reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AnalysisPolicyEvent(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    enabled = models.BooleanField()
+    manifest_hash = models.CharField(max_length=64)
+    reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AnalysisReviewSession(models.Model):
+    job = models.ForeignKey(AnalysisJob, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["job", "author"], name="unique_analysis_review_session")
+        ]
+
+
+class AnalysisSignature(AnalysisPayload):
+    opinion = models.OneToOneField(AnalysisOpinion, on_delete=models.PROTECT)
+    signer = models.ForeignKey(User, on_delete=models.PROTECT)
+    provider = models.CharField(max_length=160)
+    format = models.CharField(max_length=8)
+    signed_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AnalysisIncident(AnalysisPayload):
+    job = models.ForeignKey(AnalysisJob, on_delete=models.PROTECT)
+    reporter = models.ForeignKey(User, on_delete=models.PROTECT)
+    category = models.CharField(max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -6,12 +6,14 @@ from django.db import DatabaseError, transaction
 from test_clinical import PDF
 from test_identity import approve, org_for, patient, signed, user
 
-from identity.analysis_pipeline import DISCLAIMER, extract
+from identity.analysis_pipeline import DISCLAIMER, QWEN_SHA256, extract
+from identity.analysis_registry import manifest
 from identity.clinical import seal
 from identity.models import (
     AnalysisDraft,
     AnalysisJob,
     AnalysisOpinion,
+    AnalysisPolicyEvent,
     AuditEvent,
     CareRelationship,
     ClinicalDocument,
@@ -40,6 +42,23 @@ def scenario(settings):
         media_type="application/pdf",
         size=len(PDF),
         **seal(PDF, record.organization_id),
+    )
+    AnalysisPolicyEvent.objects.create(
+        organization=record.organization,
+        author=author,
+        enabled=True,
+        manifest_hash=manifest()[1],
+        reason="Synthetic test approval",
+    )
+    from identity.models import PatientIdentifier
+    from identity.patient_identification import identifier_digest
+
+    PatientIdentifier.objects.create(
+        patient=record,
+        organization=record.organization,
+        kind="facility",
+        digest=identifier_digest(record.organization_id, "facility", "SYNTHETIC-P4"),
+        recorded_by=author,
     )
     return author, person, record, version
 
@@ -75,7 +94,9 @@ def test_analysis_review_publication_and_tenant_isolation(scenario, decision):
         ),
         patch(
             "identity.analysis_pipeline.summary",
-            return_value={"rows": ["1:1"], "checksum": "0" * 64} if decision == "accept" else None,
+            return_value={"rows": ["1:1"], "checksum": QWEN_SHA256}
+            if decision == "accept"
+            else None,
         ),
     ):
         run_clinical_analysis(job_id)
@@ -87,7 +108,14 @@ def test_analysis_review_publication_and_tenant_isolation(scenario, decision):
     assert detail["draft"]["rows"][0]["flag"] == "above"
     assert patient_browser.get(published).data["count"] == 0
     text = detail["suggestion"] if decision == "accept" else "Parere sintetico verificato"
-    body = {"decision": decision, "text": text, "confirmed": True}
+    assert reviewer.post(path + "review-start/", {}).status_code == 200
+    body = {
+        "decision": decision,
+        "text": text,
+        "confirmed": True,
+        "source_checked": True,
+        "confirmed_rows": ["1:1"],
+    }
     if decision == "accept":
         assert reviewer.post(path + "review/", {**body, "text": "Testo diverso"}).status_code == 400
     assert reviewer.post(path + "review/", {**body, "confirmed": False}).status_code == 400
@@ -99,6 +127,8 @@ def test_analysis_review_publication_and_tenant_isolation(scenario, decision):
     assert patient_browser.get(published).data["count"] == 0
     publish = f"clinical/opinions/{reviewed.data['opinion']}/publish/"
     assert outside.post(publish, {}).status_code == 404
+    assert reviewer.post(publish, {}).status_code == 409
+    sign_opinion(reviewer, author, reviewed.data["opinion"])
     assert reviewer.post(publish, {}).status_code == 204
     response = patient_browser.get(published).data["results"]
     assert response[0]["text"] == body["text"]
@@ -161,6 +191,7 @@ def test_concurrent_rejections_can_only_record_one_review(scenario):
         return_value=[("Glucosio 110 mg/dL 60-100", "embedded")],
     ):
         run_clinical_analysis(job_id)
+    assert reviewer.post(f"clinical/analysis/{job_id}/review-start/", {}).status_code == 200
     path = f"/api/v1/clinical/analysis/{job_id}/review/"
     cookies = {key: value.value for key, value in reviewer.client.cookies.items()}
     barrier = Barrier(2)
@@ -205,13 +236,20 @@ def test_source_purge_erases_analysis_payloads(scenario):
     author, _, _, version = scenario
     reviewer = signed(author)
     job_id = reviewer.post(f"clinical/versions/{version.pk}/analysis/", {}).data["id"]
-    run_clinical_analysis(job_id)
+    with patch(
+        "identity.analysis_pipeline.pages_from",
+        return_value=[("Glucosio 110 mg/dL 60-100", "embedded")],
+    ):
+        run_clinical_analysis(job_id)
+    reviewer.post(f"clinical/analysis/{job_id}/review-start/", {})
     response = reviewer.post(
         f"clinical/analysis/{job_id}/review/",
         {
             "decision": "modify",
             "text": "Synthetic opinion",
             "confirmed": True,
+            "source_checked": True,
+            "confirmed_rows": ["1:1"],
         },
     )
     assert response.status_code == 201
@@ -251,3 +289,39 @@ def test_failed_offload_leaves_next_document_eligible(scenario):
     with patch("identity.tasks.offload_clinical_version.delay") as dispatch:
         reconcile_clinical_storage()
         dispatch.assert_called_once_with(str(next_version.pk))
+
+
+def sign_opinion(reviewer, author, opinion_id):
+    """Explicit test-only verification double; no production signing credentials."""
+    import base64
+
+    from django.utils import timezone
+
+    from identity.analysis_signing import VerifiedClinicalSignature
+
+    opinion = AnalysisOpinion.objects.get(pk=opinion_id)
+    proof = VerifiedClinicalSignature(
+        signer_id=author.pk,
+        digest=opinion.attestation_hash,
+        signed_at=timezone.now(),
+        provider_reference="SYNTHETIC-TEST-ONLY",
+        format="PAdES",
+    )
+    with patch("identity.analysis_views.verifier") as provider:
+        provider.return_value.verify.return_value = proof
+        result = reviewer.post(
+            f"clinical/opinions/{opinion_id}/sign/",
+            {
+                "artifact": base64.b64encode(b"SYNTHETIC-NOT-A-REAL-SIGNATURE").decode(),
+                **signature_identity(opinion.review.job.version.document.patient),
+            },
+        )
+    assert result.status_code == 201, result.content
+
+
+def signature_identity(record):
+    return {
+        "identifier_kind": "facility",
+        "identifier_value": "SYNTHETIC-P4",
+        "source_birth_date": str(record.birth_date),
+    }

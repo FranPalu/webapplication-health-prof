@@ -9,8 +9,8 @@ type Version = components['schemas']['VersionOutput'];
 type Page<T = Version> = {results: T[]; next: string | null};
 type Folder = components['schemas']['FolderOutput'];
 
-export function ClinicalDocuments({patient, write, english, shareChanged}: {
-  patient: string; write: boolean; english: boolean; shareChanged?: () => Promise<void>;
+export function ClinicalDocuments({patient, write, english, shareChanged, organization}: {
+  patient: string; write: boolean; english: boolean; organization?: string; shareChanged?: () => Promise<void>;
 }) {
   const [page, setPage] = useState<Page | null>(null);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -167,7 +167,7 @@ export function ClinicalDocuments({patient, write, english, shareChanged}: {
           ? <a href={'/api/v1/clinical/versions/' + version.id + '/download/'}>{label('Scarica versione', 'Download version')} {version.number}</a>
           : <span>{label('Versione', 'Version')} {version.number}</span>}
         {version.kind === 'prescription' && <p>{label('ID versione ricetta', 'Prescription version ID')}: <code>{version.id}</code></p>}
-        {write && version.can_analyze && <ClinicalAnalysis version={version.id} english={english}/>}
+        {write && version.can_analyze && <ClinicalAnalysis version={version.id} english={english} organization={organization}/>}
       </li>)}</ul>
       {history?.next && <button disabled={busy} onClick={() => void perform(async () => {
         const next = await api<Page>(selectedPath + new URL(history.next!, window.location.origin).search);

@@ -1,11 +1,15 @@
 """Clinical analysis access policy and tenant-bound encrypted payloads."""
 
+import calendar
 import json
 from dataclasses import dataclass
+from datetime import date
 
 from cryptography.fernet import Fernet
 from django.conf import settings
+from django.utils import timezone
 
+from identity.analysis_registry import current_policy_jobs
 from identity.clinical import clinical_patients, seal
 from identity.clinical_storage import unwrap_key
 from identity.models import (
@@ -14,6 +18,7 @@ from identity.models import (
     ClinicalDocument,
     ClinicalDocumentVersion,
     Membership,
+    Organization,
     ProfessionalVerification,
     User,
 )
@@ -30,11 +35,18 @@ def eligible(user):
     )
 
 
+def adult_cutoff():
+    today = timezone.localdate()
+    year = today.year - 18
+    return date(year, today.month, min(today.day, calendar.monthrange(year, today.month)[1]))
+
+
 def authorized_jobs(user):
     if not enabled() or not eligible(user):
         return AnalysisJob.objects.none()
-    return AnalysisJob.objects.filter(
+    return current_policy_jobs().filter(
         version__document__patient__in=clinical_patients(user),
+        version__document__patient__birth_date__lte=adult_cutoff(),
         version__document__deleted_at__isnull=True,
         version__purged_at__isnull=True,
     )
@@ -50,6 +62,7 @@ def requester_allowed(job, *, lock=False):
             .get(pk=job.version_id)
         )
         document = ClinicalDocument.objects.select_for_update().get(pk=version.document_id)
+        Organization.objects.select_for_update().get(pk=document.patient.organization_id)
         Membership.objects.select_for_update().filter(
             user=user, organization_id=document.patient.organization_id
         ).first()

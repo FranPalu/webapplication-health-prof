@@ -546,6 +546,40 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/clinical/analysis/{job_id}/incidents/:
+    post:
+      operationId: clinical_analysis_incidents_create
+      parameters:
+      - in: path
+        name: job_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisIncidentInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AnalysisIncidentInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AnalysisIncidentInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/clinical/analysis/{job_id}/review/:
     post:
       operationId: clinical_analysis_review_create
@@ -579,6 +613,27 @@ paths:
               schema:
                 type: object
                 additionalProperties: {}
+          description: ''
+  /api/v1/clinical/analysis/{job_id}/review-start/:
+    post:
+      operationId: clinical_analysis_review_start_create
+      parameters:
+      - in: path
+        name: job_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobOutput'
           description: ''
   /api/v1/clinical/documents/{document_id}/:
     get:
@@ -699,6 +754,40 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/clinical/opinions/{opinion_id}/sign/:
+    post:
+      operationId: clinical_opinions_sign_create
+      parameters:
+      - in: path
+        name: opinion_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - clinical
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignatureInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignatureInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignatureInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/clinical/patients/{patient_id}/documents/:
     get:
       operationId: clinical_patients_documents_list
@@ -1769,6 +1858,61 @@ paths:
       - sessionAuth: []
       responses:
         '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/organizations/{org_id}/analysis/registry/:
+    get:
+      operationId: organizations_analysis_registry_retrieve
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      security:
+      - sessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+    post:
+      operationId: organizations_analysis_registry_create
+      parameters:
+      - in: path
+        name: org_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisPolicyInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AnalysisPolicyInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AnalysisPolicyInputRequest'
+        required: true
+      security:
+      - sessionAuth: []
+      responses:
+        '201':
           content:
             application/json:
               schema:
@@ -3026,6 +3170,35 @@ components:
         * `accept` - accept
         * `modify` - modify
         * `reject` - reject
+    AnalysisIncidentInputRequest:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        note:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+      - category
+      - note
+    AnalysisPolicyInputRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        manifest_hash:
+          type: string
+          minLength: 1
+          pattern: ^[a-f0-9]{64}$
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - enabled
+      - manifest_hash
+      - reason
     AnalysisReviewInputRequest:
       type: object
       properties:
@@ -3036,6 +3209,16 @@ components:
           minLength: 1
           maxLength: 8000
         confirmed:
+          type: boolean
+          default: false
+        confirmed_rows:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 20
+          maxItems: 100
+        source_checked:
           type: boolean
           default: false
       required:
@@ -3114,6 +3297,20 @@ components:
       required:
       - expires_at
       - id
+    CategoryEnum:
+      enum:
+      - incorrect_extraction
+      - missed_finding
+      - unexpected_output
+      - privacy
+      - other
+      type: string
+      description: |-
+        * `incorrect_extraction` - incorrect_extraction
+        * `missed_finding` - missed_finding
+        * `unexpected_output` - unexpected_output
+        * `privacy` - privacy
+        * `other` - other
     CheckoutInputRequest:
       type: object
       properties:
@@ -5145,6 +5342,27 @@ components:
         * `item` - Item
         * `folder` - Folder
         * `chart` - Chart
+    SignatureInputRequest:
+      type: object
+      properties:
+        identifier_kind:
+          $ref: '#/components/schemas/IdentifierKindEnum'
+        identifier_value:
+          type: string
+          minLength: 1
+          maxLength: 64
+        source_birth_date:
+          type: string
+          format: date
+        artifact:
+          type: string
+          minLength: 1
+          maxLength: 65536
+      required:
+      - artifact
+      - identifier_kind
+      - identifier_value
+      - source_birth_date
     SlotInputRequest:
       type: object
       properties:

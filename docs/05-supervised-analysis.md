@@ -1,8 +1,10 @@
 # M4 — Analisi preliminare supervisionata
 
+**Aggiornamento P4:** [workflow e limiti correnti](12-supervised-ai-p4.md). L’approvazione del manifest è obbligatoria. L’attestazione interna da sola non permette più la pubblicazione: serve un verificatore esterno di firma configurato; in sua assenza il paziente non riceve il parere. Le indicazioni storiche sottostanti sono sostituite da P4 per firma, fonti e approvazione.
+
 M4 è disattivata per impostazione predefinita e l'analisi dei referti può essere attivata solo in ambiente DEBUG. Usare esclusivamente dati sintetici nel collaudo locale. Il professionista verificato con MFA e relazione di cura può aprire una versione di un referto in **Anagrafiche autorizzate → Documenti clinici → Analisi preliminare**. Avviare l'analisi e aggiornare la vista dopo il passaggio in coda.
 
-Il professionista confronta le evidenze con il referto originale. **Accetta** attesta il testo proposto. **Modifica** permette di redigere e attestare il testo definitivo anche se il modello è indisponibile. **Rifiuta** richiede una motivazione e non produce un parere. La pubblicazione è separata ed è riservata all'autore della revisione. Il paziente collegato trova il risultato in **Pareri professionali pubblicati**. L'attestazione è interna al portale e registra autore, data e impronta SHA-256. Le bozze e le motivazioni di rifiuto sono cifrate, escluse dall'API paziente e da FHIR.
+Il professionista confronta le evidenze con il referto originale. **Accetta** attesta il testo proposto. **Modifica** permette di redigere e attestare il testo definitivo anche se il modello è indisponibile. **Rifiuta** richiede una motivazione e non produce un parere. La pubblicazione è separata ed è riservata all'autore della revisione. Il paziente collegato trova il risultato in **Pareri professionali pubblicati**. La revisione registra autore, data e impronta SHA-256. La firma verificata è un evento distinto e obbligatorio per la pubblicazione (P4). Le bozze e le motivazioni di rifiuto sono cifrate, escluse dall'API paziente e da FHIR.
 
 ## Avvio locale
 
@@ -10,7 +12,7 @@ Il professionista confronta le evidenze con il referto originale. **Accetta** at
 2. Eseguire `make env`, poi `CLINICAL_ANALYSIS_ENABLED=1 docker compose --env-file .env.dev --profile analysis up -d --build`. Il worker analisi consuma soltanto la coda dedicata. Celery Beat recupera i job in attesa e i lease scaduti ogni 15 secondi. Ogni job ha un massimo di tre tentativi.
 3. Per tornare all'impostazione standard, fermare `analysis-worker` con il profilo analysis e riavviare con `make dev` senza la variabile d'ambiente.
 
-Il PDF usa il testo incorporato pagina per pagina. Le pagine senza testo vengono rasterizzate e riconosciute con Tesseract. Sono supportati anche PNG e JPEG. Limiti di elaborazione M4 sono 12 pagine e 100 righe. L'estrattore v1 riconosce un insieme esplicito di analiti e unità. Le righe non riconosciute, gli intervalli assenti e i confronti ambigui vengono segnalati. Le regole confrontano esclusivamente gli intervalli riportati sul referto. La bozza registra, quando disponibile, la confidenza media delle parole riconosciute per pagina da Tesseract. La confidenza complessiva della pipeline resta non calibrata e ha valore nullo.
+Il PDF usa il testo incorporato pagina per pagina. Le pagine senza testo vengono rasterizzate e riconosciute con Tesseract. Sono supportati anche PNG e JPEG. Limiti di elaborazione M4 sono 12 pagine e 100 righe. L'estrattore v2 riconosce un insieme esplicito di analiti e unità. Le righe non riconosciute, gli intervalli assenti e i confronti ambigui vengono segnalati. Le regole confrontano esclusivamente gli intervalli riportati sul referto. La bozza registra, quando disponibile, la confidenza media delle parole riconosciute per pagina da Tesseract. La confidenza complessiva della pipeline resta non calibrata e ha valore nullo.
 
 ## Registro dei modelli
 
@@ -21,8 +23,8 @@ Il PDF usa il testo incorporato pagina per pagina. Le pagine senza testo vengono
 ## Verifica
 
 - Laboratorio reale: `docker compose --env-file .env.dev --profile analysis run --rm --no-deps analysis-worker python manage.py analysis_smoke`. Il comando genera PDF nativo e PDF scansionato sintetici, verifica F1, regole e presenza del riepilogo locale.
-- Imaging reale: generare la fixture con `.venv/bin/python scripts/analysis-imaging-fixture.py`. Salvare il checkpoint upstream in `.analysis-models/xray.pt` e avviare `docker compose --env-file .env.dev --profile imaging-test run --rm --no-deps imaging-smoke`. Il manifest autorizza un solo file per hash, modalità e vista. Conservare eventuali report di test in un'area locale.
-- Browser M4: usare la fixture sintetica del collaudo M3 e impostare `E2E_ANALYSIS=1`. Usare una fixture appena generata per il test `professional reviews a local analysis`, perché il flusso configura MFA.
+- Imaging reale: generare la fixture con `.venv/bin/python scripts/analysis-imaging-fixture.py`. Preparare lo stato tensoriale secondo la [procedura P4](p4/imaging-preparation.md) e avviare `docker compose --env-file .env.dev --profile imaging-test run --rm --no-deps imaging-smoke`. Il manifest autorizza un solo file per hash, modalità e vista. Conservare eventuali report di test in un'area locale.
+- Browser M4: usare la fixture sintetica del collaudo M3 e impostare `E2E_ANALYSIS=1`. Usare una fixture appena generata per il test `professional reviews local analysis`, perché il flusso configura MFA.
 
 ## API e operatività
 
