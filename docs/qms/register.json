@@ -85,8 +85,8 @@
       "probability": 3,
       "detectability": 4,
       "deviation": "Nessuna segnalazione o output anticipato",
-      "current_control": "Bozza separata, attestazione interna e pubblicazione esplicita in collaudo",
-      "residual": "Mancano firma, validazione clinica, soglie e OOD provati. L’immagine di collaudo radiologico presenta advisory aperti",
+      "current_control": "P4: approvazione per hash, fonte e conferme, rendering deterministico, firma verificata richiesta, stop e segnalazioni",
+      "residual": "P4 parziale: provider firma reale, validazione clinica, OOD, calibrazione, sottogruppi, drift e diritti pesi aperti; rilascio bloccato",
       "owner": "Responsabile clinico AI",
       "phase": "P4",
       "status": "blocking"
@@ -368,9 +368,14 @@
       "p0_trace": "TR-06",
       "phase": "P4",
       "evidence": [
-        "backend/tests/test_analysis.py::test_analysis_review_publication_and_tenant_isolation"
+        "backend/tests/test_analysis.py::test_analysis_review_publication_and_tenant_isolation",
+        "backend/tests/test_analysis_safety.py::test_signature_unavailable_and_no_unsigned_publication",
+        "backend/tests/test_analysis_safety.py::test_signature_must_bind_signer_digest_and_time",
+        "backend/tests/test_analysis_safety.py::test_signature_checks_patient_and_rejects_invalid_base64",
+        "backend/tests/test_analysis_safety.py::test_signed_opinion_hidden_after_kill_and_not_resurrected"
       ],
-      "planned_test": "E2E su firma assente, invalida, revocata, e pubblicazione autorizzata."
+      "planned_test": "E2E su firma assente, invalida, revocata, e pubblicazione autorizzata.",
+      "implementation_status": "partial: verified-signature gate implemented; real signing provider and clinical validation absent"
     },
     {
       "id": "SRS-08",
@@ -381,9 +386,12 @@
       "p0_trace": "TR-06",
       "phase": "P4",
       "evidence": [
-        "backend/tests/test_analysis.py::test_extraction_reports_limits"
+        "backend/tests/test_analysis.py::test_extraction_reports_limits",
+        "backend/tests/test_analysis_evidence.py::test_ocr_boxes_use_lowest_word_confidence_and_reject_tampered_weights",
+        "backend/tests/test_analysis_safety.py::test_empty_or_truncated_extraction_cannot_be_attested"
       ],
-      "planned_test": "Golden set, rumore, OOD, soglie predefinite e risultati per sottogruppo."
+      "planned_test": "Golden set, rumore, OOD, soglie predefinite e risultati per sottogruppo.",
+      "implementation_status": "partial: evidence and truncation gates; no validated clinical OOD or calibration"
     },
     {
       "id": "SRS-09",
@@ -575,6 +583,54 @@
         "backend/tests/test_lab_orders.py::test_order_remains_pending_until_latest_result_is_reviewed"
       ],
       "planned_test": "Validare con il laboratorio le eccezioni, le richieste scadute, il risultato collegato e la riapertura dopo correzione."
+    },
+    {
+      "id": "SRS-23",
+      "text": "Eseguire soltanto versioni approvate per hash e sospendere senza riutilizzo degli esiti precedenti.",
+      "hazards": [
+        "H-06",
+        "H-12"
+      ],
+      "p0_trace": "TR-06",
+      "phase": "P4",
+      "evidence": [
+        "backend/tests/test_analysis_safety.py::test_registry_permissions_approval_hash_and_immutable_events",
+        "backend/tests/test_analysis_safety.py::test_stale_registry_and_no_policy_deny_execution",
+        "backend/tests/test_analysis_safety.py::test_kill_switch_during_worker_discards_output",
+        "backend/tests/test_analysis_safety.py::test_kill_during_signature_verification_cannot_commit"
+      ],
+      "planned_test": "Riesame clinico reale, dataset rappresentativo e collaudo produttivo; vedere docs/p4/traceability.md."
+    },
+    {
+      "id": "SRS-24",
+      "text": "Confermare la fonte e rendere il riepilogo esclusivamente dai valori strutturati.",
+      "hazards": [
+        "H-06",
+        "H-12"
+      ],
+      "p0_trace": "TR-06",
+      "phase": "P4",
+      "evidence": [
+        "backend/tests/test_analysis_safety.py::test_uncertain_evidence_requires_explicit_confirmation",
+        "backend/tests/test_analysis_safety.py::test_summary_rejects_invented_and_malformed_references",
+        "backend/tests/test_analysis_safety.py::test_summary_renders_only_structured_values_and_ucum"
+      ],
+      "planned_test": "Riesame clinico reale, dataset rappresentativo e collaudo produttivo; vedere docs/p4/traceability.md."
+    },
+    {
+      "id": "SRS-25",
+      "text": "Registrare revisione, tassi di override e segnalazioni senza divulgarne il testo nei log.",
+      "hazards": [
+        "H-06",
+        "H-12"
+      ],
+      "p0_trace": "TR-06",
+      "phase": "P4",
+      "evidence": [
+        "backend/tests/test_analysis_safety.py::test_incident_encryption_metrics_and_immutable_sessions",
+        "backend/tests/test_analysis_safety.py::test_signature_and_incident_payloads_are_erased_only_after_purge"
+      ],
+      "planned_test": "Riesame clinico reale, dataset rappresentativo e collaudo produttivo; vedere docs/p4/traceability.md."
     }
   ]
 }

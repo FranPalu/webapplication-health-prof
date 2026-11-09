@@ -22,3 +22,8 @@ Per P2–P5 i nuovi percorsi restano limitati a fixture e ambienti isolati finch
 Ogni fase richiede il proprio **GO Pn**. Per la chiusura servono codice o artefatti di fase, prove automatiche, aggiornamento SRS/traceability, ADR, changelog, limitazioni e Clinical Validation Log. Lint, type-check, test, SAST e SCA devono essere ripetuti. I criteri globali includono copertura core ≥85%, 100% per calcolatori e regole di autorizzazione, nessun avviso alto/critico noto nel perimetro dichiarato, E2E sulla firma, audit e autorizzazione per endpoint e assenza di hazard inaccettabili aperti. Pubblicazione e uso clinico richiedono evidenze e decisioni esterne separate.
 
 Fonti primarie per la verifica normativa in P1/P5/P6. [MDR](https://eur-lex.europa.eu/eli/reg/2017/745/oj) · [IVDR](https://eur-lex.europa.eu/eli/reg/2017/746/oj) · [AI Act consolidato](https://eur-lex.europa.eu/eli/reg/2024/1689) · [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj) · [EHDS](https://eur-lex.europa.eu/eli/reg/2025/327/oj).
+
+
+## Aggiornamento P4 · 2026-11-09
+
+Controlli di approvazione, provenienza, revisione, firma e sospensione verificati nel collaudo sintetico. P4 resta parziale per provider firma reale, validazione clinica, imaging/OOD/calibrazione e drift: vedere [perimetro](../12-supervised-ai-p4.md), [tracciabilità](../p4/traceability.md) e [prove](../p4/verification.md). P5 non avviata; attende GO P5. I prerequisiti clinici non vengono chiusi passando di fase.

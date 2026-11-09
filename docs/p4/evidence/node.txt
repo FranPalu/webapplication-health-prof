@@ -1,0 +1,65 @@
+$ eslint . --ignore-pattern dist --ignore-pattern .next
+$ tsc --noEmit
+$ node --import tsx --test tests/*.test.ts
+✔ codice fiscale: checksum, birth date, sex and birth place (12.263458ms)
+✔ omocodia works without removing original checksum (0.149417ms)
+✔ female date and century ambiguity resolved by entered date (0.245542ms)
+✔ invalid leap day rejected (0.061208ms)
+✔ first name four consonants rule (0.129833ms)
+✔ patient invalid birth date rejected even without CF (0.734333ms)
+✔ overlaps blocked, adjacent slots allowed, cancelled slots ignored (0.155209ms)
+✔ appointments cannot go past midnight (0.061292ms)
+✔ Rome DST appointment conversion (0.473667ms)
+✔ PDF has valid header, trailer and multiple pages (0.720959ms)
+✔ demo only uses fictitious contacts and no real fiscal identifiers (0.406917ms)
+✔ ENPAB rounds cents and stamp uses the amount including contribution (0.729958ms)
+✔ conflicts include encompassing visits, exclude own and cancelled visits, offer only free slots (12.091292ms)
+✔ issued invoices prevent hard deletion but drafts do not (0.420209ms)
+✔ templates contain consistent totals, snapshots and valid PDF structure (4.431083ms)
+✔ provider configuration and international phone validation (0.245875ms)
+✔ email reminder uses provider idempotency key without actual sending (9.941292ms)
+✔ WhatsApp uses only approved template parameters (0.298834ms)
+✔ webhooks reject forged bodies, missing signatures and expired timestamps (4.980291ms)
+✔ reminders select only due, consenting, active patients and deduplicate executions (25.174ms)
+✔ uncertain network results are recorded and not automatically resent (1.617667ms)
+✔ file deletion outbox retries failures and respects the owner (0.802417ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.554125
+$ next build --webpack
+▲ Next.js 16.4.1 (webpack)
+✓ Running next.config.ts took 64ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1184ms
+  Running TypeScript ...
+  Finished TypeScript in 1929ms ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/14) ...
+  Generating static pages using 8 workers (3/14)
+  Generating static pages using 8 workers (6/14)
+  Generating static pages using 8 workers (10/14)
+✓ Generating static pages using 8 workers (14/14) in 339ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /demo
+├ ○ /demo/agenda
+├   /demo/portale/[profile]
+│ ├ ● /demo/portale/patient
+│ ├ ● /demo/portale/professional
+│ ├ ● /demo/portale/physician
+│ └ ● [+5 more paths]
+└ ○ /manifest.webmanifest
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)

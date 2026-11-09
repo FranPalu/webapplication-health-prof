@@ -1,0 +1,98 @@
+ Container health-collaboration-backend-run-5a4c3d8d312c Creating
+ Container health-collaboration-backend-run-5a4c3d8d312c Created
+============================= test session starts ==============================
+platform linux -- Python 3.14.5, pytest-9.2.0, pluggy-1.7.0
+django: version: 5.2.18, settings: config.settings (from ini)
+rootdir: /app
+configfile: pyproject.toml
+testpaths: tests
+plugins: django-4.14.0, cov-7.1.0
+collected 265 items
+
+tests/test_analysis.py ..............                                    [  5%]
+tests/test_analysis_safety.py .....................................      [ 19%]
+tests/test_appointments.py .                                             [ 19%]
+tests/test_clinical.py ........                                          [ 22%]
+tests/test_clinical_safety.py .                                          [ 23%]
+tests/test_health.py .                                                   [ 23%]
+tests/test_identity.py ...................                               [ 30%]
+tests/test_lab_orders.py .                                               [ 30%]
+tests/test_medication_safety.py .                                        [ 31%]
+tests/test_payments.py .                                                 [ 31%]
+tests/test_pharmacy.py ..                                                [ 32%]
+tests/test_reconciliation.py .                                           [ 32%]
+tests/test_research.py .                                                 [ 33%]
+tests/test_analysis.py .                                                 [ 33%]
+tests/test_appointments.py .                                             [ 33%]
+tests/test_identity.py ..                                                [ 34%]
+tests/test_analysis_evidence.py .................................        [ 47%]
+tests/test_clinical_calculators.py ....                                  [ 48%]
+tests/test_clinical_safety.py .......................................... [ 64%]
+........................................................................ [ 91%]
+...................                                                      [ 98%]
+tests/test_health.py .                                                   [ 99%]
+tests/test_patient_identification.py ..                                  [100%]
+
+------------------- generated xml file: /reports/django.xml --------------------
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.5-final-0 ________________
+
+Name                                                         Stmts   Miss  Cover   Missing
+------------------------------------------------------------------------------------------
+identity/__init__.py                                             0      0   100%
+identity/adapters.py                                             8      8     0%   3-29
+identity/analysis.py                                            42      0   100%
+identity/analysis_pipeline.py                                  204     27    87%   151, 233, 241, 243-260, 288, 311, 320, 325-390
+identity/analysis_registry.py                                   58      0   100%
+identity/analysis_signing.py                                    23      0   100%
+identity/analysis_views.py                                     229      6    97%   172, 252, 256, 305, 357, 396
+identity/appointment_reminders.py                                3      0   100%
+identity/appointment_views.py                                  145     18    88%   30, 33-34, 36, 114, 122, 133, 179, 189, 198, 209-210, 228, 230, 260, 262, 272, 284
+identity/apps.py                                                 5      0   100%
+identity/clinical.py                                           110     11    90%   98, 100, 102, 124, 127-128, 133, 143-144, 146, 157
+identity/clinical_calculators.py                                37      0   100%
+identity/clinical_formats.py                                    38     17    55%   17, 25, 27-46
+identity/clinical_safety.py                                    205     16    92%   50, 52, 71, 147, 165, 211, 213, 251-259, 272, 301, 345, 372
+identity/clinical_storage.py                                   100     18    82%   43, 51, 53-59, 66, 85, 87-88, 117-121, 134, 170
+identity/clinical_terminology.py                                 5      0   100%
+identity/clinical_views.py                                     234     15    94%   75, 110, 134, 137, 140, 178, 189-191, 209, 234, 239, 267, 282, 291, 293
+identity/directory_views.py                                     38      1    97%   31
+identity/fhir.py                                               248     15    94%   58, 88, 93, 110, 118, 175, 215, 247, 295, 298, 300, 352, 408-409, 437
+identity/lab_orders.py                                         110      7    94%   50, 83, 99, 111, 134, 170, 180
+identity/management/__init__.py                                  0      0   100%
+identity/management/commands/__init__.py                         0      0   100%
+identity/management/commands/analysis_smoke.py                  66     36    45%   65-76, 83, 86-123
+identity/management/commands/bootstrap_admin.py                 22      0   100%
+identity/management/commands/clinical_storage.py                59      9    85%   35, 41, 43-44, 55-56, 65, 70-71
+identity/management/commands/import_legacy_appointments.py      58     58     0%   1-107
+identity/management/commands/import_legacy_documents.py         76      7    91%   30, 55, 58, 78, 81, 85, 113
+identity/management/commands/import_legacy_patients.py          55      6    89%   27, 31, 38, 41, 49, 63
+identity/management/commands/import_pharmacy_catalog.py         40     40     0%   1-51
+identity/management/commands/research_import_terms.py           49     49     0%   1-76
+identity/management/commands/research_preview.py                 8      8     0%   1-12
+identity/management/commands/research_refresh.py                17     17     0%   1-26
+identity/management/commands/seed_demo.py                       15      0   100%
+identity/management/commands/verify_audit_chain.py              19      3    84%   14, 17, 22
+identity/medication_safety.py                                  146      6    96%   103-104, 119, 130, 220, 260
+identity/models.py                                             516      1    99%   218
+identity/patient_identification.py                              75      2    97%   109, 114
+identity/payment_views.py                                       85      2    98%   25, 57
+identity/pharmacy_views.py                                     145     19    87%   75-76, 101, 111, 121, 135-136, 160-163, 173-176, 197, 206, 209-213, 231
+identity/prescriptions.py                                        3      0   100%
+identity/reconciliation.py                                      99      6    94%   44, 54, 56, 81, 105, 133
+identity/research.py                                            11      0   100%
+identity/research_archive.py                                    54     44    19%   16, 22-74, 78-104
+identity/research_exports.py                                    25     16    36%   15-65
+identity/research_release_views.py                             119     62    48%   45-47, 56-72, 78, 97-101, 108-114, 123-124, 136-154, 170-200
+identity/research_views.py                                      38      2    95%   44-45
+identity/schema.py                                               6      0   100%
+identity/security.py                                            98      6    94%   90, 107-108, 120, 149-150
+identity/serializers.py                                        178      8    96%   19-20, 171, 173, 175, 177, 179, 224
+identity/services.py                                            85      0   100%
+identity/tasks.py                                              136     26    81%   56-68, 102-105, 116, 149, 168, 217-219, 231-237, 242-246
+identity/views.py                                              565     26    95%   326, 587, 589, 592, 613, 615-618, 620, 628, 635, 637, 643, 737, 764-770, 804-805, 844, 864, 872, 918, 984, 1004
+------------------------------------------------------------------------------------------
+TOTAL                                                         4710    618    87%
+Coverage XML written to file /reports/coverage.xml
+Required test coverage of 85% reached. Total coverage: 86.88%
+============================= 265 passed in 19.98s =============================

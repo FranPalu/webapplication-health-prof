@@ -1,0 +1,35 @@
+
+Running 27 tests using 1 worker
+
+(node:77713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 e2e/demo.spec.ts:3:1 › demo actions persist and research approval passes between role workspaces (473ms)
+  ✓   2 e2e/demo.spec.ts:26:1 › opening the demo portal preserves the selected role and its work area (852ms)
+  ✓   3 e2e/demo.spec.ts:63:1 › clinical demo shows synthetic imaging and keeps drafts in the physician view (226ms)
+  ✓   4 e2e/demo.spec.ts:88:1 › demo switches profiles and remembers the selected theme (336ms)
+  ✓   5 e2e/demo.spec.ts:114:1 › patient forms retain focus while typing and deletion removes related demo records (516ms)
+  ✓   6 e2e/demo.spec.ts:138:1 › legacy system preference becomes light and only two modes are offered (132ms)
+  ✓   7 e2e/demo.spec.ts:145:1 › archive and reactivate a patient; cancelling deletion preserves the record (532ms)
+  ✓   8 e2e/demo.spec.ts:165:3 › patient form contrast and fiscal field in light (393ms)
+  ✓   9 e2e/demo.spec.ts:165:3 › patient form contrast and fiscal field in dark (378ms)
+  ✓  10 e2e/identity.spec.ts:36:1 › registration, verified email, login and logout; legacy API unavailable (699ms)
+  ✓  11 e2e/identity.spec.ts:60:1 › organization onboarding requires TOTP and creates a tenant (891ms)
+  ✓  12 e2e/identity.spec.ts:88:1 › professional uploads, searches, downloads and archives a clinical document (1.1s)
+  -  13 e2e/identity.spec.ts:119:1 › professional reviews local analysis and blocks publication without verified signature
+  ✓  14 e2e/identity.spec.ts:192:1 › patient grants and withdraws research consent from the portal (510ms)
+  ✓  15 e2e/identity.spec.ts:209:1 › workspace shortcuts support keyboard navigation and mobile layout in both themes (356ms)
+  ✓  16 e2e/identity.spec.ts:238:1 › app manifest points to public icons and does not register a worker (130ms)
+  ✓  17 e2e/identity.spec.ts:257:3 › real workspace operation for organization (477ms)
+  ✓  18 e2e/identity.spec.ts:257:3 › real workspace operation for pharmacy (440ms)
+  ✓  19 e2e/identity.spec.ts:257:3 › real workspace operation for research (433ms)
+  ✓  20 e2e/identity.spec.ts:257:3 › real workspace operation for platform (432ms)
+  ✓  21 e2e/workspaces.spec.ts:13:3 › workspace accessibility and localization for My care journey (192ms)
+  ✓  22 e2e/workspaces.spec.ts:13:3 › workspace accessibility and localization for My clinical work (185ms)
+  ✓  23 e2e/workspaces.spec.ts:13:3 › workspace accessibility and localization for My organization (181ms)
+  ✓  24 e2e/workspaces.spec.ts:13:3 › workspace accessibility and localization for My pharmacy (188ms)
+  ✓  25 e2e/workspaces.spec.ts:13:3 › workspace accessibility and localization for Research workspace (177ms)
+  ✓  26 e2e/workspaces.spec.ts:13:3 › workspace accessibility and localization for Platform reviews (189ms)
+  ✓  27 e2e/workspaces.spec.ts:54:1 › synthetic lab queue confirms patient before recording acknowledgment (600ms)
+
+  1 skipped
+  26 passed (11.6s)

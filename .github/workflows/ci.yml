@@ -44,8 +44,8 @@ jobs:
           python -m venv "$RUNNER_TEMP/audit-venv"
           "$RUNNER_TEMP/audit-venv/bin/pip" install pip-audit==2.10.1 bandit==1.9.4 semgrep==1.184.0
           "$RUNNER_TEMP/audit-venv/bin/pip-audit" -r backend/requirements.txt
-          "$RUNNER_TEMP/audit-venv/bin/bandit" -r backend/config backend/identity scripts/check_qms.py -ll
-          "$RUNNER_TEMP/audit-venv/bin/semgrep" scan --config p/typescript --config p/secrets --metrics off --error app lib backend/config backend/identity scripts/check_qms.py
+          "$RUNNER_TEMP/audit-venv/bin/bandit" -r backend/config backend/identity infra/imaging scripts/check_qms.py -ll
+          "$RUNNER_TEMP/audit-venv/bin/semgrep" scan --config p/typescript --config p/secrets --metrics off --error app lib backend/config backend/identity infra/imaging scripts/check_qms.py
       - run: python scripts/dev-env.py
       - run: .venv/bin/ruff check backend scripts/check_qms.py tests/qms_test.py && .venv/bin/ruff format --check backend scripts/check_qms.py tests/qms_test.py
       - run: .venv/bin/mypy --explicit-package-bases scripts/check_qms.py tests/qms_test.py
@@ -54,6 +54,7 @@ jobs:
       - run: python scripts/backend.py ../.venv/bin/pytest --no-cov
       - run: python scripts/backend.py ../.venv/bin/pytest -o addopts= tests/test_clinical_calculators.py --cov=identity.clinical_calculators --cov-branch --cov-fail-under=100
       - run: python scripts/check_qms.py && python -m unittest discover -s tests -p qms_test.py
+      - run: python -m unittest discover -s infra/imaging -p test_contract.py
       - run: python scripts/backend.py ../.venv/bin/python manage.py migrate identity 0001 --noinput
       - run: python scripts/backend.py ../.venv/bin/python manage.py migrate --noinput
       - run: python scripts/backend.py ../.venv/bin/python manage.py spectacular --file openapi.yaml --validate --fail-on-warn
@@ -107,3 +108,50 @@ jobs:
             pnpm exec playwright test -g 'professional uploads|patient grants|workspace shortcuts|real workspace operation'
       - if: always()
         run: docker compose --env-file .env.dev down
+  supervised-analysis:
+    runs-on: ubuntu-latest
+    env:
+      CLINICAL_ANALYSIS_ENABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps chromium
+      - name: Fetch pinned public model for synthetic testing
+        run: |
+          mkdir -p .analysis-models
+          curl --fail --location --retry 3 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/dd26da4/qwen2.5-1.5b-instruct-q4_k_m.gguf' -o .analysis-models/qwen.gguf
+          echo '6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e  .analysis-models/qwen.gguf' | sha256sum --check
+      - run: make dev
+      - run: docker compose --env-file .env.dev --profile analysis up -d --build analysis-worker
+      - name: Evaluate real local OCR and LLM on synthetic sources
+        run: docker compose --env-file .env.dev run --rm --no-deps analysis-worker python manage.py analysis_smoke
+      - name: Verify patient cannot receive an unsigned opinion
+        run: |
+          fixture="$(mktemp)"
+          trap 'rm -f "$fixture"' EXIT
+          docker compose --env-file .env.dev exec -T backend python manage.py shell -v 0 < backend/tests/clinical_browser_fixture.py > "$fixture"
+          E2E_CLINICAL_FIXTURE="$fixture" E2E_ANALYSIS=1 E2E_BASE_URL=http://localhost:8080 pnpm exec playwright test -g 'professional reviews local analysis'
+      - if: always()
+        run: docker compose --env-file .env.dev down
+  imaging-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: docker build -t claria-imaging-audit infra/imaging
+      - run: docker run --rm --network none --read-only --tmpfs /tmp:size=32m,mode=1777 --entrypoint python claria-imaging-audit -m unittest test_conversion
+      - run: python -m venv "$RUNNER_TEMP/imaging-audit" && "$RUNNER_TEMP/imaging-audit/bin/pip" install pip-audit==2.10.1
+      - name: Audit actual offline imaging runtime
+        run: |
+          docker run --rm --network none --read-only --entrypoint python claria-imaging-audit -m pip freeze --all | sed 's/+cpu$//' > "$RUNNER_TEMP/imaging.txt"
+          "$RUNNER_TEMP/imaging-audit/bin/pip-audit" -r "$RUNNER_TEMP/imaging.txt" --no-deps --disable-pip

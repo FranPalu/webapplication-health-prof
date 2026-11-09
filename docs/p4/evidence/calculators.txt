@@ -1,0 +1,22 @@
+ Container health-collaboration-backend-run-ae74a7213044 Creating
+ Container health-collaboration-backend-run-ae74a7213044 Created
+============================= test session starts ==============================
+platform linux -- Python 3.14.5, pytest-9.2.0, pluggy-1.7.0
+django: version: 5.2.18, settings: config.settings (from ini)
+rootdir: /app
+configfile: pyproject.toml
+plugins: django-4.14.0, cov-7.1.0
+collected 4 items
+
+tests/test_clinical_calculators.py ....                                  [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.5-final-0 ________________
+
+Name                               Stmts   Miss Branch BrPart  Cover
+--------------------------------------------------------------------
+identity/clinical_calculators.py      37      0     18      0   100%
+--------------------------------------------------------------------
+TOTAL                                 37      0     18      0   100%
+Required test coverage of 100% reached. Total coverage: 100.00%
+============================== 4 passed in 0.02s ===============================

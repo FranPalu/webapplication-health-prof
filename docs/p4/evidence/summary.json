@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "status": "P4 partial; synthetic engineering verification only; clinical release blocked",
+  "pipeline": "lab-v2:source-v1:ucum-v1:prompt-v2",
+  "manifest_hash": "27f7a73fdd21eec3d0079379fb79fbb92c7fb166947bafba315404165308e6f7",
+  "django": {
+    "passed": 265,
+    "coverage_percent": 86.88
+  },
+  "clinical_calculators": {
+    "passed": 4,
+    "line_and_branch_percent": 100
+  },
+  "node_tests_passed": 22,
+  "browser": {
+    "general_passed": 26,
+    "general_skipped_dedicated_ai": 1,
+    "dedicated_ai_passed": 1
+  },
+  "qms_tests_passed": 4,
+  "imaging_contract_tests_passed": 1,
+  "conversion_rejection_tests_passed": 1,
+  "sast": {
+    "semgrep_findings": 0,
+    "bandit_medium_high": 0,
+    "bandit_low": 5,
+    "bandit_scoped_B614_conversion_dispositions": 1
+  },
+  "dependencies": {
+    "python_known_advisories": 0,
+    "imaging_runtime_known_advisories": 0,
+    "npm": {
+      "high": 0,
+      "critical": 0,
+      "moderate": 6,
+      "low": 1
+    },
+    "os_container_scan": "Not executed; P10 gap"
+  },
+  "validation_gaps": [
+    "Real signature verifier and conservation",
+    "Clinical dataset and subgroup validation",
+    "Imaging licensing, clinical OOD, calibration and localization",
+    "Validated drift detection and incident handling",
+    "Full authorization branch coverage across all modules and production operations"
+  ],
+  "source_evidence": "All patients and fixtures synthetic; no clinical performance claim"
+}

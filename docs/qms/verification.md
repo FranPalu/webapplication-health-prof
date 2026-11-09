@@ -31,3 +31,8 @@ python3 scripts/check_qms.py --release
 ```
 
 L'ultima invocazione è una prova negativa attesa. Per SAST/SCA usare gli strumenti e le versioni della [CI](../../.github/workflows/ci.yml). Per i browser usare fixture e procedura sintetica delle [evidenze P0](../p0/verification.md), con l'AI in esecuzione separata. Per verificare l'immagine imaging, estrarre le distribuzioni con `importlib.metadata` e interrogare gli advisory sulle versioni osservate usando `pip-audit --disable-pip --no-deps`. Conservare report, perimetro, digest e data della fonte come evidenze di configurazione.
+
+
+## Aggiornamento P4
+
+Eseguiti 265 test Django (86,88% statement), calcolatori con 100% linee/branch, 22 test Node e 27 scenari browser attraverso suite generale e job AI dedicato. Resta aperta la copertura completa dei branch di autorizzazione globali. Imaging con runtime aggiornato e stato tensoriale, conversione in quarantena e un’eccezione B614 puntuale documentata. [Risultati e limiti](../p4/verification.md). Il gate `--release` resta bloccato; nessuna accettazione degli hazard è stata simulata come approvazione reale.

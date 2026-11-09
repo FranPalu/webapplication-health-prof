@@ -1,0 +1,35 @@
+{
+  "model": "densenet121-res224-all",
+  "sha256": "9557a4685000af1490869d2abb19be6a651beb57feff6c1da8cf88bef28eb068",
+  "scope": "research smoke test only",
+  "scores": [
+    [
+      -1.8097597360610962,
+      -2.7672746181488037,
+      -2.0888290405273438,
+      -5.443211078643799,
+      -2.702458620071411,
+      -4.325815677642822,
+      -5.1093316078186035,
+      -2.6735129356384277,
+      -1.6532028913497925,
+      -5.591859340667725,
+      -2.9213719367980957,
+      -4.4274773597717285,
+      -3.6285831928253174,
+      -4.982158184051514,
+      -3.203294277191162,
+      -2.3603315353393555,
+      -0.7821687459945679,
+      -1.6163554191589355
+    ]
+  ],
+  "repeatable": true,
+  "clinical_usable": false,
+  "confidence": null,
+  "calibration": "not clinically validated",
+  "localization": null,
+  "ood_detection": "metadata contract only; no clinical OOD validation",
+  "legacy_forward_vector_equal": true,
+  "legacy_artifact_sha256": "56524913dd16a906422e8d8b66a7a5c46be1d82eb7ac012d8103776f1aa68899"
+}

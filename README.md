@@ -1,5 +1,7 @@
 # Clarìa
 
+Aggiornamento P4: [workflow AI supervisionato e limiti](docs/12-supervised-ai-p4.md), [esiti di verifica](docs/p4/verification.md). Solo collaudo sintetico; firma reale e validazione clinica ancora richieste.
+
 Web application in italiano per l’organizzazione di uno studio di nutrizione: agenda, schede pazienti, documenti PDF, bozze di fattura e comunicazioni. Interfaccia responsive, palette salvia e prugna.
 
 ## Stato del progetto

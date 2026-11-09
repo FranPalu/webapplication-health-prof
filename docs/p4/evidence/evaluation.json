@@ -1,0 +1,58 @@
+{
+  "scope": "Synthetic extraction engineering evaluation; NOT clinical validation",
+  "pipeline": "lab-v2:source-v1:ucum-v1:prompt-v2",
+  "prompt_version": "row-selection-v2",
+  "manifest_hash": "27f7a73fdd21eec3d0079379fb79fbb92c7fb166947bafba315404165308e6f7",
+  "fixtures_version": "synthetic-lab-v2",
+  "results": [
+    {
+      "case": "native_pdf",
+      "sha256": "7e051bce89158afe368eaba2b49b9e4e9a1b49f71d7cdc9f69a0de3b0037a019",
+      "exact_row_f1": 1.0,
+      "matched_rows": 5,
+      "expected_rows": 5,
+      "extracted_rows": 5,
+      "requires_confirmation": 5
+    },
+    {
+      "case": "scanned_pdf",
+      "sha256": "baf4f605132be66e1a1353fc44947542b0f7ed1a3703a408f7348e52da722de2",
+      "exact_row_f1": 1.0,
+      "matched_rows": 5,
+      "expected_rows": 5,
+      "extracted_rows": 5,
+      "requires_confirmation": 5
+    },
+    {
+      "case": "rotation_3_degrees",
+      "sha256": "81419891b4307f94dff063b7dd3e6dac5c354a21a7c9a667674bb906865ebfaf",
+      "exact_row_f1": 0.8,
+      "matched_rows": 4,
+      "expected_rows": 5,
+      "extracted_rows": 5,
+      "requires_confirmation": 5
+    },
+    {
+      "case": "blur_and_downsample",
+      "sha256": "ecf2b2ccc172fb9c6fc497a2e4f90f9ec270eb80bd609ec27d0c74216fd48b51",
+      "exact_row_f1": 1.0,
+      "matched_rows": 5,
+      "expected_rows": 5,
+      "extracted_rows": 5,
+      "requires_confirmation": 5
+    }
+  ],
+  "summary_checksum": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+  "clinical_metrics": {
+    "sensitivity": null,
+    "specificity": null,
+    "PPV": null,
+    "NPV": null,
+    "AUC": null,
+    "calibration": null,
+    "confidence_intervals": null
+  },
+  "subgroups": "Unavailable: fixtures have no age or sex and are not representative of patients",
+  "limitations": "Five fixed rows per rendering. F1 is extraction agreement, not diagnostic accuracy. No clinical confidence estimates.",
+  "clinical_review": "DA VALIDARE da professionista abilitato"
+}

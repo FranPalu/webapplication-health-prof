@@ -1,0 +1,66 @@
+ Container health-collaboration-backend-run-bf0fe99d1de9 Creating
+ Container health-collaboration-backend-run-bf0fe99d1de9 Created
+Operations to perform:
+  Apply all migrations: auth, contenttypes, identity, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying identity.0001_initial... OK
+  Applying identity.0002_audit_append_only... OK
+  Applying identity.0003_alter_user_managers... OK
+  Applying identity.0004_userprofile... OK
+  Applying identity.0005_m2_sharing_consent_audit... OK
+  Applying identity.0006_audit_chain_sequence... OK
+  Applying identity.0007_organization_break_glass... OK
+  Applying identity.0008_clinicaldocument_clinicaldocumentversion... OK
+  Applying identity.0009_clinicaldocumentversion_key_id_and_more... OK
+  Applying identity.0010_clinicaldocumentversion_search_tokens... OK
+  Applying identity.0011_clinicalreport_clinicalobservation... OK
+  Applying identity.0012_clinicaldocument_retention_hold... OK
+  Applying identity.0013_alter_share_scope_clinicalfolder_and_more... OK
+  Applying identity.0014_clinical_consent_texts... OK
+  Applying identity.0015_analysisopinion_analysisjob_analysismodel_and_more... OK
+  Applying identity.0016_analysis_attestations_immutable... OK
+  Applying identity.0017_clinicaldocumentversion_offload_after_and_more... OK
+  Applying identity.0018_analysis_retention... OK
+  Applying identity.0019_paymentorder_paymentevent_paymentprice_and_more... OK
+  Applying identity.0020_paymentorder_simulation_status... OK
+  Applying identity.0021_appointmentslot_appointmentbooking... OK
+  Applying identity.0022_pharmacyitem_pharmacyreservation_and_more... OK
+  Applying identity.0023_appointmentbooking_reminded_at_organization_latitude_and_more... OK
+  Applying identity.0024_pharmacyreservation_prescription... OK
+  Applying identity.0025_researchconsentevent... OK
+  Applying identity.0026_research_consent_append_only... OK
+  Applying identity.0027_pharmacyreservation_prescription_version_and_more... OK
+  Applying identity.0028_researchreleasedsnapshot_researchaccessrequest... OK
+  Applying identity.0029_researchterminology... OK
+  Applying identity.0030_freeze_released_research_snapshot... OK
+  Applying identity.0031_clinical_identity_and_report_history... OK
+  Applying identity.0032_clinical_encounters... OK
+  Applying identity.0033_patient_reconciliation... OK
+  Applying identity.0034_lab_safety_review... OK
+  Applying identity.0035_lab_order_lifecycle... OK
+  Applying identity.0036_medication_safety_checks... OK
+  Applying identity.0037_supervised_analysis_controls... OK
+  Applying sessions.0001_initial... OK
+Operations to perform:
+  Target specific migration: 0036_medication_safety_checks, from identity
+Running migrations:
+  Rendering model states... DONE
+  Unapplying identity.0037_supervised_analysis_controls... OK
+Operations to perform:
+  Apply all migrations: auth, contenttypes, identity, sessions
+Running migrations:
+  Applying identity.0037_supervised_analysis_controls... OK
