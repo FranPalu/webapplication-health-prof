@@ -1,6 +1,7 @@
 name: health-collaboration
 services:
   db:
+    networks: [default, analysis_internal]
     image: postgis/postgis:17-3.5
     platform: linux/amd64
     environment:
@@ -14,6 +15,7 @@ services:
       timeout: 3s
       retries: 20
   redis:
+    networks: [default, analysis_internal]
     image: redis:7.4.2-alpine
     command: [redis-server, --appendonly, 'yes']
     volumes: [redis:/data]
@@ -22,6 +24,7 @@ services:
       interval: 5s
       retries: 20
   storage:
+    networks: [default, analysis_internal]
     image: chrislusf/seaweedfs:4.22
     command: [mini, '-dir=/data', '-ip.bind=0.0.0.0']
     environment:
@@ -77,6 +80,7 @@ services:
       migrate: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
   analysis-worker:
+    networks: [analysis_internal]
     profiles: [analysis]
     build:
       context: ./backend
@@ -101,6 +105,16 @@ services:
     security_opt: ["no-new-privileges:true"]
     tmpfs: ["/tmp:size=32m,mode=1777"]
     volumes: ["./.analysis-models:/models:ro", "./.analysis-fixtures:/fixtures:ro"]
+  imaging-convert:
+    profiles: [imaging-prepare]
+    build: ./infra/imaging
+    entrypoint: [python, /convert_legacy.py]
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=32m,mode=1777"]
+    volumes: ["./.analysis-models:/legacy:ro", "./.analysis-models/converted:/converted"]
   beat:
     build: ./backend
     env_file: .env.dev
@@ -123,3 +137,7 @@ volumes:
   redis:
   storage:
   clamav:
+
+networks:
+  analysis_internal:
+    internal: true
