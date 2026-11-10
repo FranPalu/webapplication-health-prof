@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from identity.analysis_registry import current_policy_jobs
 from identity.clinical import clinical_patients, seal
-from identity.clinical_storage import unwrap_key
+from identity.clinical_storage import unwrap_key, unwrap_tenant_key
 from identity.models import (
     AnalysisJob,
     CareRelationship,
@@ -88,4 +88,9 @@ class PayloadKey:
 
 def decode(payload, document):
     key = unwrap_key(PayloadKey(document, bytes(payload.wrapped_key), payload.key_id))
+    return json.loads(Fernet(key).decrypt(bytes(payload.ciphertext)))
+
+
+def decode_tenant(payload, organization_id):
+    key = unwrap_tenant_key(payload.wrapped_key, payload.key_id, organization_id)
     return json.loads(Fernet(key).decrypt(bytes(payload.ciphertext)))

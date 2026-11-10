@@ -841,3 +841,87 @@ class AnalysisIncident(AnalysisPayload):
     reporter = models.ForeignKey(User, on_delete=models.PROTECT)
     category = models.CharField(max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class InteropApplication(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    client_id = models.CharField(max_length=120)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "client_id"], name="interop_client_tenant"
+            )
+        ]
+
+
+class InteropApplicationRevocation(models.Model):
+    application = models.OneToOneField(InteropApplication, on_delete=models.PROTECT)
+    actor = models.ForeignKey(User, on_delete=models.PROTECT)
+    reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class InteropGrant(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    application = models.ForeignKey(InteropApplication, on_delete=models.PROTECT)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    grantor = models.ForeignKey(User, on_delete=models.PROTECT)
+    scopes = models.JSONField()
+    expires_at = models.DateTimeField()
+    consent_version = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class InteropGrantRevocation(models.Model):
+    grant = models.OneToOneField(InteropGrant, on_delete=models.PROTECT)
+    actor = models.ForeignKey(User, on_delete=models.PROTECT)
+    reason = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class InteropReceipt(AnalysisPayload):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    control_digest = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "control_digest"], name="interop_receipt_dedup"
+            )
+        ]
+
+
+class PacsStudyLink(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    version = models.OneToOneField(ClinicalDocumentVersion, on_delete=models.PROTECT)
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    study_uid = models.CharField(max_length=64, unique=True)
+    series_uid = models.CharField(max_length=64)
+    instance_uid = models.CharField(max_length=64)
+    derivative_sha256 = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ResearchBulkJob(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    access = models.ForeignKey(ResearchAccessRequest, on_delete=models.PROTECT)
+    requested_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    auth_version = models.PositiveIntegerField()
+    checksum = models.CharField(max_length=64)
+    state = models.CharField(max_length=12, default="queued")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+
+class ResearchBulkPayload(AnalysisPayload):
+    job = models.OneToOneField(ResearchBulkJob, on_delete=models.PROTECT)
+    row_count = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)

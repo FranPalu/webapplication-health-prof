@@ -60,12 +60,17 @@ def wrap_key(key, organization_id):
 
 
 def unwrap_key(version):
-    organization_id = version.document.patient.organization_id
-    if not version.key_id:
-        return tenant_cipher(organization_id).decrypt(bytes(version.wrapped_key))
+    return unwrap_tenant_key(
+        version.wrapped_key, version.key_id, version.document.patient.organization_id
+    )
+
+
+def unwrap_tenant_key(wrapped_key, key_id, organization_id):
+    if not key_id:
+        return tenant_cipher(organization_id).decrypt(bytes(wrapped_key))
     return aws("kms").decrypt(
-        KeyId=version.key_id,
-        CiphertextBlob=bytes(version.wrapped_key),
+        KeyId=key_id,
+        CiphertextBlob=bytes(wrapped_key),
         EncryptionContext={"tenant": str(organization_id)},
     )["Plaintext"]
 

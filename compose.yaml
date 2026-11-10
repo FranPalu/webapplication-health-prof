@@ -53,11 +53,13 @@ services:
     depends_on:
       db: {condition: service_healthy}
   backend:
+    networks: [default, pacs_internal]
     build: ./backend
     env_file: .env.dev
     tmpfs: ["/tmp:size=256m,mode=1777"]
     environment:
       CLINICAL_ANALYSIS_ENABLED: ${CLINICAL_ANALYSIS_ENABLED:-0}
+      FHIR_INTEROP_ENABLED: ${FHIR_INTEROP_ENABLED:-0}
       CLINICAL_CLAMAV_HOST: antivirus
       S3_ENDPOINT: http://storage:8333
     depends_on:
@@ -75,7 +77,8 @@ services:
     env_file: .env.dev
     environment:
       S3_ENDPOINT: http://storage:8333
-    command: [celery, -A, config.celery, worker, -Q, celery, --loglevel=WARNING]
+      FHIR_INTEROP_ENABLED: ${FHIR_INTEROP_ENABLED:-0}
+    command: [celery, -A, config.celery, worker, -Q, "celery,interop", --loglevel=WARNING]
     depends_on:
       migrate: {condition: service_completed_successfully}
       redis: {condition: service_healthy}
@@ -88,6 +91,7 @@ services:
     env_file: .env.dev
     environment:
       CLINICAL_ANALYSIS_ENABLED: ${CLINICAL_ANALYSIS_ENABLED:-0}
+      FHIR_INTEROP_ENABLED: ${FHIR_INTEROP_ENABLED:-0}
       S3_ENDPOINT: http://storage:8333
     command: [celery, -A, config.celery, worker, -Q, clinical-analysis, --concurrency=1, --loglevel=WARNING]
     read_only: true
@@ -115,11 +119,39 @@ services:
     security_opt: ["no-new-privileges:true"]
     tmpfs: ["/tmp:size=32m,mode=1777"]
     volumes: ["./.analysis-models:/legacy:ro", "./.analysis-models/converted:/converted"]
+  orthanc:
+    profiles: [pacs]
+    build: ./infra/pacs
+    networks: [pacs_internal]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=128m,mode=1777"]
+    volumes: [pacs:/var/lib/orthanc/db]
+    environment:
+      PACS_USERS_JSON: ${PACS_USERS_JSON:-}
+  ohif:
+    profiles: [pacs]
+    image: ohif/app@sha256:dee5c696c712082fdd4321b6f5ad94846dc97df5d970548ca0e1d5289667b047
+    networks: [pacs_internal]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: [/tmp, /var/cache/nginx, /var/run]
+    volumes: ['./infra/pacs/app-config.js:/usr/share/nginx/html/app-config.js:ro']
+  pacs-viewer:
+    profiles: [pacs]
+    image: nginx:1.28.0-alpine
+    networks: [default, pacs_internal]
+    ports: ['127.0.0.1:8090:8090']
+    volumes: ['./infra/pacs/viewer.conf:/etc/nginx/nginx.conf:ro']
+    depends_on: [ohif]
   beat:
     build: ./backend
     env_file: .env.dev
     environment:
       CLINICAL_ANALYSIS_ENABLED: ${CLINICAL_ANALYSIS_ENABLED:-0}
+      FHIR_INTEROP_ENABLED: ${FHIR_INTEROP_ENABLED:-0}
     command: [celery, -A, config.celery, beat, --loglevel=WARNING, --schedule=/tmp/celerybeat]
     depends_on:
       worker: {condition: service_started}
@@ -137,7 +169,10 @@ volumes:
   redis:
   storage:
   clamav:
+  pacs:
 
 networks:
   analysis_internal:
+    internal: true
+  pacs_internal:
     internal: true

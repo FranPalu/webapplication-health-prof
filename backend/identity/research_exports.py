@@ -53,6 +53,7 @@ def encode_export(rows, format_name):
         {
             "resource": {
                 "resourceType": "MeasureReport",
+                "id": f"aggregate-{year}",
                 "status": "complete",
                 "type": "summary",
                 "measure": f"urn:claria:research:{DATASET}",

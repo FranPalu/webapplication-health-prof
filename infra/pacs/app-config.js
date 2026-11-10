@@ -1,0 +1,25 @@
+window.config = {
+  routerBasename: '/',
+  showStudyList: false,
+  extensions: [],
+  modes: [],
+  dataSources: [{
+    namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
+    sourceName: 'dicomweb',
+    configuration: {
+      friendlyName: 'Synthetic Claria PACS — not clinically validated',
+      name: 'claria',
+      qidoRoot: '/api/v1/dicom-web',
+      wadoRoot: '/api/v1/dicom-web',
+      qidoSupportsIncludeField: false,
+      supportsReject: false,
+      dicomUploadEnabled: false,
+      imageRendering: 'wadors',
+      thumbnailRendering: 'wadors',
+      enableStudyLazyLoad: true,
+      supportsFuzzyMatching: false,
+      supportsWildcard: false,
+    },
+  }],
+  defaultDataSourceName: 'dicomweb',
+};

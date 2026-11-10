@@ -160,3 +160,28 @@ CELERY_BEAT_SCHEDULE["clinical-result-escalation"] = {
 CLINICAL_MEDICATION_PROVIDER = os.getenv("CLINICAL_MEDICATION_PROVIDER", "")
 
 CLINICAL_SIGNATURE_VERIFIER = os.getenv("CLINICAL_SIGNATURE_VERIFIER", "")
+
+# P5 integrations are synthetic-only until the P6 governance/release gates are met.
+FHIR_INTEROP_ENABLED = os.getenv("FHIR_INTEROP_ENABLED", "") == "1"
+SMART_INTROSPECTION_URL = os.getenv("SMART_INTROSPECTION_URL", "")
+SMART_CLIENT_ID = os.getenv("SMART_CLIENT_ID", "")
+SMART_CLIENT_SECRET = os.getenv("SMART_CLIENT_SECRET", "")
+SMART_ISSUER = os.getenv("SMART_ISSUER", "")
+SMART_AUTHORIZATION_URL = os.getenv("SMART_AUTHORIZATION_URL", "")
+SMART_TOKEN_URL = os.getenv("SMART_TOKEN_URL", "")
+HL7_SENDING_APPLICATION = os.getenv("HL7_SENDING_APPLICATION", "")
+HL7_ASSIGNING_AUTHORITY = os.getenv("HL7_ASSIGNING_AUTHORITY", "")
+PACS_DICOMWEB_URL = os.getenv("PACS_DICOMWEB_URL", "")
+PACS_USERNAME = os.getenv("PACS_USERNAME", "")
+PACS_PASSWORD = os.getenv("PACS_PASSWORD", "")
+
+CELERY_IMPORTS = ("identity.interop_bulk",)
+CELERY_BEAT_SCHEDULE["research-bulk-reconciliation"] = {
+    "task": "identity.interop_bulk.reconcile_bulk",
+    "schedule": 30.0,
+}
+
+CELERY_TASK_ROUTES["identity.interop_bulk.prepare_bulk"] = {"queue": "interop"}
+CELERY_TASK_ROUTES["identity.interop_bulk.reconcile_bulk"] = {"queue": "interop"}
+
+PACS_ASSIGNING_AUTHORITY = os.getenv("PACS_ASSIGNING_AUTHORITY", "")

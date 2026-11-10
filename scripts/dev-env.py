@@ -1,5 +1,6 @@
 """Generate local-only secrets once. Never print secret values."""
 import base64
+import json
 import os
 import secrets
 from pathlib import Path
@@ -35,3 +36,16 @@ else:
         with path.open('a') as stream:
             stream.write('\n' + '\n'.join(additions) + '\n')
     print('Using existing .env.dev.')
+
+# Add optional local PACS credentials without rotating any existing secret.
+contents = path.read_text()
+current = dict(line.split('=', 1) for line in contents.splitlines() if line and not line.startswith('#'))
+pacs_user = current.get('PACS_USERNAME') or secrets.token_urlsafe(18)
+pacs_password = current.get('PACS_PASSWORD') or secrets.token_urlsafe(32)
+optional = {'PACS_USERNAME': pacs_user, 'PACS_PASSWORD': pacs_password,
+            'PACS_USERS_JSON': json.dumps({pacs_user: pacs_password}, separators=(',', ':')),
+            'PACS_DICOMWEB_URL': 'http://orthanc:8042/dicom-web'}
+additions = [f'{name}={value}' for name, value in optional.items() if name not in current]
+if additions:
+    with path.open('a') as stream:
+        stream.write('\n' + '\n'.join(additions) + '\n')

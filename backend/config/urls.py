@@ -11,6 +11,11 @@ from identity import (
     clinical_views,
     directory_views,
     fhir,
+    fhir_gateway,
+    interop_bulk,
+    interop_hl7,
+    interop_oauth,
+    interop_pacs,
     lab_orders,
     medication_safety,
     patient_identification,
@@ -24,8 +29,8 @@ from identity import (
 from identity.security import Ready
 
 
-def endpoint(route, view):
-    return path("api/v1/" + route, transaction.non_atomic_requests(view.as_view()))
+def endpoint(route, view, **options):
+    return path("api/v1/" + route, transaction.non_atomic_requests(view.as_view(**options)))
 
 
 urlpatterns = [
@@ -76,9 +81,15 @@ urlpatterns += [
     endpoint("clinical/patients/<uuid:patient_id>/documents/", clinical_views.DocumentsView),
     endpoint("clinical/documents/<uuid:document_id>/", clinical_views.DocumentView),
     endpoint("clinical/versions/<uuid:version_id>/download/", clinical_views.DownloadView),
-    endpoint("fhir/Patient/<uuid:resource_id>", clinical_views.FhirPatientView),
-    endpoint("fhir/metadata", clinical_views.FhirMetadataView),
-    endpoint("fhir/DocumentReference/<uuid:resource_id>", clinical_views.FhirDocumentView),
+    endpoint(
+        "fhir/Patient/<uuid:resource_id>", fhir_gateway.FhirGatewayView, resource_type="Patient"
+    ),
+    endpoint("fhir/metadata", fhir_gateway.FhirCapabilityView),
+    endpoint(
+        "fhir/DocumentReference/<uuid:resource_id>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="DocumentReference",
+    ),
 ]
 
 urlpatterns += [
@@ -117,17 +128,47 @@ urlpatterns += [
     ),
     endpoint("clinical/patients/<uuid:patient_id>/reports/", fhir.ReportCreateView),
     endpoint("clinical/reports/<uuid:report_id>/corrections/", fhir.ReportCorrectionView),
-    endpoint("fhir/Encounter/<uuid:resource_id>", fhir.FhirEncounterView),
-    endpoint("fhir/Organization/<uuid:resource_id>", fhir.FhirOrganizationView),
-    endpoint("fhir/Practitioner/<uuid:resource_id>", fhir.FhirPractitionerView),
-    endpoint("fhir/Consent/<int:resource_id>", fhir.FhirConsentView),
-    endpoint("fhir/DiagnosticReport/<uuid:resource_id>", fhir.FhirReportView),
     endpoint(
-        "fhir/DiagnosticReport/<uuid:resource_id>/_history/<int:version>", fhir.FhirReportView
+        "fhir/Encounter/<uuid:resource_id>", fhir_gateway.FhirGatewayView, resource_type="Encounter"
     ),
-    endpoint("fhir/Provenance/<uuid:resource_id>-v<int:version>", fhir.FhirReportProvenanceView),
-    endpoint("fhir/ServiceRequest/<uuid:resource_id>", lab_orders.FhirLabOrderView),
-    endpoint("fhir/Observation/<uuid:resource_id>", fhir.FhirObservationView),
+    endpoint(
+        "fhir/Organization/<uuid:resource_id>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="Organization",
+    ),
+    endpoint(
+        "fhir/Practitioner/<uuid:resource_id>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="Practitioner",
+    ),
+    endpoint(
+        "fhir/Consent/<int:resource_id>", fhir_gateway.FhirGatewayView, resource_type="Consent"
+    ),
+    endpoint(
+        "fhir/DiagnosticReport/<uuid:resource_id>",
+        fhir_gateway.FhirReportInstanceView,
+        resource_type="DiagnosticReport",
+    ),
+    endpoint(
+        "fhir/DiagnosticReport/<uuid:resource_id>/_history/<int:version>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="DiagnosticReport",
+    ),
+    endpoint(
+        "fhir/Provenance/<uuid:resource_id>-v<int:version>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="Provenance",
+    ),
+    endpoint(
+        "fhir/ServiceRequest/<uuid:resource_id>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="ServiceRequest",
+    ),
+    endpoint(
+        "fhir/Observation/<uuid:resource_id>",
+        fhir_gateway.FhirGatewayView,
+        resource_type="Observation",
+    ),
 ]
 
 urlpatterns += [
@@ -200,3 +241,50 @@ urlpatterns += [
         "research/requests/<uuid:request_id>/export/", research_release_views.ResearchExportView
     ),
 ]
+
+urlpatterns += [
+    endpoint("fhir/.well-known/smart-configuration", interop_oauth.SmartDiscoveryView),
+    endpoint(
+        "organizations/<uuid:org_id>/interop/applications/", interop_oauth.InteropApplicationsView
+    ),
+    endpoint(
+        "organizations/<uuid:org_id>/interop/applications/<uuid:application_id>/revoke/",
+        interop_oauth.ApplicationRevocationView,
+    ),
+    endpoint("clinical/patients/<uuid:patient_id>/interop/grants/", interop_oauth.InteropGrantView),
+    endpoint("interop/grants/<uuid:grant_id>/revoke/", interop_oauth.GrantRevocationView),
+] + [
+    endpoint(
+        "fhir/" + resource,
+        (
+            fhir_gateway.FhirReportCollectionView
+            if resource == "DiagnosticReport"
+            else fhir_gateway.FhirGatewayView
+        ),
+        resource_type=resource,
+    )
+    for resource in fhir_gateway.READERS
+]
+
+urlpatterns += [endpoint("interop/patients/<uuid:patient_id>/hl7/", interop_hl7.HL7ReceiptView)]
+
+urlpatterns += [
+    endpoint("fhir/$export", interop_bulk.ResearchBulkStartView),
+    endpoint("interop/research-exports/<uuid:job_id>/", interop_bulk.ResearchBulkStatusView),
+    endpoint(
+        "interop/research-exports/<uuid:job_id>/MeasureReport.ndjson",
+        interop_bulk.ResearchBulkFileView,
+    ),
+]
+
+urlpatterns += [
+    endpoint("interop/patients/<uuid:patient_id>/pacs/", interop_pacs.PacsImportView),
+    endpoint("dicom-web/studies", interop_pacs.DicomWebView),
+    endpoint("dicom-web/studies/<str:study_uid>/<path:suffix>", interop_pacs.DicomWebView),
+]
+
+urlpatterns += [
+    endpoint("interop/hl7-receipts/<uuid:receipt_id>/", interop_hl7.HL7ReceiptDetailView)
+]
+
+urlpatterns += [endpoint("fhir/Binary/<uuid:resource_id>", fhir_gateway.FhirBinaryView)]

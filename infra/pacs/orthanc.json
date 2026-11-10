@@ -1,0 +1,14 @@
+{
+  "Name": "Claria synthetic PACS",
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "IndexDirectory": "/var/lib/orthanc/db",
+  "AuthenticationEnabled": true,
+  "RemoteAccessAllowed": true,
+  "HttpPort": 8042,
+  "DicomServerEnabled": false,
+  "ExecuteLuaEnabled": false,
+  "RestApiWriteToFileSystemEnabled": false,
+  "HttpDescribeErrors": false,
+  "Plugins": ["/usr/share/orthanc/plugins-available/libOrthancDicomWeb.so"],
+  "DicomWeb": {"Enable": true, "Root": "/dicom-web/", "EnableWado": false}
+}

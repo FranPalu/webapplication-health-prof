@@ -334,7 +334,17 @@ class FhirConsentView(FhirReadView):
                     }
                 ]
             },
-            "category": [{"text": consent.text_version.purpose}],
+            "category": [
+                {
+                    "coding": [{"system": LOINC_SYSTEM, "code": "59284-0"}],
+                    "text": consent.text_version.purpose,
+                }
+            ],
+            "policy": [
+                {
+                    "uri": f"urn:claria:consent-text:{consent.text_version_id}:{consent.text_version.content_hash}"
+                }
+            ],
             "patient": {"reference": f"Patient/{consent.patient_id}"},
             "dateTime": consent.created_at.isoformat(),
             "provision": {"type": "permit" if consent.decision == "granted" else "deny"},
